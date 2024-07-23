@@ -1,0 +1,5 @@
+#include "src/dynamic/dynamic.h"
+#include "src/dynamic/Compressor.h"
+#include "src/dynamic/Envelope.h"
+#include "src/dynamic/Expander.h"
+#include "src/dynamic/Limiter.h"

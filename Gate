@@ -1,0 +1,5 @@
+#include "src/gate/gate.h"
+#include "src/gate/Ducker.h"
+#include "src/gate/ExpanderGate.h"
+#include "src/gate/LookaheadGate.h"
+#include "src/gate/NoiseGate.h"

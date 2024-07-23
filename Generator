@@ -1,0 +1,5 @@
+#include "src/generator/generator.h"
+#include "src/generator/SineGenerator.h"
+#include "src/generator/SquareGenerator.h"
+#include "src/generator/TriangleGenerator.h"
+#include "src/generator/WhiteNoiseGenerator.h"

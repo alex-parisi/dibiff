@@ -1,0 +1,7 @@
+#include "src/effect/effect.h"
+#include "src/effect/Chorus.h"
+#include "src/effect/Flanger.h"
+#include "src/effect/Phaser.h"
+#include "src/effect/Reverb.h"
+#include "src/effect/Tremolo.h"
+#include "src/effect/Vibrato.h"

@@ -36,3 +36,6 @@
 
 # VS Code
 .vscode
+
+# Build folder
+build

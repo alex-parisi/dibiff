@@ -205,6 +205,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
             }
         }
         if (allSourcesFinished) {
+            std::cout << "All sources finished." << std::endl;
             break;
         }
         iter++;

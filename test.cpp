@@ -11,10 +11,10 @@ int main() {
     dibiff::graph::AudioGraph graph;
 
     /// Create sources
-    auto sineSource = graph.add(dibiff::source::SineSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(5), blockSize));
-    auto triangleSource = graph.add(dibiff::source::TriangleSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(5), blockSize));
-    auto squareSource = graph.add(dibiff::source::SquareSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(5), blockSize));
-    auto whiteNoiseSource = graph.add(dibiff::source::WhiteNoiseSource::create(-12.0f, sampleRate, std::chrono::seconds(5), blockSize));
+    auto sineSource = graph.add(dibiff::source::SineSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(10), blockSize));
+    auto triangleSource = graph.add(dibiff::source::TriangleSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(10), blockSize));
+    auto squareSource = graph.add(dibiff::source::SquareSource::create(-12.0f, 440.0f, sampleRate, std::chrono::seconds(10), blockSize));
+    auto whiteNoiseSource = graph.add(dibiff::source::WhiteNoiseSource::create(-12.0f, sampleRate, std::chrono::seconds(10), blockSize));
 
     /// Create mixer with 4 inputs
     /// TODO: move Mixer to a different namespace, it's not really level
@@ -28,7 +28,11 @@ int main() {
     auto wavSink4 = graph.add(dibiff::sink::WavWriter::create("whiteNoiseOutput.wav", sampleRate));
     auto wavSink5 = graph.add(dibiff::sink::WavWriter::create("mixerOutput.wav", sampleRate));
 
+    /// Create MidiInput
+    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize));
+
     /// Create AudioPlayer
+    /// TODO: AudioPlayer must be added to the graph last - WHY?!
     auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
 
     /// Connect sources to respective WavWriters

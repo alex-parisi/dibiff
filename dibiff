@@ -6,6 +6,7 @@
 #include "Generator"
 #include "Graph"
 #include "Level"
+#include "Midi"
 #include "Sink"
 #include "Source"
 #include "Time"

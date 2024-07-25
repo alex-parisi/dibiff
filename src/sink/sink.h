@@ -10,5 +10,6 @@ namespace dibiff {
      */
     namespace sink {
         class WavWriter;
+        class AudioPlayer;
     }
 }

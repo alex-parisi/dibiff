@@ -1,2 +1,3 @@
 #include "src/sink/sink.h"
 #include "src/sink/WavWriter.h"
+#include "src/sink/AudioPlayer.h"

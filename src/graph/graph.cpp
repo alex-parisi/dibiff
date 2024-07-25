@@ -6,8 +6,10 @@
 #include <unordered_set>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 #include "../generator/generator.h"
+#include "../sink/AudioPlayer.h"
 
 /**
  * Audio Input implementation
@@ -207,11 +209,26 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
         }
         iter++;
         if (realTime) {
-            auto endTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = endTime - startTime;
-            double sleepTime = blockDuration - elapsed.count();
-            if (sleepTime > 0) {
-                std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
+            /// First, pull out the audio player object
+            std::shared_ptr<dibiff::sink::AudioPlayer> audioPlayer = nullptr;
+            for (auto& obj : objects) {
+                if (auto o = std::dynamic_pointer_cast<dibiff::sink::AudioPlayer>(obj)) {
+                    audioPlayer = std::dynamic_pointer_cast<dibiff::sink::AudioPlayer>(obj);
+                    break;
+                }
+            }
+            if (audioPlayer == nullptr) {
+                std::cerr << ("Warning: Audio player not found in real-time mode.") << std::endl;
+                auto endTime = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> elapsed = endTime - startTime;
+                double sleepTime = blockDuration - elapsed.count();
+                if (sleepTime > 0) {
+                    std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
+                }
+            } else {
+                /// Wait for the audio player to finish processing
+                std::unique_lock<std::mutex> lock(audioPlayer->cv_mtx);
+                audioPlayer->cv.wait(lock);
             }
         }
     }

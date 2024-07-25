@@ -81,17 +81,17 @@ void dibiff::gate::NoiseGate::reset() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::gate::NoiseGate::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::gate::NoiseGate::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::gate::NoiseGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the noise gate is finished processing
  * @return True if the noise gate is finished processing, false otherwise

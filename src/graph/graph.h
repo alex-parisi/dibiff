@@ -6,6 +6,8 @@
 #include <vector>
 #include <optional>
 
+/// TODO: Put these in separate files
+
 namespace dibiff {
     /**
      * @brief Graph Namespace
@@ -15,7 +17,9 @@ namespace dibiff {
         class AudioObject;
         class AudioCompositeObject;
         class AudioInput;
+        class MidiInput;
         class AudioOutput;
+        class MidiOutput;
         class AudioReference;
         class AudioConnectionPoint;
         class AudioGraph;
@@ -43,9 +47,9 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         virtual void clear() = 0;
         virtual void process() = 0;
         virtual bool isReadyToProcess() const = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioOutput> getOutput() = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioReference> getReference() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() = 0;
         virtual bool isFinished() const = 0;
         virtual void initialize() = 0;
         virtual std::string getName() const = 0;
@@ -61,9 +65,9 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
  */
 class dibiff::graph::AudioCompositeObject : public std::enable_shared_from_this<AudioCompositeObject> {
     public:
-        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioOutput> getOutput() = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioReference> getReference() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() = 0;
         virtual void initialize() = 0;
         virtual std::string getName() const = 0;
         std::vector<std::shared_ptr<dibiff::graph::AudioObject>> objects;
@@ -84,6 +88,24 @@ class dibiff::graph::AudioInput : public dibiff::graph::AudioConnectionPoint, pu
         bool isReady() const;
         bool isFinished() const;
         std::optional<std::vector<float>> getData() const;
+        int getBlockSize() const;
+};
+/**
+ * @brief MIDI Input Connection Point
+ * @details A MIDI input connection point that can be used to connect MIDI objects
+ */
+class dibiff::graph::MidiInput : public dibiff::graph::AudioConnectionPoint, public std::enable_shared_from_this<MidiInput> {
+    public:
+        std::weak_ptr<dibiff::graph::MidiOutput> connectedOutput;
+        std::weak_ptr<dibiff::graph::AudioObject> parent;
+        MidiInput(std::weak_ptr<dibiff::graph::AudioObject> parent, std::string name) 
+        : dibiff::graph::AudioConnectionPoint(name), 
+          parent(parent) {};
+        void connect(std::weak_ptr<dibiff::graph::MidiOutput> output);
+        bool isConnected() const;
+        bool isReady() const;
+        bool isFinished() const;
+        std::optional<std::vector<std::vector<unsigned char>>> getData() const;
         int getBlockSize() const;
 };
 /**
@@ -125,6 +147,25 @@ class dibiff::graph::AudioOutput : public dibiff::graph::AudioConnectionPoint, p
         void connect(std::weak_ptr<dibiff::graph::AudioReference> refChannel);
 };
 /**
+ * @brief MIDI Output Connection Point
+ * @details A MIDI output connection point that can be used to connect MIDI objects
+ */
+class dibiff::graph::MidiOutput : public dibiff::graph::AudioConnectionPoint, public std::enable_shared_from_this<dibiff::graph::MidiOutput> {
+    public:
+        std::weak_ptr<dibiff::graph::AudioObject> parent;
+        std::vector<std::vector<unsigned char>> data;
+        int blockSize;
+        MidiOutput(std::weak_ptr<dibiff::graph::AudioObject> parent, std::string name)
+        : dibiff::graph::AudioConnectionPoint(name), 
+          parent(parent) {};
+        bool isProcessed() const;
+        bool isFinished() const;
+        void setData(std::vector<std::vector<unsigned char>>& midiData, int N);
+        std::vector<std::vector<unsigned char>> getData() const;
+        int getBlockSize() const;
+        void connect(std::weak_ptr<dibiff::graph::MidiInput> inChannel);
+};
+/**
  * @brief Audio Graph
  * @details An audio graph is a collection of audio objects that are connected
  * together to form a processing graph. The audio graph processes the audio
@@ -141,6 +182,7 @@ class dibiff::graph::AudioGraph {
         static void connect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioReference> refChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioReference> refChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
+        static void connect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2);
     private:
         std::vector<std::shared_ptr<dibiff::graph::AudioObject>> objects;
 };

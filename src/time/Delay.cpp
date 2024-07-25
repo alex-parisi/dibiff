@@ -78,17 +78,17 @@ void dibiff::time::Delay::clear() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::time::Delay::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::time::Delay::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::time::Delay::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::time::Delay::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::time::Delay::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::time::Delay::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the delay is finished processing
  * @return True if the delay is finished processing, false otherwise

@@ -60,17 +60,17 @@ void dibiff::generator::SineGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::generator::SineGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SineGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::generator::SineGenerator::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SineGenerator::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::generator::SineGenerator::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SineGenerator::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the filter is ready to process
  * @return True if the filter is ready to process, false otherwise

@@ -87,17 +87,17 @@ void dibiff::gate::ExpanderGate::reset() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::gate::ExpanderGate::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::gate::ExpanderGate::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::gate::ExpanderGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the expander gate is finished processing
  * @return True if the expander gate is finished processing, false otherwise

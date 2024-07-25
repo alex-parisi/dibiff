@@ -45,6 +45,39 @@ int dibiff::graph::AudioInput::getBlockSize() const {
     return 0;
 }
 /**
+ * MIDI Input implementation
+ */
+void dibiff::graph::MidiInput::connect(std::weak_ptr<dibiff::graph::MidiOutput> output) {
+    connectedOutput = output;
+}
+bool dibiff::graph::MidiInput::isConnected() const {
+    return !connectedOutput.expired();
+}
+bool dibiff::graph::MidiInput::isReady() const {
+    if (auto output = connectedOutput.lock()) {
+        return output->isProcessed();
+    }
+    return false;
+}
+bool dibiff::graph::MidiInput::isFinished() const {
+    if (auto output = connectedOutput.lock()) {
+        return output->isFinished();
+    }
+    return false;
+}
+std::optional<std::vector<std::vector<unsigned char>>> dibiff::graph::MidiInput::getData() const {
+    if (auto output = connectedOutput.lock()) {
+        return output->getData();
+    }
+    return std::nullopt;
+}
+int dibiff::graph::MidiInput::getBlockSize() const {
+    if (auto output = connectedOutput.lock()) {
+        return output->getBlockSize();
+    }
+    return 0;
+}
+/**
  * Audio Reference implementation
  */
 void dibiff::graph::AudioReference::connect(std::weak_ptr<dibiff::graph::AudioOutput> output) {
@@ -117,6 +150,40 @@ void dibiff::graph::AudioOutput::connect(std::weak_ptr<dibiff::graph::AudioRefer
             rC->connect(shared_from_this());
         } else {
             throw std::runtime_error("Reference already connected.");
+        }
+    }
+}
+/**
+ * MIDI Output implementation
+ */
+bool dibiff::graph::MidiOutput::isProcessed() const {
+    if (auto p = parent.lock()) {
+        return p->isProcessed();
+    }
+    return false;
+}
+bool dibiff::graph::MidiOutput::isFinished() const {
+    if (auto p = parent.lock()) {
+        return p->isFinished();
+    }
+    return false;
+}
+void dibiff::graph::MidiOutput::setData(std::vector<std::vector<unsigned char>>& audioData, int N) {
+    data = audioData;
+    blockSize = N;
+}
+std::vector<std::vector<unsigned char>> dibiff::graph::MidiOutput::getData() const {
+    return data;
+}
+int dibiff::graph::MidiOutput::getBlockSize() const {
+    return blockSize;
+}
+void dibiff::graph::MidiOutput::connect(std::weak_ptr<dibiff::graph::MidiInput> inChannel) {
+    if (auto iC = inChannel.lock()) {
+        if (!iC->isConnected()) {
+            iC->connect(shared_from_this());
+        } else {
+            throw std::runtime_error("Input already connected.");
         }
     }
 }
@@ -281,4 +348,40 @@ void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioInput>
  */
 void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioReference> refChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel) {
     connect(outChannel, refChannel);
+}
+/**
+ * @brief Connect two audio objects
+ * @details Connects two audio objects together
+ * @param refChannel The reference channel
+ * @param outChannel The output channel
+ */
+void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2) {
+    /// MIDI Out -> MIDI In?
+    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt1.lock())) {
+        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt2.lock())) {
+            pt2Midi->connect(pt1Midi);
+            return;
+        }
+    }
+    /// MIDI In -> MIDI Out?
+    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt1.lock())) {
+        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt2.lock())) {
+            pt2Midi->connect(pt1Midi);
+            return;
+        }
+    }
+    /// Audio In -> Audio Out?
+    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt1.lock())) {
+        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt2.lock())) {
+            pt2Audio->connect(pt1Audio);
+            return;
+        }
+    }
+    /// Audio Out -> Audio In?
+    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt1.lock())) {
+        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt2.lock())) {
+            pt2Audio->connect(pt1Audio);
+            return;
+        }
+    }
 }

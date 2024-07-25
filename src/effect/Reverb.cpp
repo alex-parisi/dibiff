@@ -97,17 +97,17 @@ void dibiff::effect::Reverb::clear() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::effect::Reverb::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::effect::Reverb::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::effect::Reverb::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the reverb is finished processing
  * @return True if the reverb is finished processing, false otherwise

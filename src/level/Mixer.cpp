@@ -60,17 +60,17 @@ void dibiff::level::Mixer::process() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::level::Mixer::getInput(int i) { return inputs[i]; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getInput(int i) { return inputs[i]; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::level::Mixer::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::level::Mixer::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the mixer is finished processing
  * @return True if the mixer is finished processing, false otherwise

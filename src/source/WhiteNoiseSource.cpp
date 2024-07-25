@@ -34,17 +34,17 @@ void dibiff::source::WhiteNoiseSource::initialize() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::source::WhiteNoiseSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::source::WhiteNoiseSource::getOutput() { return gain->getOutput(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSource::getOutput() { return gain->getOutput(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::source::WhiteNoiseSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * Create a new white noise source object
  * @param rate The sample rate of the white noise

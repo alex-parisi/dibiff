@@ -62,17 +62,17 @@ class dibiff::filter::AdaptiveFilter : public dibiff::graph::AudioObject {
          * @brief Get the input connection point.
          * @return A shared pointer to the input connection point.
          */
-        std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) override;
+        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
         /**
          * @brief Get the output connection point.
          * @return A shared pointer to the output connection point.
          */
-        std::weak_ptr<dibiff::graph::AudioOutput> getOutput() override;
+        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput() override;
         /**
          * @brief Get the reference connection point.
          * @return Not used.
          */
-        std::weak_ptr<dibiff::graph::AudioReference> getReference() override;
+        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
         /**
          * @brief Check if the filter is finished processing
          * @return True if the filter is finished processing, false otherwise

@@ -57,17 +57,17 @@ void dibiff::sink::WavWriter::process() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::sink::WavWriter::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::sink::WavWriter::getOutput() { return std::weak_ptr<dibiff::graph::AudioOutput>(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getOutput() { return std::weak_ptr<dibiff::graph::AudioOutput>(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::sink::WavWriter::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); }
 /**
  * @brief Check if the WavSink is finished processing
  * @return True if the WavSink is finished processing, false otherwise

@@ -36,17 +36,17 @@ void dibiff::source::SquareSource::initialize() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::source::SquareSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::source::SquareSource::getOutput() { return gain->getOutput(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource::getOutput() { return gain->getOutput(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::source::SquareSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * Create a new square wave source object
  * @param freq The frequency of the square wave

@@ -97,17 +97,17 @@ void dibiff::filter::AdaptiveFilter::clear() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::filter::AdaptiveFilter::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::filter::AdaptiveFilter::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::filter::AdaptiveFilter::getReference() { return reference; };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getReference() { return reference; };
 /**
  * @brief Check if the filter is finished processing
  * @return True if the filter is finished processing, false otherwise

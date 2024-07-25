@@ -64,15 +64,15 @@ void dibiff::sink::AudioPlayer::dataCallback(ma_device* pDevice, void* pOutput, 
     audioPlayer->cv.notify_one();
 }
 
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::sink::AudioPlayer::getInput(int i) {
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::getInput(int i) {
     return input;
 }
 
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::sink::AudioPlayer::getOutput() {
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::getOutput() {
     return std::weak_ptr<dibiff::graph::AudioOutput>();
 }
 
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::sink::AudioPlayer::getReference() {
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::getReference() {
     return std::weak_ptr<dibiff::graph::AudioReference>();
 }
 

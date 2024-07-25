@@ -21,7 +21,7 @@ dibiff::midi::MidiInput::MidiInput(int blockSize, int portNum)
  * @details Initializes the MIDI input object
  */
 void dibiff::midi::MidiInput::initialize() {
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "MidiInputOutput"));
+    output = std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "MidiInputOutput"));
     midiIn = std::make_unique<RtMidiIn>();
     // Check inputs.
     unsigned int nPorts = midiIn->getPortCount();
@@ -50,28 +50,29 @@ void dibiff::midi::MidiInput::initialize() {
  */
 void dibiff::midi::MidiInput::process() {
     std::vector<unsigned char> message;
+    std::vector<std::vector<unsigned char>> messages;
     while (midiIn->getMessage(&message) > 0) {
+        messages.push_back(message);
         processMidiMessage(message);
     }
-    std::vector<float> out(blockSize, 0.0f);
-    output->setData(out, blockSize);
+    output->setData(messages, blockSize);
     markProcessed();
 }
 /**
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::midi::MidiInput::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::midi::MidiInput::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getOutput() { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::midi::MidiInput::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the filter is ready to process
  * @return True if the filter is ready to process, false otherwise

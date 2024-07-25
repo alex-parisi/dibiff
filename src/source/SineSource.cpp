@@ -35,17 +35,17 @@ void dibiff::source::SineSource::initialize() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::source::SineSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SineSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioOutput> dibiff::source::SineSource::getOutput() { return gain->getOutput(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SineSource::getOutput() { return gain->getOutput(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioReference> dibiff::source::SineSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SineSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * Create a new sine wave source object
  * @param freq The frequency of the sine wave

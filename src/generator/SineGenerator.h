@@ -16,6 +16,7 @@
  * @param blockSize The block size of the sine wave
  */
 class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
+    std::shared_ptr<dibiff::graph::MidiInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**

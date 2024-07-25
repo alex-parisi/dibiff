@@ -77,6 +77,4 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
     private:
         int blockSize;
         int portNum;
-        std::string getNoteName(int noteNumber);
-        void processMidiMessage(const std::vector<unsigned char>& message);
 };

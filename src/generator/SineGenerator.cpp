@@ -25,6 +25,7 @@ dibiff::generator::SineGenerator::SineGenerator(float freq, float rate, int samp
  * @details Initializes the sine wave source connection points
  */
 void dibiff::generator::SineGenerator::initialize() {
+    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SineGeneratorMidiInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "SineGeneratorOutput"));
 }
 /**
@@ -32,18 +33,31 @@ void dibiff::generator::SineGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SineGenerator::process() {
-    if (totalSamples != -1 && currentSample >= totalSamples) {
-        return;
+    if (input->isConnected() && input->isReady()) {
+        auto midiData = *input->getData();
+        for (const auto& message : midiData) {
+            processMidiMessage(message);
+        }
     }
-    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, currentSample, currentSample + blockSize - 1);
-    Eigen::VectorXf audioData = (2.0f * M_PI * frequency * indices / sampleRate).array().sin();
-    // Update currentSample to reflect the processed block
-    currentSample += blockSize;
-    // Check if the current sample exceeds the total number of samples
-    if (totalSamples != -1 && currentSample > totalSamples) {
-        audioData.conservativeResize(totalSamples - currentSample + blockSize);
+    // Determine if the generator is active and the current frequency
+    bool active = input->isConnected() ? getIsActive() : true;
+    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
+    // Prepare the output buffer
+    Eigen::VectorXf audioData(blockSize);
+    if (active) {
+        // Generate the sine wave if active
+        Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, currentSample, currentSample + blockSize - 1);
+        audioData = (2.0f * M_PI * currentFrequency * indices / sampleRate).array().sin();
+        currentSample += blockSize;
+
+        if (totalSamples != -1 && currentSample > totalSamples) {
+            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+        }
+    } else {
+        // Fill the buffer with zeros if inactive
+        audioData.setZero();
     }
-    // Convert Eigen::VectorXf to std::vector<float>
+    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();
@@ -60,7 +74,7 @@ void dibiff::generator::SineGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SineGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SineGenerator::getInput(int i) { return input; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

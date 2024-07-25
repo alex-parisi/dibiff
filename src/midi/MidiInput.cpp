@@ -53,7 +53,6 @@ void dibiff::midi::MidiInput::process() {
     std::vector<std::vector<unsigned char>> messages;
     while (midiIn->getMessage(&message) > 0) {
         messages.push_back(message);
-        processMidiMessage(message);
     }
     output->setData(messages, blockSize);
     markProcessed();
@@ -94,39 +93,4 @@ std::shared_ptr<dibiff::midi::MidiInput> dibiff::midi::MidiInput::create(int blo
     auto instance = std::make_shared<dibiff::midi::MidiInput>(blockSize, portNum);
     instance->initialize();
     return instance;
-}
-
-
-
-
-// Function to convert MIDI note number to musical note name
-std::string dibiff::midi::MidiInput::getNoteName(int noteNumber) {
-    static const std::string noteNames[] = {
-        "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-    };
-    int octave = noteNumber / 12 - 1;
-    int noteIndex = noteNumber % 12;
-    return noteNames[noteIndex] + std::to_string(octave);
-}
-
-void dibiff::midi::MidiInput::processMidiMessage(const std::vector<unsigned char>& message) {
-    if (message.empty()) return;
-
-    unsigned char status = message[0];
-    unsigned char type = status & 0xF0;
-    unsigned char channel = status & 0x0F;
-
-    if (type == 0x90 || type == 0x80) { // Note-on or Note-off
-        unsigned char noteNumber = message[1];
-        unsigned char velocity = message[2];
-        std::string noteName = getNoteName(noteNumber);
-
-        if (type == 0x90 && velocity > 0) {
-            std::cout << "Note On: " << noteName << " (Velocity: " << (int)velocity << ") on Channel " << (int)channel << std::endl;
-        } else {
-            std::cout << "Note Off: " << noteName << " on Channel " << (int)channel << std::endl;
-        }
-    } else {
-        std::cout << "Other MIDI message" << std::endl;
-    }
 }

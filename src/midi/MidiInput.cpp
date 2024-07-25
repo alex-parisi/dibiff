@@ -39,7 +39,7 @@ void dibiff::midi::MidiInput::initialize() {
     try {
         midiIn->openPort(portNum);
     } catch ( RtMidiError &error ) {
-        error.printMessage();
+        throw error;
     }
     /// Don't ignore sysex, timing, or active sensing messages.
     midiIn->ignoreTypes( false, false, false );

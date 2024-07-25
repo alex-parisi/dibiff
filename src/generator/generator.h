@@ -59,22 +59,15 @@ class dibiff::generator::Generator : public dibiff::graph::AudioObject {
             if (type == 0x90 || type == 0x80) { // Note-on or Note-off
                 unsigned char noteNumber = message[1];
                 unsigned char velocity = message[2];
-
                 if (type == 0x90 && velocity > 0) {
                     // Note On: Calculate frequency and activate the generator
                     frequency = midiNoteToFrequency(noteNumber);
                     isActive = true;
-                    std::cout << "Note On: " << getNoteName(noteNumber) 
-                            << " (Frequency: " << frequency << " Hz, Velocity: " << (int)velocity << ")" 
-                            << " on Channel " << (int)channel << std::endl;
                 } else {
                     // Note Off: Deactivate the generator
                     isActive = false;
-                    std::cout << "Note Off: " << getNoteName(noteNumber) 
-                            << " on Channel " << (int)channel << std::endl;
                 }
             } else {
-                std::cout << "Other MIDI message" << std::endl;
             }
         }
 

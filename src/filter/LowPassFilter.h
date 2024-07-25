@@ -16,7 +16,7 @@
  * @return A low pass filter object
  * @see DigitalBiquadFilter
  */
-class dibiff::filter::LowPassFilter : private dibiff::filter::DigitalBiquadFilter {
+class dibiff::filter::LowPassFilter : public dibiff::filter::DigitalBiquadFilter {
     public:
         /**
          * @brief Get the name of the object

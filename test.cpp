@@ -17,6 +17,7 @@ int main() {
     auto whiteNoiseSource = graph.add(dibiff::source::WhiteNoiseSource::create(-12.0f, sampleRate, std::chrono::seconds(5), blockSize));
 
     /// Create mixer with 4 inputs
+    /// TODO: move Mixer to a different namespace, it's not really level
     auto mixer = graph.add(dibiff::level::Mixer::create(4));
 
     /// Create WavWriters

@@ -4,8 +4,9 @@
 
 #include "midi.h"
 #include "../graph/graph.h"
-
 #include "RtMidi.h"
+#include <vector>
+#include <mutex>
 
 /**
  * @brief MIDI Input
@@ -14,6 +15,10 @@
 class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::MidiOutput> output;
     std::unique_ptr<RtMidiIn> midiIn;
+    std::vector<std::vector<unsigned char>> midiEvents;
+    std::mutex midiMutex;
+    // Callback function to handle incoming MIDI messages
+    static void midiCallback(double deltatime, std::vector<unsigned char> *message, void *userData);
     public:
         /**
          * @brief Get the name of the object
@@ -66,8 +71,8 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
          */
         bool isReadyToProcess() const override;
         /**
-         * @brief Check if the sine wave source is finished
-         * @return True if the sine wave source has finished generating samples, false otherwise
+         * @brief Check if the MIDI input has finished generating samples
+         * @return True if the MIDI input has finished generating samples, false otherwise
          */
         bool isFinished() const override;
         /**

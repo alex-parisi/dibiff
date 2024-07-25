@@ -101,4 +101,5 @@ class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
         int currentSample;
         int totalSamples;
         int blockSize;
+        bool previousActive;
 };

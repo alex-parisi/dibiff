@@ -19,7 +19,7 @@ std::string dibiff::generator::SineGenerator::getName() const { return "SineGene
  */
 dibiff::generator::SineGenerator::SineGenerator(float freq, float rate, int samples, int blockSize)
 : dibiff::generator::Generator(), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize) {};
+    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
 /**
  * @brief Initialize
  * @details Initializes the sine wave source connection points
@@ -42,6 +42,11 @@ void dibiff::generator::SineGenerator::process() {
     // Determine if the generator is active and the current frequency
     bool active = input->isConnected() ? getIsActive() : true;
     float currentFrequency = input->isConnected() ? getFrequency() : frequency;
+    // Check for rising edge of active
+    if (active && !previousActive) {
+        currentSample = 0;
+    }
+    previousActive = active;
     // Prepare the output buffer
     Eigen::VectorXf audioData(blockSize);
     if (active) {

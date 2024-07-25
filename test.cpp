@@ -13,6 +13,9 @@ int main() {
     /// Create SineGenerator
     auto sineGen = graph.add(dibiff::generator::SineGenerator::create(440.0f, sampleRate, -1, blockSize));
 
+    /// Create the WavWriter
+    auto wavWriter = graph.add(dibiff::sink::WavWriter::create("midiOutput.wav", sampleRate));
+
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
     auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
@@ -20,6 +23,7 @@ int main() {
     /// Connect everything
     graph.connect(midiInput->getOutput(), sineGen->getInput());
     graph.connect(sineGen->getOutput(), audioPlayer->getInput());
+    graph.connect(sineGen->getOutput(), wavWriter->getInput());
 
     /// Run the graph
     graph.run(true);

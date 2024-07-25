@@ -64,7 +64,7 @@ void dibiff::sink::AudioPlayer::dataCallback(ma_device* pDevice, void* pOutput, 
     audioPlayer->cv.notify_one();
 }
 
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::sink::AudioPlayer::getInput() {
+std::weak_ptr<dibiff::graph::AudioInput> dibiff::sink::AudioPlayer::getInput(int i) {
     return input;
 }
 

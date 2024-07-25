@@ -35,7 +35,7 @@ void dibiff::source::SineSource::initialize() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::source::SineSource::getInput() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioInput> dibiff::source::SineSource::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

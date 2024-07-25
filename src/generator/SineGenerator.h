@@ -57,7 +57,7 @@ class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
          * @brief Get the input connection point.
          * @return Not used.
          */
-        std::weak_ptr<dibiff::graph::AudioInput> getInput() override;
+        std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) override;
         /**
          * @brief Get the output connection point.
          * @return A shared pointer to the output connection point.

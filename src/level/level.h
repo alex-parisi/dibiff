@@ -11,5 +11,6 @@ namespace dibiff {
     namespace level {
         class Gain;
         class AutomaticGainControl;
+        class Mixer;
     }
 }

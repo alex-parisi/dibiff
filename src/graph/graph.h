@@ -43,7 +43,7 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         virtual void clear() = 0;
         virtual void process() = 0;
         virtual bool isReadyToProcess() const = 0;
-        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) = 0;
         virtual std::weak_ptr<dibiff::graph::AudioOutput> getOutput() = 0;
         virtual std::weak_ptr<dibiff::graph::AudioReference> getReference() = 0;
         virtual bool isFinished() const = 0;
@@ -61,7 +61,7 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
  */
 class dibiff::graph::AudioCompositeObject : public std::enable_shared_from_this<AudioCompositeObject> {
     public:
-        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput() = 0;
+        virtual std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) = 0;
         virtual std::weak_ptr<dibiff::graph::AudioOutput> getOutput() = 0;
         virtual std::weak_ptr<dibiff::graph::AudioReference> getReference() = 0;
         virtual void initialize() = 0;

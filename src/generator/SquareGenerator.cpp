@@ -64,7 +64,7 @@ void dibiff::generator::SquareGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::generator::SquareGenerator::getInput() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioInput> dibiff::generator::SquareGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

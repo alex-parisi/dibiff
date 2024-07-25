@@ -69,7 +69,7 @@ class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
          * @brief Get the input connection point.
          * @return A shared pointer to the input connection point.
          */
-        std::weak_ptr<dibiff::graph::AudioInput> getInput() override;
+        std::weak_ptr<dibiff::graph::AudioInput> getInput(int i = 0) override;
         /**
          * @brief Get the output connection point.
          * @return A shared pointer to the output connection point.

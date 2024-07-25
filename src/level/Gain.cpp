@@ -59,7 +59,7 @@ void dibiff::level::Gain::process() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::level::Gain::getInput() { return input; }
+std::weak_ptr<dibiff::graph::AudioInput> dibiff::level::Gain::getInput(int i) { return input; }
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

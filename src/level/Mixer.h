@@ -1,4 +1,4 @@
-/// Gain.h
+/// Mixer.h
 
 #pragma once
 
@@ -6,14 +6,14 @@
 #include "../graph/graph.h"
 
 /**
- * @brief Gain
- * @details A static gain object is a simple object that multiplies the input by a
+ * @brief Mixer
+ * @details A static mixer object is a simple object that multiplies the input by a
  * certain value. The value is in dB.
- * @param value The gain of the object in dB
- * @return A gain object
+ * @param value The mixer of the object in dB
+ * @return A mixer object
  */
-class dibiff::level::Gain : public dibiff::graph::AudioObject {
-    std::shared_ptr<dibiff::graph::AudioInput> input;
+class dibiff::level::Mixer : public dibiff::graph::AudioObject {
+    std::vector<std::shared_ptr<dibiff::graph::AudioInput>> inputs;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
@@ -23,21 +23,14 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
         std::string getName() const override;
         /**
          * @brief Constructor
-         * @details Initializes the gain object with a certain value
-         * @param value The gain of the object in dB
+         * @details Initializes the mixer object with a certain value
          */
-        Gain(float value);
+        Mixer(int numInputs = 1);
         /**
          * @brief Initialize
-         * @details Initializes the gain connection points
+         * @details Initializes the mixer connection points
          */
         void initialize() override;
-        /**
-         * @brief Process a sample
-         * @details Processes a single sample of audio data
-         * @param sample The input sample
-         */
-        float process(float sample);
         /**
          * @brief Process a block of samples
          * @details Processes a block of audio data
@@ -69,8 +62,8 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          */
         std::weak_ptr<dibiff::graph::AudioReference> getReference() override;
         /**
-         * @brief Check if the gain is finished processing
-         * @return True if the gain is finished processing, false otherwise
+         * @brief Check if the mixer is finished processing
+         * @return True if the mixer is finished processing, false otherwise
          */
         bool isFinished() const override;
         /**
@@ -79,10 +72,10 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          */
         bool isReadyToProcess() const override;
         /**
-         * Create a new gain object
-         * @param value The gain of the object in dB
+         * Create a new mixer object
+         * @param value The mixer of the object in dB
          */
-        static std::shared_ptr<Gain> create(float value);
+        static std::shared_ptr<Mixer> create(int numInputs = 1);
     private:
-        float value;
+        int numInputs;
 };

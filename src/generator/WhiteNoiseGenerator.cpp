@@ -58,7 +58,7 @@ void dibiff::generator::WhiteNoiseGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioInput> dibiff::generator::WhiteNoiseGenerator::getInput() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioInput> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

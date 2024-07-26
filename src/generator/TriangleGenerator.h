@@ -28,12 +28,12 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
          * @brief Constructor
          * @details Initializes the triangle wave source with a certain frequency,
          * sample rate, total number of samples, and block size
-         * @param freq The frequency of the triangle wave
-         * @param rate The sample rate of the triangle wave
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the triangle wave
+         * @param sampleRate The sample rate of the triangle wave
+         * @param frequency The frequency of the triangle wave
+         * @param totalSamples The total number of samples to generate
          */
-        TriangleGenerator(float freq, float rate, int samples, int blockSize, int numVoices = 1);
+        TriangleGenerator(int blockSize, int sampleRate, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * @brief Initialize
          * @details Initializes the triangle wave source connection points
@@ -81,25 +81,24 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
         bool isFinished() const override;
         /**
          * Create a new triangle wave source object
-         * @param freq The frequency of the triangle wave
-         * @param rate The sample rate of the triangle wave
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the triangle wave
+         * @param sampleRate The sample rate of the triangle wave
+         * @param frequency The frequency of the triangle wave
+         * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<TriangleGenerator> create(float freq, float rate, int samples, int blockSize, int numVoices = 1);
+        static std::shared_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * Create a new triangle wave source object
-         * @param freq The frequency of the triangle wave
-         * @param rate The sample rate of the triangle wave
-         * @param duration The total number of samples to generate
          * @param blockSize The block size of the triangle wave
+         * @param sampleRate The sample rate of the triangle wave
+         * @param frequency The frequency of the triangle wave
+         * @param duration The total duration of samples to generate
          */
-        static std::shared_ptr<TriangleGenerator> create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices = 1);
+        static std::shared_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration);
     private:
-        float frequency;
-        float sampleRate;
-        int currentSample;
-        int totalSamples;
         int blockSize;
-        bool previousActive;
+        int sampleRate;
+        float frequency;
+        int totalSamples;
+        int currentSample;
 };

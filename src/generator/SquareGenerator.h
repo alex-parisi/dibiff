@@ -29,13 +29,13 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @brief Constructor
          * @details Initializes the square wave source with a certain frequency,
          * sample rate, total number of samples, block size, and duty cycle
-         * @param freq The frequency of the square wave
-         * @param rate The sample rate of the square wave
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the square wave
+         * @param sampleRate The sample rate of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+         * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+         * @param totalSamples The total number of samples to generate
          */
-        SquareGenerator(float freq, float rate, int samples, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
+        SquareGenerator(int blockSize, int sampleRate, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * @brief Initialize
          * @details Initializes the square wave source connection points
@@ -83,28 +83,27 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
         bool isFinished() const override;
         /**
          * Create a new square wave source object
-         * @param freq The frequency of the square wave
-         * @param rate The sample rate of the square wave
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the square wave
+         * @param sampleRate The sample rate of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+         * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+         * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<SquareGenerator> create(float freq, float rate, int samples, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
+        static std::shared_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * Create a new square wave source object
-         * @param freq The frequency of the square wave
-         * @param rate The sample rate of the square wave
-         * @param duration The total number of samples to generate
          * @param blockSize The block size of the square wave
+         * @param sampleRate The sample rate of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+         * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+         * @param duration The length of time to generate samples
          */
-        static std::shared_ptr<SquareGenerator> create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
+        static std::shared_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration);
     private:
-        float frequency;
-        float sampleRate;
-        int currentSample;
-        int totalSamples;
         int blockSize;
+        int sampleRate;
         float dutyCycle;
-        bool previousActive;
+        float frequency;
+        int totalSamples;
+        int currentSample;
 };

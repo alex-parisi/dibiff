@@ -12,21 +12,19 @@ std::string dibiff::generator::WhiteNoiseGenerator::getName() const { return "Wh
  * @brief Constructor
  * @details Initializes the white noise source with a certain frequency,
  * sample rate, total number of samples, and block size
- * @param freq The frequency of the white noise
- * @param rate The sample rate of the white noise
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the white noise
+ * @param sampleRate The sample rate of the white noise
+ * @param totalSamples The total number of samples to generate
  */
-dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(float rate, int samples, int blockSize)
+dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(int blockSize, int sampleRate, int totalSamples)
 : dibiff::generator::Generator(), 
     engine(rd()), distribution(-1.0f, 1.0f),
-    sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
+    blockSize(blockSize), sampleRate(sampleRate), totalSamples(totalSamples) {}
 /**
  * @brief Initialize
  * @details Initializes the white noise source connection points
  */
 void dibiff::generator::WhiteNoiseGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "WhiteNoiseGeneratorMidiInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "WhiteNoiseGeneratorOutput"));
 }
 /**
@@ -34,39 +32,16 @@ void dibiff::generator::WhiteNoiseGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::WhiteNoiseGenerator::process() {
-    if (totalSamples != -1 && currentSample >= totalSamples) {
-        return;
-    }
-    if (input->isConnected() && input->isReady()) {
-        auto midiData = *input->getData();
-        for (const auto& message : midiData) {
-            processMidiMessage(message);
-        }
-    }
-    // Determine if the generator is active and the current frequency
-    bool active = input->isConnected() ? getIsActive() : true;
-    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
-    // Check for rising edge of active
-    if (active && !previousActive) {
-        currentSample = 0;
-    }
-    previousActive = active;
-    // Prepare the output buffer
+    /// Generate White Noise samples
     Eigen::VectorXf audioData(blockSize);
-    if (active) {
-        // Generate the white noise if active
-        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-        // Generate random numbers using Eigen's random number generation capabilities
-        audioData = Eigen::VectorXf::NullaryExpr(effectiveBlockSize, [&]() { return distribution(engine); });
-        // Convert Eigen::VectorXf to std::vector<float>
-        currentSample += effectiveBlockSize;
-
-        if (totalSamples != -1 && currentSample > totalSamples) {
-            audioData.conservativeResize(totalSamples - currentSample + blockSize);
-        }
-    } else {
-        // Fill the buffer with zeros if inactive
-        audioData.setZero();
+    audioData.setZero();
+    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+    // Generate random numbers using Eigen's random number generation capabilities
+    audioData = Eigen::VectorXf::NullaryExpr(effectiveBlockSize, [&]() { return distribution(engine); });
+    currentSample += effectiveBlockSize;
+    /// Preserve size if we've exceeded the total number of samples
+    if (totalSamples != -1 && currentSample > totalSamples) {
+        audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
     // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
@@ -85,7 +60,7 @@ void dibiff::generator::WhiteNoiseGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return input; };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>();; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
@@ -118,26 +93,24 @@ bool dibiff::generator::WhiteNoiseGenerator::isFinished() const {
 }
 /**
  * Create a new white noise source object
- * @param freq The frequency of the white noise
- * @param rate The sample rate of the white noise
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the white noise
+ * @param sampleRate The sample rate of the white noise
+ * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(float rate, int samples, int blockSize) {
-    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(rate, samples, blockSize);
+std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, int totalSamples) {
+    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
     instance->initialize();
     return instance;
 }
 /**
  * Create a new white noise source object
- * @param freq The frequency of the white noise
- * @param rate The sample rate of the white noise
- * @param duration The total duration of samples to generate
  * @param blockSize The block size of the white noise
+ * @param sampleRate The sample rate of the white noise
+ * @param duration The total duration of samples to generate
  */
-std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(float rate, std::chrono::duration<float> duration, int blockSize) {
-    int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(rate, samples, blockSize);
+std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, std::chrono::duration<int> duration) {
+    int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
+    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
     instance->initialize();
     return instance;
 }

@@ -26,14 +26,14 @@ class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
         std::string getName() const override;
         /**
          * @brief Constructor
-         * @details Initializes the sine wave source with a certain frequency,
-         * sample rate, total number of samples, and block size
-         * @param freq The frequency of the sine wave
-         * @param rate The sample rate of the sine wave
-         * @param samples The total number of samples to generate
+         * @details Initializes the sine wave source with a sample rate, 
+         * total number of samples, and block size
          * @param blockSize The block size of the sine wave
+         * @param sampleRate The sample rate of the sine wave
+         * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
+         * @param totalSamples The total number of samples to generate
          */
-        SineGenerator(float freq, float rate, int samples, int blockSize, int numVoices = 1);
+        SineGenerator(int blockSize, int sampleRate, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * @brief Initialize
          * @details Initializes the sine wave source connection points
@@ -81,25 +81,24 @@ class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
         bool isFinished() const override;
         /**
          * Create a new sine wave source object
-         * @param freq The frequency of the sine wave
          * @param rate The sample rate of the sine wave
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the sine wave
+         * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
+         * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<SineGenerator> create(float freq, float rate, int samples, int blockSize, int numVoices = 1);
+        static std::shared_ptr<SineGenerator> create(int blockSize, float sampleRate, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * Create a new sine wave source object
-         * @param freq The frequency of the sine wave
          * @param rate The sample rate of the sine wave
-         * @param duration The total duration of samples to generate
          * @param blockSize The block size of the sine wave
+         * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
+         * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<SineGenerator> create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices = 1);
+        static std::shared_ptr<SineGenerator> create(int blockSize, float sampleRate, float frequency, std::chrono::duration<int> duration);
     private:
-        float frequency;
-        float sampleRate;
-        int currentSample;
-        int totalSamples;
         int blockSize;
-        bool previousActive;
+        int sampleRate;
+        float frequency;
+        int totalSamples;
+        int currentSample;
 };

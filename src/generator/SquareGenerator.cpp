@@ -12,15 +12,15 @@ std::string dibiff::generator::SquareGenerator::getName() const { return "Square
  * @brief Constructor
  * @details Initializes the square wave source with a certain frequency,
  * sample rate, total number of samples, block size, and duty cycle
- * @param freq The frequency of the square wave
- * @param rate The sample rate of the square wave
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the square wave
+ * @param sampleRate The sample rate of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+ * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+ * @param totalSamples The total number of samples to generate
  */
-dibiff::generator::SquareGenerator::SquareGenerator(float freq, float rate, int samples, int blockSize, int numVoices, float dutyCycle)
-: dibiff::generator::Generator(numVoices, rate, blockSize), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), dutyCycle(dutyCycle), previousActive(false) {};
+dibiff::generator::SquareGenerator::SquareGenerator(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples)
+: dibiff::generator::Generator(), 
+  blockSize(blockSize), sampleRate(sampleRate), dutyCycle(dutyCycle), frequency(frequency), totalSamples(totalSamples) {}
 /**
  * @brief Initialize
  * @details Initializes the square wave source connection points
@@ -34,46 +34,36 @@ void dibiff::generator::SquareGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SquareGenerator::process() {
+    /// If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
+    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    float freq = frequency;
     if (input->isConnected() && input->isReady()) {
         auto midiData = *input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
+        freq = midiFrequency;
     }
-
-
+    /// Generate Square Wave samples at the specified frequency
     Eigen::VectorXf audioData(blockSize);
     audioData.setZero();
-    int activeVoices = 0;
-    {
-        std::lock_guard<std::mutex> lock(voiceMutex);
-        for (auto& voice : voices) {
-            if (voice.active) {
-                activeVoices++;
-                // Generate the square wave if active
-                // Calculate the period of the wave in samples
-                const float period = voice.sampleRate / voice.frequency;
-                int effectiveBlockSize = (voice.totalSamples == -1) ? blockSize : std::min(blockSize, voice.totalSamples - voice.currentSample);
-                // Generate indices for the current block
-                Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, voice.currentSample, voice.currentSample + effectiveBlockSize - 1);
-                // Calculate phase for each sample using Eigen's array operations
-                Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
-                // Calculate the square wave values based on the phase and duty cycle
-                Eigen::VectorXf voiceData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
-                audioData += voiceData;
-                voice.currentSample += blockSize;
-
-                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
-                    voice.active = false;
-                }
-            }
-        }
+    // Calculate the period of the wave in samples
+    const float period = sampleRate / freq;
+    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+    // Generate indices for the current block
+    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, currentSample, currentSample + effectiveBlockSize - 1);
+    // Calculate phase for each sample using Eigen's array operations
+    Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
+    // Calculate the square wave values based on the phase and duty cycle
+    audioData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
+    currentSample += effectiveBlockSize;
+    /// Preserve size if we've exceeded the total number of samples
+    if (totalSamples != -1 && currentSample > totalSamples) {
+        audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
-    audioData /= activeVoices;
-    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();
@@ -123,28 +113,28 @@ bool dibiff::generator::SquareGenerator::isFinished() const {
 }
 /**
  * Create a new square wave source object
- * @param freq The frequency of the square wave
- * @param rate The sample rate of the square wave
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the square wave
+ * @param sampleRate The sample rate of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+ * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+ * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices, float dutyCycle) {
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, numVoices, dutyCycle);
+std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples) {
+    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, totalSamples);
     instance->initialize();
     return instance;
 }
 /**
  * Create a new square wave source object
- * @param freq The frequency of the square wave
- * @param rate The sample rate of the square wave
- * @param duration The total number of samples to generate
  * @param blockSize The block size of the square wave
+ * @param sampleRate The sample rate of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
+ * @param frequency The frequency of the square wave, used if the MIDI input is not connected
+ * @param duration The length of time to generate samples
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices, float dutyCycle) {
-    int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, numVoices, dutyCycle);
+std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration) {
+    int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
+    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, samples);
     instance->initialize();
     return instance;
 }

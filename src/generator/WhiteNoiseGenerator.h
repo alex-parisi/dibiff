@@ -12,7 +12,6 @@
  * noise with a certain sample rate, total number of samples, and block size.
  */
 class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generator {
-    std::shared_ptr<dibiff::graph::MidiInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
@@ -24,12 +23,11 @@ class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generat
          * @brief Constructor
          * @details Initializes the white noise source with a certain frequency,
          * sample rate, total number of samples, and block size
-         * @param freq The frequency of the white noise
-         * @param rate The sample rate of the white noise
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the white noise
+         * @param sampleRate The sample rate of the white noise
+         * @param totalSamples The total number of samples to generate
          */
-        WhiteNoiseGenerator(float rate, int samples, int blockSize);
+        WhiteNoiseGenerator(int blockSize, int sampleRate, int totalSamples = -1);
         /**
          * @brief Initialize
          * @details Initializes the white noise source connection points
@@ -77,27 +75,24 @@ class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generat
         bool isFinished() const override;
         /**
          * Create a new white noise source object
-         * @param freq The frequency of the white noise
-         * @param rate The sample rate of the white noise
-         * @param samples The total number of samples to generate
          * @param blockSize The block size of the white noise
+         * @param sampleRate The sample rate of the white noise
+         * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<WhiteNoiseGenerator> create(float rate, int samples, int blockSize);
+        static std::shared_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, int totalSamples = -1);
         /**
          * Create a new white noise source object
-         * @param freq The frequency of the white noise
-         * @param rate The sample rate of the white noise
-         * @param duration The total duration of samples to generate
          * @param blockSize The block size of the white noise
+         * @param sampleRate The sample rate of the white noise
+         * @param duration The total duration of samples to generate
          */
-        static std::shared_ptr<WhiteNoiseGenerator> create(float rate, std::chrono::duration<float> duration, int blockSize);
+        static std::shared_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, std::chrono::duration<int> duration);
     private:
-        float sampleRate;
-        int currentSample;
-        int totalSamples;
         int blockSize;
+        int sampleRate;
+        int totalSamples;
+        int currentSample;
         std::random_device rd;
         std::default_random_engine engine;
         std::uniform_real_distribution<float> distribution;
-        bool previousActive;
 };

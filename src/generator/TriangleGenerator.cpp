@@ -12,14 +12,14 @@ std::string dibiff::generator::TriangleGenerator::getName() const { return "Tria
  * @brief Constructor
  * @details Initializes the triangle wave source with a certain frequency,
  * sample rate, total number of samples, and block size
- * @param freq The frequency of the triangle wave
- * @param rate The sample rate of the triangle wave
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the triangle wave
+ * @param sampleRate The sample rate of the triangle wave
+ * @param frequency The frequency of the triangle wave
+ * @param totalSamples The total number of samples to generate
  */
-dibiff::generator::TriangleGenerator::TriangleGenerator(float freq, float rate, int samples, int blockSize, int numVoices)
-: dibiff::generator::Generator(numVoices, rate, blockSize), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
+dibiff::generator::TriangleGenerator::TriangleGenerator(int blockSize, int sampleRate, float frequency, int totalSamples)
+: dibiff::generator::Generator(), 
+  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples) {}
 /**
  * @brief Initialize
  * @details Initializes the triangle wave source connection points
@@ -35,49 +35,41 @@ void dibiff::generator::TriangleGenerator::initialize() {
  * contributing to phase misalignment.
  */
 void dibiff::generator::TriangleGenerator::process() {
+    /// If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
+    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    float freq = frequency;
     if (input->isConnected() && input->isReady()) {
         auto midiData = *input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
+        freq = midiFrequency;
     }
+    /// Generate Triangle Wave samples at the specified frequency
     Eigen::VectorXd audioData(blockSize);
     audioData.setZero();
-    int activeVoices = 0;
-    {
-        std::lock_guard<std::mutex> lock(voiceMutex);
-        for (auto& voice : voices) {
-            if (voice.active) {
-                activeVoices++;
-                // Generate the triangle wave if active
-                // Use double precision for sample rate and frequency
-                const double periodSamples = static_cast<double>(voice.sampleRate / voice.frequency);
-                int effectiveBlockSize = (voice.totalSamples == -1) ? blockSize : std::min(blockSize, voice.totalSamples - voice.currentSample);
-                // Generate indices for the current block using double precision
-                Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(voice.currentSample), static_cast<double>(voice.currentSample + effectiveBlockSize - 1));
-                // Apply the 1/4 period offset
-                Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
-                // Calculate position in period for each sample
-                Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
-                // Calculate the triangle wave values based on the position in the period
-                Eigen::VectorXd voiceData = (positionInPeriod.array() < periodSamples / 2.0).select(
-                    -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
-                    1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
-                );
-                audioData += voiceData;
-                voice.currentSample += effectiveBlockSize;
-
-                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
-                    voice.active = false;
-                }
-            }
-        }
+    // Use double precision for sample rate and frequency
+    const double periodSamples = static_cast<double>(sampleRate / freq);
+    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+    // Generate indices for the current block using double precision
+    Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(currentSample), static_cast<double>(currentSample + effectiveBlockSize - 1));
+    // Apply the 1/4 period offset
+    Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
+    // Calculate position in period for each sample
+    Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
+    // Calculate the triangle wave values based on the position in the period
+    audioData = (positionInPeriod.array() < periodSamples / 2.0).select(
+        -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
+        1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
+    );
+    currentSample += effectiveBlockSize;
+    /// Preserve size if we've exceeded the total number of samples
+    if (totalSamples != -1 && currentSample > totalSamples) {
+        audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
-    audioData /= activeVoices;
-    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();
@@ -127,26 +119,26 @@ bool dibiff::generator::TriangleGenerator::isFinished() const {
 }
 /**
  * Create a new triangle wave source object
- * @param freq The frequency of the triangle wave
- * @param rate The sample rate of the triangle wave
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the triangle wave
+ * @param sampleRate The sample rate of the triangle wave
+ * @param frequency The frequency of the triangle wave
+ * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices) {
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize, numVoices);
+std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, int totalSamples) {
+    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
     return instance;
 }
 /**
  * Create a new triangle wave source object
- * @param freq The frequency of the triangle wave
- * @param rate The sample rate of the triangle wave
- * @param duration The total number of samples to generate
  * @param blockSize The block size of the triangle wave
+ * @param sampleRate The sample rate of the triangle wave
+ * @param frequency The frequency of the triangle wave
+ * @param duration The total duration of samples to generate
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices) {
-    int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize, numVoices);
+std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration) {
+    int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
+    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
     return instance;
 }

@@ -17,9 +17,9 @@ std::string dibiff::generator::SineGenerator::getName() const { return "SineGene
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the sine wave
  */
-dibiff::generator::SineGenerator::SineGenerator(float freq, float rate, int samples, int blockSize, int numVoices)
-: dibiff::generator::Generator(numVoices, rate, blockSize), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
+dibiff::generator::SineGenerator::SineGenerator(int blockSize, int sampleRate, float frequency, int totalSamples)
+: dibiff::generator::Generator(), 
+  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples) {}
 /**
  * @brief Initialize
  * @details Initializes the sine wave source connection points
@@ -33,39 +33,28 @@ void dibiff::generator::SineGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SineGenerator::process() {
+    /// If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
+    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    float freq = frequency;
     if (input->isConnected() && input->isReady()) {
         auto midiData = *input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
+        freq = midiFrequency;
     }
+    /// Generate Sine Wave samples at the specified frequency
     Eigen::VectorXf audioData(blockSize);
     audioData.setZero();
-    int activeVoices = 0;
-    {
-        std::lock_guard<std::mutex> lock(voiceMutex);
-        for (auto& voice : voices) {
-            if (voice.active) {
-                activeVoices++;
-                Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, voice.currentSample, voice.currentSample + blockSize - 1);
-                Eigen::VectorXf voiceData = (2.0f * M_PI * voice.frequency * indices / voice.sampleRate).array().sin();
-                audioData += voiceData;
-                voice.currentSample += blockSize;
-
-                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
-                    voice.active = false;
-                }
-            }
-        }
-    }
-    if (activeVoices == 0) {
-        /// zero out the audio data
-        audioData.setZero();
-    } else {
-        audioData /= activeVoices;
+    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, currentSample, currentSample + blockSize - 1);
+    audioData = (2.0f * M_PI * freq * indices / sampleRate).array().sin();
+    currentSample += blockSize;
+    /// Preserve size if we've exceeded the total number of samples
+    if (totalSamples != -1 && currentSample > totalSamples) {
+        audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
@@ -116,26 +105,26 @@ bool dibiff::generator::SineGenerator::isFinished() const {
 }
 /**
  * Create a new sine wave source object
- * @param freq The frequency of the sine wave
- * @param rate The sample rate of the sine wave
- * @param samples The total number of samples to generate
  * @param blockSize The block size of the sine wave
+ * @param rate The sample rate of the sine wave
+ * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
+ * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices) {
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize, numVoices);
+std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, int totalSamples) {
+    auto instance = std::make_shared<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
     return instance;
 }
 /**
  * Create a new sine wave source object
- * @param freq The frequency of the sine wave
- * @param rate The sample rate of the sine wave
- * @param duration The total duration of samples to generate
  * @param blockSize The block size of the sine wave
+ * @param rate The sample rate of the sine wave
+ * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
+ * @param duration The duration of the sine wave
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices) {
-    int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize, numVoices);
+std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, std::chrono::duration<int> duration) {
+    int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
+    auto instance = std::make_shared<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
     return instance;
 }

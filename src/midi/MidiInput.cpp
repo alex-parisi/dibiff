@@ -26,7 +26,7 @@ void dibiff::midi::MidiInput::initialize() {
     midiIn = std::make_unique<RtMidiIn>();
     // Check for available ports.
     unsigned int nPorts = midiIn->getPortCount();
-    std::cout << "\nThere are " << nPorts << " MIDI input sources available." << std::endl;
+    std::cout << "\n[" << nPorts << "] MIDI input source(s) available." << std::endl;
     for (unsigned int i = 0; i < nPorts; i++) {
         std::string portName;
         try {

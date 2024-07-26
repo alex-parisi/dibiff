@@ -3,6 +3,8 @@
 #include "Reverb.h"
 #include "../inc/Eigen/Dense"
 
+#include <iostream>
+
 /**
  * @brief Get the name of the object
  * @return The name of the object
@@ -30,7 +32,7 @@ void dibiff::effect::Reverb::initialize() {
     int delayLength;
     for (int i = 0; i < numDelays; ++i) {
         delayLength = static_cast<int>((roomSize / speedOfSound) * sampleRate) * (i + 1);
-        buffers.emplace_back(std::vector<float>(delayLength, 0.0f));
+        buffers.push_back(std::vector<float>(delayLength, 0.0f));
         bufferIndices.push_back(0);
     }
     feedback = std::powf(10, -3.0f * delayLength / (decayTime * sampleRate));
@@ -41,15 +43,22 @@ void dibiff::effect::Reverb::initialize() {
  * @param sample The input sample
  */
 float dibiff::effect::Reverb::process(float sample) {
-    float output = 0.0f;
+    float out = 0.0f;
+    const float alpha = 0.5f; // Interpolation factor, adjust as needed
     for (int i = 0; i < numDelays; ++i) {
         int index = bufferIndices[i];
+        int prevIndex = (index - 1 + buffers[i].size()) % buffers[i].size();
         float delayedSample = buffers[i][index];
-        output += delayedSample;
+        float prevDelayedSample = buffers[i][prevIndex];
+        // Linear interpolation between the current and previous delayed samples
+        float interpolatedSample = (1.0f - alpha) * prevDelayedSample + alpha * delayedSample;
+        out += interpolatedSample;
+        // Update the buffer with the new sample
         buffers[i][index] = sample + feedback * delayedSample;
+        // Move to the next index
         bufferIndices[i] = (index + 1) % buffers[i].size();
     }
-    return output / numDelays;
+    return out / numDelays;
 }
 /**
  * @brief Process a block of samples

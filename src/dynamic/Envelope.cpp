@@ -3,6 +3,8 @@
 #include "Envelope.h"
 #include "../inc/Eigen/Dense"
 
+#include <iostream>
+
 /**
  * @brief Get the name of the object
  * @return The name of the object
@@ -32,6 +34,7 @@ dibiff::dynamic::Envelope::Envelope(float attackTime, float decayTime, float sus
  * @details Initializes the envelope connection points and parameters
  */
 void dibiff::dynamic::Envelope::initialize() {
+    midiInput = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "EnvelopeMidiInput"));
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "EnvelopeInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "EnvelopeOutput"));
     attackIncrement = 1.0f / (attackTime * sampleRate);
@@ -82,6 +85,18 @@ float dibiff::dynamic::Envelope::process(float sample) {
  * @param blockSize The size of the block
  */
 void dibiff::dynamic::Envelope::process() {
+    if (midiInput->isConnected() && midiInput->isReady()) {
+        auto midiData = *midiInput->getData();
+        int noteOnOff = 0;
+        for (const auto& message : midiData) {
+            noteOnOff += hasNoteOnNoteOff(message);
+        }
+        if (noteOnOff > 0) {
+            noteOn();
+        } else if (noteOnOff < 0) {
+            noteOff();
+        }
+    }
     if (input->isReady()) {
         std::vector<float> data = *input->getData();
         int blockSize = input->getBlockSize();
@@ -127,7 +142,10 @@ void dibiff::dynamic::Envelope::reset() {
  * @brief Get the input connection point.
  * @return A shared pointer to the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getInput(int i) { return input; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getInput(int i) {
+    if (i == 0) return input; 
+    return midiInput;
+}
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
@@ -165,4 +183,19 @@ std::shared_ptr<dibiff::dynamic::Envelope> dibiff::dynamic::Envelope::create(flo
     auto instance = std::make_shared<dibiff::dynamic::Envelope>(attackTime, decayTime, sustainLevel, releaseTime, sampleRate);
     instance->initialize();
     return instance;
+}
+
+int dibiff::dynamic::Envelope::hasNoteOnNoteOff(std::vector<unsigned char> message) {
+    if (message.empty()) return 0;
+
+    unsigned char status = message[0];
+    unsigned char type = status & 0xF0;
+    unsigned char velocity = message[2];
+
+    if (type == 0x90 && velocity > 0) { // Note on
+        return 1;
+    } else if (type == 0x80 || (type == 0x90 && velocity == 0)) { // Note off
+        return -1;
+    }
+    return 0;
 }

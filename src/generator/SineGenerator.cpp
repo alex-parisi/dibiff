@@ -61,7 +61,12 @@ void dibiff::generator::SineGenerator::process() {
             }
         }
     }
-    audioData /= activeVoices;
+    if (activeVoices == 0) {
+        /// zero out the audio data
+        audioData.setZero();
+    } else {
+        audioData /= activeVoices;
+    }
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();

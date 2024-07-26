@@ -18,6 +18,7 @@
  * @param sampleRate The sample rate of the input signal
  */
 class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
+    std::shared_ptr<dibiff::graph::MidiInput> midiInput;
     std::shared_ptr<dibiff::graph::AudioInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
@@ -31,6 +32,7 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
             Release,
             Idle
         };
+        EnvelopeStage currentStage = Idle;
         /**
          * @brief Get the name of the object
          * @return The name of the object
@@ -128,6 +130,6 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
         float attackIncrement;
         float decayIncrement;
         float releaseIncrement;
-        EnvelopeStage currentStage = Idle;
         float currentLevel = 0.0f;
+        int hasNoteOnNoteOff(std::vector<unsigned char> message);
 };

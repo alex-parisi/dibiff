@@ -41,7 +41,7 @@ void dibiff::generator::TriangleGenerator::process() {
     }
     /// If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
-    if (input->isConnected() && input->isReady()) {
+    if (input->isConnected()) {
         auto midiData = *input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);

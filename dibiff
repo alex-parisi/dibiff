@@ -8,5 +8,6 @@
 #include "Level"
 #include "Midi"
 #include "Sink"
+#include "Synth"
 #include "Source"
 #include "Time"

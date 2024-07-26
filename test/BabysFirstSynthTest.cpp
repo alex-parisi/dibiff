@@ -1,4 +1,4 @@
-#include "dibiff"
+#include "../dibiff"
 
 int main() {
 

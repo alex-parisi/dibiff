@@ -17,8 +17,8 @@ std::string dibiff::generator::SineGenerator::getName() const { return "SineGene
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the sine wave
  */
-dibiff::generator::SineGenerator::SineGenerator(float freq, float rate, int samples, int blockSize)
-: dibiff::generator::Generator(), 
+dibiff::generator::SineGenerator::SineGenerator(float freq, float rate, int samples, int blockSize, int numVoices)
+: dibiff::generator::Generator(numVoices, rate, blockSize), 
     frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
 /**
  * @brief Initialize
@@ -42,30 +42,26 @@ void dibiff::generator::SineGenerator::process() {
             processMidiMessage(message);
         }
     }
-    // Determine if the generator is active and the current frequency
-    bool active = input->isConnected() ? getIsActive() : true;
-    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
-    // Check for rising edge of active
-    if (active && !previousActive) {
-        currentSample = 0;
-    }
-    previousActive = active;
-    // Prepare the output buffer
     Eigen::VectorXf audioData(blockSize);
-    if (active) {
-        // Generate the sine wave if active
-        Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, currentSample, currentSample + blockSize - 1);
-        audioData = (2.0f * M_PI * currentFrequency * indices / sampleRate).array().sin();
-        currentSample += blockSize;
+    audioData.setZero();
+    int activeVoices = 0;
+    {
+        std::lock_guard<std::mutex> lock(voiceMutex);
+        for (auto& voice : voices) {
+            if (voice.active) {
+                activeVoices++;
+                Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, voice.currentSample, voice.currentSample + blockSize - 1);
+                Eigen::VectorXf voiceData = (2.0f * M_PI * voice.frequency * indices / voice.sampleRate).array().sin();
+                audioData += voiceData;
+                voice.currentSample += blockSize;
 
-        if (totalSamples != -1 && currentSample > totalSamples) {
-            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
+                    voice.active = false;
+                }
+            }
         }
-    } else {
-        // Fill the buffer with zeros if inactive
-        audioData.setZero();
     }
-    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
+    audioData /= activeVoices;
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();
@@ -120,8 +116,8 @@ bool dibiff::generator::SineGenerator::isFinished() const {
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the sine wave
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, int samples, int blockSize) {
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize);
+std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices) {
+    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize, numVoices);
     instance->initialize();
     return instance;
 }
@@ -132,9 +128,9 @@ std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerat
  * @param duration The total duration of samples to generate
  * @param blockSize The block size of the sine wave
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize) {
+std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices) {
     int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize);
+    auto instance = std::make_shared<dibiff::generator::SineGenerator>(freq, rate, samples, blockSize, numVoices);
     instance->initialize();
     return instance;
 }

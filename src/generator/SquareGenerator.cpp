@@ -18,8 +18,8 @@ std::string dibiff::generator::SquareGenerator::getName() const { return "Square
  * @param blockSize The block size of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
  */
-dibiff::generator::SquareGenerator::SquareGenerator(float freq, float rate, int samples, int blockSize, float dutyCycle)
-: dibiff::generator::Generator(), 
+dibiff::generator::SquareGenerator::SquareGenerator(float freq, float rate, int samples, int blockSize, int numVoices, float dutyCycle)
+: dibiff::generator::Generator(numVoices, rate, blockSize), 
     frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), dutyCycle(dutyCycle), previousActive(false) {};
 /**
  * @brief Initialize
@@ -43,35 +43,36 @@ void dibiff::generator::SquareGenerator::process() {
             processMidiMessage(message);
         }
     }
-    // Determine if the generator is active and the current frequency
-    bool active = input->isConnected() ? getIsActive() : true;
-    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
-    // Check for rising edge of active
-    if (active && !previousActive) {
-        currentSample = 0;
-    }
-    previousActive = active;
-    // Prepare the output buffer
+
+
     Eigen::VectorXf audioData(blockSize);
-    if (active) {
-        // Generate the square wave if active
-        // Calculate the period of the wave in samples
-        const float period = sampleRate / currentFrequency;
-        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-        // Generate indices for the current block
-        Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, currentSample, currentSample + effectiveBlockSize - 1);
-        // Calculate phase for each sample using Eigen's array operations
-        Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
-        // Calculate the square wave values based on the phase and duty cycle
-        audioData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
-        currentSample += effectiveBlockSize;
-        if (totalSamples != -1 && currentSample > totalSamples) {
-            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+    audioData.setZero();
+    int activeVoices = 0;
+    {
+        std::lock_guard<std::mutex> lock(voiceMutex);
+        for (auto& voice : voices) {
+            if (voice.active) {
+                activeVoices++;
+                // Generate the square wave if active
+                // Calculate the period of the wave in samples
+                const float period = voice.sampleRate / voice.frequency;
+                int effectiveBlockSize = (voice.totalSamples == -1) ? blockSize : std::min(blockSize, voice.totalSamples - voice.currentSample);
+                // Generate indices for the current block
+                Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, voice.currentSample, voice.currentSample + effectiveBlockSize - 1);
+                // Calculate phase for each sample using Eigen's array operations
+                Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
+                // Calculate the square wave values based on the phase and duty cycle
+                Eigen::VectorXf voiceData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
+                audioData += voiceData;
+                voice.currentSample += blockSize;
+
+                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
+                    voice.active = false;
+                }
+            }
         }
-    } else {
-        // Fill the buffer with zeros if inactive
-        audioData.setZero();
     }
+    audioData /= activeVoices;
     // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
@@ -128,8 +129,8 @@ bool dibiff::generator::SquareGenerator::isFinished() const {
  * @param blockSize The block size of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, int samples, int blockSize, float dutyCycle) {
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, dutyCycle);
+std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices, float dutyCycle) {
+    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, numVoices, dutyCycle);
     instance->initialize();
     return instance;
 }
@@ -141,9 +142,9 @@ std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGen
  * @param blockSize The block size of the square wave
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, float dutyCycle) {
+std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices, float dutyCycle) {
     int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, dutyCycle);
+    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(freq, rate, samples, blockSize, numVoices, dutyCycle);
     instance->initialize();
     return instance;
 }

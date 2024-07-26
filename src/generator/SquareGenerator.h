@@ -35,7 +35,7 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @param blockSize The block size of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
          */
-        SquareGenerator(float freq, float rate, int samples, int blockSize, float dutyCycle = 0.5f);
+        SquareGenerator(float freq, float rate, int samples, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
         /**
          * @brief Initialize
          * @details Initializes the square wave source connection points
@@ -89,7 +89,7 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @param blockSize The block size of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
          */
-        static std::shared_ptr<SquareGenerator> create(float freq, float rate, int samples, int blockSize, float dutyCycle = 0.5f);
+        static std::shared_ptr<SquareGenerator> create(float freq, float rate, int samples, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
         /**
          * Create a new square wave source object
          * @param freq The frequency of the square wave
@@ -98,7 +98,7 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @param blockSize The block size of the square wave
          * @param dutyCycle The duty cycle of the square wave (default is 0.5)
          */
-        static std::shared_ptr<SquareGenerator> create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, float dutyCycle = 0.5f);
+        static std::shared_ptr<SquareGenerator> create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices = 1, float dutyCycle = 0.5f);
     private:
         float frequency;
         float sampleRate;

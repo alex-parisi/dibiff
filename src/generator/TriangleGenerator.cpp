@@ -17,8 +17,8 @@ std::string dibiff::generator::TriangleGenerator::getName() const { return "Tria
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the triangle wave
  */
-dibiff::generator::TriangleGenerator::TriangleGenerator(float freq, float rate, int samples, int blockSize)
-: dibiff::generator::Generator(), 
+dibiff::generator::TriangleGenerator::TriangleGenerator(float freq, float rate, int samples, int blockSize, int numVoices)
+: dibiff::generator::Generator(numVoices, rate, blockSize), 
     frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
 /**
  * @brief Initialize
@@ -44,41 +44,39 @@ void dibiff::generator::TriangleGenerator::process() {
             processMidiMessage(message);
         }
     }
-    // Determine if the generator is active and the current frequency
-    bool active = input->isConnected() ? getIsActive() : true;
-    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
-    // Check for rising edge of active
-    if (active && !previousActive) {
-        currentSample = 0;
-    }
-    previousActive = active;
-    // Prepare the output buffer
     Eigen::VectorXd audioData(blockSize);
-    if (active) {
-        // Generate the triangle wave if active
-        // Use double precision for sample rate and frequency
-        const double periodSamples = static_cast<double>(sampleRate) / currentFrequency;
-        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-        // Generate indices for the current block using double precision
-        Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(currentSample), static_cast<double>(currentSample + effectiveBlockSize - 1));
-        // Apply the 1/4 period offset
-        Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
-        // Calculate position in period for each sample
-        Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
-        // Calculate the triangle wave values based on the position in the period
-        audioData = (positionInPeriod.array() < periodSamples / 2.0).select(
-            -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
-            1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
-        );
-        currentSample += effectiveBlockSize;
+    audioData.setZero();
+    int activeVoices = 0;
+    {
+        std::lock_guard<std::mutex> lock(voiceMutex);
+        for (auto& voice : voices) {
+            if (voice.active) {
+                activeVoices++;
+                // Generate the triangle wave if active
+                // Use double precision for sample rate and frequency
+                const double periodSamples = static_cast<double>(voice.sampleRate / voice.frequency);
+                int effectiveBlockSize = (voice.totalSamples == -1) ? blockSize : std::min(blockSize, voice.totalSamples - voice.currentSample);
+                // Generate indices for the current block using double precision
+                Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(voice.currentSample), static_cast<double>(voice.currentSample + effectiveBlockSize - 1));
+                // Apply the 1/4 period offset
+                Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
+                // Calculate position in period for each sample
+                Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
+                // Calculate the triangle wave values based on the position in the period
+                Eigen::VectorXd voiceData = (positionInPeriod.array() < periodSamples / 2.0).select(
+                    -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
+                    1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
+                );
+                audioData += voiceData;
+                voice.currentSample += effectiveBlockSize;
 
-        if (totalSamples != -1 && currentSample > totalSamples) {
-            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+                if (voice.totalSamples != -1 && voice.currentSample >= voice.totalSamples) {
+                    voice.active = false;
+                }
+            }
         }
-    } else {
-        // Fill the buffer with zeros if inactive
-        audioData.setZero();
     }
+    audioData /= activeVoices;
     // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
@@ -134,8 +132,8 @@ bool dibiff::generator::TriangleGenerator::isFinished() const {
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the triangle wave
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, int samples, int blockSize) {
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize);
+std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, int samples, int blockSize, int numVoices) {
+    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize, numVoices);
     instance->initialize();
     return instance;
 }
@@ -146,9 +144,9 @@ std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::Triangl
  * @param duration The total number of samples to generate
  * @param blockSize The block size of the triangle wave
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize) {
+std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(float freq, float rate, std::chrono::duration<float> duration, int blockSize, int numVoices) {
     int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * rate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize);
+    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(freq, rate, samples, blockSize, numVoices);
     instance->initialize();
     return instance;
 }

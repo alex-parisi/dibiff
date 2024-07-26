@@ -12,7 +12,7 @@ int main() {
 
     /// Create SineGenerator
     /// TODO: length and freq are not needed when controlled by MIDI
-    auto sineGen = graph.add(dibiff::generator::SineGenerator::create(440.0f, sampleRate, -1, blockSize));
+    auto sineGen = graph.add(dibiff::generator::SineGenerator::create(440.0f, sampleRate, -1, blockSize, 6));
 
     /// Create the WavWriter
     auto wavWriter = graph.add(dibiff::sink::WavWriter::create("midiOutput.wav", sampleRate));

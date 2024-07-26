@@ -19,12 +19,13 @@ std::string dibiff::generator::TriangleGenerator::getName() const { return "Tria
  */
 dibiff::generator::TriangleGenerator::TriangleGenerator(float freq, float rate, int samples, int blockSize)
 : dibiff::generator::Generator(), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize) {};
+    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
 /**
  * @brief Initialize
  * @details Initializes the triangle wave source connection points
  */
 void dibiff::generator::TriangleGenerator::initialize() {
+    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SquareGeneratorMidiInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "TriangleGeneratorOutput"));
 }
 /**
@@ -37,29 +38,50 @@ void dibiff::generator::TriangleGenerator::process() {
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    // Use double precision for sample rate and frequency
-    const double periodSamples = static_cast<double>(sampleRate) / frequency;
-    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-    // Generate indices for the current block using double precision
-    Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(currentSample), static_cast<double>(currentSample + effectiveBlockSize - 1));
-    // Apply the 1/4 period offset
-    Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
-    // Calculate position in period for each sample
-    Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
-    // Calculate the triangle wave values based on the position in the period
-    Eigen::VectorXd triangleWave = (positionInPeriod.array() < periodSamples / 2.0).select(
-        -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
-        1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
-    );
-    // Convert Eigen::VectorXd to std::vector<float>
-    std::vector<float> audioData(triangleWave.data(), triangleWave.data() + triangleWave.size());
-    currentSample += effectiveBlockSize;
-    // Adjust the audio data size if exceeding total samples
-    if (totalSamples != -1 && currentSample > totalSamples) {
-        audioData.resize(totalSamples - currentSample + blockSize);
+    if (input->isConnected() && input->isReady()) {
+        auto midiData = *input->getData();
+        for (const auto& message : midiData) {
+            processMidiMessage(message);
+        }
     }
-    // Set data to output and mark as processed
-    output->setData(audioData, audioData.size());
+    // Determine if the generator is active and the current frequency
+    bool active = input->isConnected() ? getIsActive() : true;
+    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
+    // Check for rising edge of active
+    if (active && !previousActive) {
+        currentSample = 0;
+    }
+    previousActive = active;
+    // Prepare the output buffer
+    Eigen::VectorXd audioData(blockSize);
+    if (active) {
+        // Generate the triangle wave if active
+        // Use double precision for sample rate and frequency
+        const double periodSamples = static_cast<double>(sampleRate) / currentFrequency;
+        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+        // Generate indices for the current block using double precision
+        Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(currentSample), static_cast<double>(currentSample + effectiveBlockSize - 1));
+        // Apply the 1/4 period offset
+        Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
+        // Calculate position in period for each sample
+        Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
+        // Calculate the triangle wave values based on the position in the period
+        audioData = (positionInPeriod.array() < periodSamples / 2.0).select(
+            -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
+            1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
+        );
+        currentSample += effectiveBlockSize;
+
+        if (totalSamples != -1 && currentSample > totalSamples) {
+            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+        }
+    } else {
+        // Fill the buffer with zeros if inactive
+        audioData.setZero();
+    }
+    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
+    std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
+    output->setData(out, out.size());
     markProcessed();
 }
 /**
@@ -74,7 +96,7 @@ void dibiff::generator::TriangleGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::TriangleGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::TriangleGenerator::getInput(int i) { return input; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

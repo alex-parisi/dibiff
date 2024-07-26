@@ -33,6 +33,9 @@ void dibiff::generator::SineGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SineGenerator::process() {
+    if (totalSamples != -1 && currentSample >= totalSamples) {
+        return;
+    }
     if (input->isConnected() && input->isReady()) {
         auto midiData = *input->getData();
         for (const auto& message : midiData) {

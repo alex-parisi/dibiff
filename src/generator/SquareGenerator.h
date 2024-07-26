@@ -17,6 +17,7 @@
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
  */
 class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
+    std::shared_ptr<dibiff::graph::MidiInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
@@ -105,4 +106,5 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
         int totalSamples;
         int blockSize;
         float dutyCycle;
+        bool previousActive;
 };

@@ -20,12 +20,13 @@ std::string dibiff::generator::WhiteNoiseGenerator::getName() const { return "Wh
 dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(float rate, int samples, int blockSize)
 : dibiff::generator::Generator(), 
     engine(rd()), distribution(-1.0f, 1.0f),
-    sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize) {};
+    sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), previousActive(false) {};
 /**
  * @brief Initialize
  * @details Initializes the white noise source connection points
  */
 void dibiff::generator::WhiteNoiseGenerator::initialize() {
+    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "WhiteNoiseGeneratorMidiInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "WhiteNoiseGeneratorOutput"));
 }
 /**
@@ -36,13 +37,39 @@ void dibiff::generator::WhiteNoiseGenerator::process() {
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-    // Generate random numbers using Eigen's random number generation capabilities
-    Eigen::VectorXf audioData = Eigen::VectorXf::NullaryExpr(effectiveBlockSize, [&]() { return distribution(engine); });
-    // Convert Eigen::VectorXf to std::vector<float>
+    if (input->isConnected() && input->isReady()) {
+        auto midiData = *input->getData();
+        for (const auto& message : midiData) {
+            processMidiMessage(message);
+        }
+    }
+    // Determine if the generator is active and the current frequency
+    bool active = input->isConnected() ? getIsActive() : true;
+    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
+    // Check for rising edge of active
+    if (active && !previousActive) {
+        currentSample = 0;
+    }
+    previousActive = active;
+    // Prepare the output buffer
+    Eigen::VectorXf audioData(blockSize);
+    if (active) {
+        // Generate the white noise if active
+        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+        // Generate random numbers using Eigen's random number generation capabilities
+        audioData = Eigen::VectorXf::NullaryExpr(effectiveBlockSize, [&]() { return distribution(engine); });
+        // Convert Eigen::VectorXf to std::vector<float>
+        currentSample += effectiveBlockSize;
+
+        if (totalSamples != -1 && currentSample > totalSamples) {
+            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+        }
+    } else {
+        // Fill the buffer with zeros if inactive
+        audioData.setZero();
+    }
+    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
-    currentSample += effectiveBlockSize;
-    // Set data to output and mark as processed
     output->setData(out, out.size());
     markProcessed();
 }
@@ -58,7 +85,7 @@ void dibiff::generator::WhiteNoiseGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return input; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

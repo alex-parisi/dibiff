@@ -16,6 +16,7 @@
  * @param blockSize The block size of the triangle wave
  */
 class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator {
+    std::shared_ptr<dibiff::graph::MidiInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
@@ -100,4 +101,5 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
         int currentSample;
         int totalSamples;
         int blockSize;
+        bool previousActive;
 };

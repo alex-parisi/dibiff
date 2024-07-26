@@ -12,6 +12,7 @@
  * noise with a certain sample rate, total number of samples, and block size.
  */
 class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generator {
+    std::shared_ptr<dibiff::graph::MidiInput> input;
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
@@ -98,4 +99,5 @@ class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generat
         std::random_device rd;
         std::default_random_engine engine;
         std::uniform_real_distribution<float> distribution;
+        bool previousActive;
 };

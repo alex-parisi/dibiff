@@ -20,12 +20,13 @@ std::string dibiff::generator::SquareGenerator::getName() const { return "Square
  */
 dibiff::generator::SquareGenerator::SquareGenerator(float freq, float rate, int samples, int blockSize, float dutyCycle)
 : dibiff::generator::Generator(), 
-    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), dutyCycle(dutyCycle) {};
+    frequency(freq), sampleRate(rate), currentSample(0), totalSamples(samples), blockSize(blockSize), dutyCycle(dutyCycle), previousActive(false) {};
 /**
  * @brief Initialize
  * @details Initializes the square wave source connection points
  */
 void dibiff::generator::SquareGenerator::initialize() {
+    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SquareGeneratorMidiInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "SquareGeneratorOutput"));
 }
 /**
@@ -36,20 +37,44 @@ void dibiff::generator::SquareGenerator::process() {
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    // Calculate the period of the wave in samples
-    const float period = sampleRate / frequency;
-    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-    // Generate indices for the current block
-    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, currentSample, currentSample + effectiveBlockSize - 1);
-    // Calculate phase for each sample using Eigen's array operations
-    Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
-    // Calculate the square wave values based on the phase and duty cycle
-    Eigen::VectorXf squareWave = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
-    // Convert Eigen::VectorXf to std::vector<float>
-    std::vector<float> audioData(squareWave.data(), squareWave.data() + squareWave.size());
-    currentSample += effectiveBlockSize;
-    // Set data to output and mark as processed
-    output->setData(audioData, audioData.size());
+    if (input->isConnected() && input->isReady()) {
+        auto midiData = *input->getData();
+        for (const auto& message : midiData) {
+            processMidiMessage(message);
+        }
+    }
+    // Determine if the generator is active and the current frequency
+    bool active = input->isConnected() ? getIsActive() : true;
+    float currentFrequency = input->isConnected() ? getFrequency() : frequency;
+    // Check for rising edge of active
+    if (active && !previousActive) {
+        currentSample = 0;
+    }
+    previousActive = active;
+    // Prepare the output buffer
+    Eigen::VectorXf audioData(blockSize);
+    if (active) {
+        // Generate the square wave if active
+        // Calculate the period of the wave in samples
+        const float period = sampleRate / currentFrequency;
+        int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
+        // Generate indices for the current block
+        Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, currentSample, currentSample + effectiveBlockSize - 1);
+        // Calculate phase for each sample using Eigen's array operations
+        Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
+        // Calculate the square wave values based on the phase and duty cycle
+        audioData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
+        currentSample += effectiveBlockSize;
+        if (totalSamples != -1 && currentSample > totalSamples) {
+            audioData.conservativeResize(totalSamples - currentSample + blockSize);
+        }
+    } else {
+        // Fill the buffer with zeros if inactive
+        audioData.setZero();
+    }
+    // Convert Eigen::VectorXf to std::vector<float> and set the output buffer
+    std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
+    output->setData(out, out.size());
     markProcessed();
 }
 /**
@@ -64,7 +89,7 @@ void dibiff::generator::SquareGenerator::reset() {
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SquareGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SquareGenerator::getInput(int i) { return input; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.

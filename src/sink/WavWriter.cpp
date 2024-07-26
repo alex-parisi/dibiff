@@ -62,7 +62,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getI
  * @brief Get the output connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getOutput() { return std::weak_ptr<dibiff::graph::AudioOutput>(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getOutput(int i) { return std::weak_ptr<dibiff::graph::AudioOutput>(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

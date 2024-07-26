@@ -85,7 +85,7 @@ float dibiff::dynamic::Envelope::process(float sample) {
  * @param blockSize The size of the block
  */
 void dibiff::dynamic::Envelope::process() {
-    if (midiInput->isConnected() && midiInput->isReady()) {
+    if (midiInput->isConnected()) {
         auto midiData = *midiInput->getData();
         int noteOnOff = 0;
         for (const auto& message : midiData) {
@@ -150,7 +150,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::ge
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getOutput(int i) { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

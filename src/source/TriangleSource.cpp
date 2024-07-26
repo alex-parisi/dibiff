@@ -40,7 +40,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSourc
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSource::getOutput() { return gain->getOutput(); }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSource::getOutput(int i) { return gain->getOutput(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

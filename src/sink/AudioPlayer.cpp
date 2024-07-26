@@ -68,7 +68,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::ge
     return input;
 }
 
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::getOutput() {
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::AudioPlayer::getOutput(int i) {
     return std::weak_ptr<dibiff::graph::AudioOutput>();
 }
 

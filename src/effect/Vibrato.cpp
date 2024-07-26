@@ -98,7 +98,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getI
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getOutput(int i) { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

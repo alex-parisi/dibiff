@@ -10,5 +10,7 @@ namespace dibiff {
      */
     namespace midi {
         class MidiInput;
+        class Voice;
+        class VoiceSelector;
     }
 }

@@ -85,7 +85,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEch
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEchoCanceller::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEchoCanceller::getOutput(int i) { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

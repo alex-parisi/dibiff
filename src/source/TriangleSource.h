@@ -48,7 +48,7 @@ class dibiff::source::TriangleSource : public dibiff::graph::AudioCompositeObjec
          * @brief Get the output connection point.
          * @return A shared pointer to the output connection point.
          */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput() override;
+        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
         /**
          * @brief Get the reference connection point.
          * @return Not used.

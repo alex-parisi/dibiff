@@ -80,21 +80,15 @@ void dibiff::midi::MidiInput::midiCallback(double deltatime, std::vector<unsigne
 /**
  * @brief Get the input connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getInput(int i) {
-    return std::weak_ptr<dibiff::graph::AudioInput>();
-}
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); }
 /**
  * @brief Get the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getOutput() {
-    return output;
-}
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getOutput(int i) { return output; }
 /**
  * @brief Get the reference connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getReference() {
-    return std::weak_ptr<dibiff::graph::AudioReference>();
-}
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); }
 /**
  * @brief Check if the object is ready to process
  */

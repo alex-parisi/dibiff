@@ -1,2 +1,3 @@
 #include "src/midi/midi.h"
 #include "src/midi/MidiInput.h"
+#include "src/midi/VoiceSelector.h"

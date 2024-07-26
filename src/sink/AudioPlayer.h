@@ -77,7 +77,7 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
          * @brief Get the output connection point.
          * @return Not used.
          */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput() override;
+        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
 
         /**
          * @brief Get the reference connection point.

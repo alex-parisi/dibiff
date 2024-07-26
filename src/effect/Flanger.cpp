@@ -99,7 +99,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getI
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getOutput() { return output; }
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getOutput(int i) { return output; }
 /**
  * @brief Get the reference connection point.
  * @return Not used.

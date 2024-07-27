@@ -24,10 +24,10 @@ dibiff::filter::BandPassFilterConstantSkirtGain::BandPassFilterConstantSkirtGain
  */
 dibiff::filter::Coefficients dibiff::filter::BandPassFilterConstantSkirtGain::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b0 = qFactor * alpha;
     float a0 = 1 + alpha;
-    float a1 = -2.0f * std::cosf(w0);
+    float a1 = -2.0f * std::cos(w0);
     float a2 = 1 - alpha;
     return {b0, 0.0f, -b0, a0, a1, a0};
 }
@@ -60,7 +60,7 @@ void dibiff::filter::BandPassFilterConstantSkirtGain::setQFactor(float qFactor) 
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::BandPassFilterConstantSkirtGain::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**
@@ -98,10 +98,10 @@ dibiff::filter::BandPassFilterConstantPeakGain::BandPassFilterConstantPeakGain(f
  */
 dibiff::filter::Coefficients dibiff::filter::BandPassFilterConstantPeakGain::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b0 = alpha;
     float a0 = 1 + alpha;
-    float a1 = -2.0f * std::cosf(w0);
+    float a1 = -2.0f * std::cos(w0);
     float a2 = 1 - alpha;
     return {b0, 0.0f, -b0, a0, a1, a0};
 }
@@ -134,7 +134,7 @@ void dibiff::filter::BandPassFilterConstantPeakGain::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::BandPassFilterConstantPeakGain::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

@@ -15,7 +15,7 @@ std::string dibiff::level::Gain::getName() const { return "Gain"; }
  */
 dibiff::level::Gain::Gain(float value)
 : dibiff::graph::AudioObject(), 
-    value(std::powf(10.0f, value / 20.0f)) {};
+    value(std::pow(10.0f, value / 20.0f)) {};
 /**
  * @brief Initialize
  * @details Initializes the gain connection points

@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <memory>
+#include <cmath>
+#include <chrono>
+#include <math.h>
 
 /// TODO: Put these in separate files
 

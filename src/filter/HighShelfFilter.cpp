@@ -24,11 +24,11 @@ dibiff::filter::HighShelfFilter::HighShelfFilter(float gain, float cutoff, float
  * @param qFactor The quality factor of the filter
  */
 dibiff::filter::Coefficients dibiff::filter::HighShelfFilter::calculateCoefficients(float gain, float cutoff, float sampleRate, float qFactor) {
-    float A = std::powf(10.0f, gain / 40.0f);
+    float A = std::pow(10.0f, gain / 40.0f);
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
-    float cosw0 = std::cosf(w0);
-    float sqrtA = std::sqrtf(A);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
+    float cosw0 = std::cos(w0);
+    float sqrtA = std::sqrt(A);
     float b0 = A * ((A + 1.0f) + (A - 1.0f) * cosw0 + 2.0f * sqrtA * alpha);
     float b1 = -2.0f * A * ((A - 1.0f) + (A + 1.0f) * cosw0);
     float b2 = A * ((A + 1.0f) + (A - 1.0f) * cosw0 - 2.0f * sqrtA * alpha);
@@ -73,7 +73,7 @@ void dibiff::filter::HighShelfFilter::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::HighShelfFilter::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

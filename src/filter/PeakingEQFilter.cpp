@@ -24,11 +24,11 @@ dibiff::filter::PeakingEQFilter::PeakingEQFilter(float gain, float cutoff, float
  * @param qFactor The quality factor of the filter
  */
 dibiff::filter::Coefficients dibiff::filter::PeakingEQFilter::calculateCoefficients(float gain, float cutoff, float sampleRate, float qFactor) {
-    float A = std::powf(10.0f, gain / 40.0f);
+    float A = std::pow(10.0f, gain / 40.0f);
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b0 = 1.0f + (alpha * A);
-    float b1 = -2.0f * std::cosf(w0);
+    float b1 = -2.0f * std::cos(w0);
     float b2 = 1.0f - (alpha * A);
     float a0 = 1.0f + (alpha / A);
     float a2 = 1.0f - (alpha / A);
@@ -70,7 +70,7 @@ void dibiff::filter::PeakingEQFilter::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::PeakingEQFilter::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

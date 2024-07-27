@@ -24,9 +24,9 @@ dibiff::filter::AllPassFilter::AllPassFilter(float cutoff, float sampleRate, flo
  */
 dibiff::filter::Coefficients dibiff::filter::AllPassFilter::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b0 = 1.0f - alpha;
-    float b1 = -2.0f * std::cosf(w0);
+    float b1 = -2.0f * std::cos(w0);
     float b2 = 1.0f + alpha;
     return {b0, b1, b2, b2, b1, b0};
 }
@@ -59,7 +59,7 @@ void dibiff::filter::AllPassFilter::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter 
  */
 void dibiff::filter::AllPassFilter::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

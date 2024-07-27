@@ -27,9 +27,9 @@ dibiff::level::AutomaticGainControl::AutomaticGainControl(float targetLevel, flo
 void dibiff::level::AutomaticGainControl::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AutomaticGainControlInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AutomaticGainControlOutput"));
-    attackCoefficient = std::expf(-1.0f / (attack * sampleRate));
-    releaseCoefficient = std::expf(-1.0f / (release * sampleRate));
-    targetLevelLinear = std::powf(10.0f, targetLevel / 20.0f);
+    attackCoefficient = std::exp(-1.0f / (attack * sampleRate));
+    releaseCoefficient = std::exp(-1.0f / (release * sampleRate));
+    targetLevelLinear = std::pow(10.0f, targetLevel / 20.0f);
 }
 /**
  * @brief Process a sample
@@ -37,10 +37,10 @@ void dibiff::level::AutomaticGainControl::initialize() {
  * @param sample The input sample
  */
 float dibiff::level::AutomaticGainControl::process(float sample) {
-    float inputLevel = std::fabsf(sample);
+    float inputLevel = std::fabs(sample);
     // Calculate RMS level
     rmsLevel = rmsCoefficient * rmsLevel + (1.0f - rmsCoefficient) * inputLevel * inputLevel;
-    float rmsValue = std::sqrtf(rmsLevel);
+    float rmsValue = std::sqrt(rmsLevel);
     // Gain adjustment
     float desiredGain = targetLevelLinear / (rmsValue + 1e-6f); // Avoid division by zero
     if (desiredGain < currentGain) {

@@ -36,13 +36,13 @@ void dibiff::dynamic::Expander::initialize() {
  */
 float dibiff::dynamic::Expander::process(float sample) {
     /// Convert to dB
-    float inputdB = 20.0f * std::log10f(std::fabsf(sample));
+    float inputdB = 20.0f * std::log10(std::fabs(sample));
     /// Static Characteristic
     float xSc = calculateStaticCharacteristic(inputdB);
     /// Gain Smoothing
     updateGainSmoothing(xSc, inputdB);
     /// Convert back to linear scale
-    float gLin = std::powf(10.0f, gS / 20.0f);
+    float gLin = std::pow(10.0f, gS / 20.0f);
     /// Output
     return gLin * sample;
 }
@@ -84,7 +84,7 @@ float dibiff::dynamic::Expander::calculateStaticCharacteristic(float inputdB) {
         } else if (inputdB < (expanderThreshold - (knee.value() / 2.0f))) {
             return expanderThreshold;
         } else {
-            float numerator = std::powf(inputdB - expanderThreshold - (knee.value() / 2.0f), 2.0f);
+            float numerator = std::pow(inputdB - expanderThreshold - (knee.value() / 2.0f), 2.0f);
             return inputdB + (numerator / (2.0f * knee.value()));
         } 
     } else {
@@ -106,9 +106,9 @@ void dibiff::dynamic::Expander::updateGainSmoothing(float xSc, float inputdB) {
     float gC = xSc - inputdB; /// Gain change
     float alpha = [=]() -> float {
         if (gC >= gS) {
-            return std::expf(-std::log10f(9.0f) / (attack * sampleRate));
+            return std::exp(-std::log10(9.0f) / (attack * sampleRate));
         } else {
-            return std::expf(-std::log10f(9.0f) / (release * sampleRate));
+            return std::exp(-std::log10(9.0f) / (release * sampleRate));
         }
     }();
     gS = alpha * gS + (1.0f - alpha) * gC;

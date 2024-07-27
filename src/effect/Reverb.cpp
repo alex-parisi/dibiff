@@ -35,7 +35,7 @@ void dibiff::effect::Reverb::initialize() {
         buffers.push_back(std::vector<float>(delayLength, 0.0f));
         bufferIndices.push_back(0);
     }
-    feedback = std::powf(10, -3.0f * delayLength / (decayTime * sampleRate));
+    feedback = std::pow(10, -3.0f * delayLength / (decayTime * sampleRate));
 }
 /**
  * @brief Process a sample

@@ -36,7 +36,7 @@ void dibiff::effect::Vibrato::initialize() {
  */
 float dibiff::effect::Vibrato::process(float sample) {
     // Calculate the current delay time
-    float lfo = (1.0f + std::sinf(2.0f * M_PI * modulationRate * phase)) / 2.0f;
+    float lfo = (1.0f + std::sin(2.0f * M_PI * modulationRate * phase)) / 2.0f;
     int delaySamples = static_cast<int>(lfo * maxDelaySamples);
     // Get the delayed sample
     int delayIndex = (bufferIndex - delaySamples + buffer.size()) % buffer.size();

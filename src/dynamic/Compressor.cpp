@@ -42,7 +42,7 @@ void dibiff::dynamic::Compressor::initialize() {
  */
 float dibiff::dynamic::Compressor::process(float sample) {
     /// Convert to dB
-    float inputdB = 20.0f * std::log10f(sample);
+    float inputdB = 20.0f * std::log10(sample);
     /// Static Characteristic
     float xSc = calculateStaticCharacteristic(inputdB);
     /// Gain Smoothing
@@ -50,7 +50,7 @@ float dibiff::dynamic::Compressor::process(float sample) {
     /// Makeup Gain
     float gM = gS * makeupGain.value();
     /// Convert back to linear scale
-    float gLin = std::powf(10.0f, gM / 20.0f);
+    float gLin = std::pow(10.0f, gM / 20.0f);
     /// Output
     return gLin * sample;
 }
@@ -92,7 +92,7 @@ float dibiff::dynamic::Compressor::calculateStaticCharacteristic(float inputdB) 
         } else if (inputdB > (compressorThreshold + (knee.value() / 2.0f))) {
             return compressorThreshold;
         } else {
-            float numerator = std::powf(inputdB - compressorThreshold + (knee.value() / 2.0f), 2.0f);
+            float numerator = std::pow(inputdB - compressorThreshold + (knee.value() / 2.0f), 2.0f);
             return inputdB - (numerator / (2.0f * knee.value()));
         } 
     } else {
@@ -114,9 +114,9 @@ void dibiff::dynamic::Compressor::updateGainSmoothing(float xSc, float inputdB) 
     float gC = xSc - inputdB; /// Potentially just input?
     float alpha = [=]() -> float {
         if (gC <= gS) {
-            return std::expf(-log10f(9.0f) / (attack * sampleRate));
+            return std::exp(-log10(9.0f) / (attack * sampleRate));
         } else {
-            return std::expf(-log10f(9.0f) / (release * sampleRate));
+            return std::exp(-log10(9.0f) / (release * sampleRate));
         }
     }();
     float gS = alpha * gS + (1.0f - alpha) * gC;

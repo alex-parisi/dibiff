@@ -34,7 +34,7 @@ void dibiff::effect::Tremolo::initialize() {
  */
 float dibiff::effect::Tremolo::process(float sample) {
     // Calculate the modulation factor
-    float lfo = (1.0f + std::sinf(2.0f * M_PI * modulationRate * phase)) / 2.0f;
+    float lfo = (1.0f + std::sin(2.0f * M_PI * modulationRate * phase)) / 2.0f;
     float modulation = (1.0f - modulationDepth) + modulationDepth * lfo;
     // Apply the modulation to the input signal
     float output = sample * modulation;

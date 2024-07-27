@@ -60,7 +60,7 @@ void dibiff::filter::BandPassFilterConstantSkirtGain::setQFactor(float qFactor) 
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::BandPassFilterConstantSkirtGain::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**
@@ -134,7 +134,7 @@ void dibiff::filter::BandPassFilterConstantPeakGain::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter
  */
 void dibiff::filter::BandPassFilterConstantPeakGain::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinh(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

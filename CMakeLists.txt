@@ -26,17 +26,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # ALSA support for Linux
     find_package(Threads REQUIRED)
     target_compile_definitions(BabysFirstSynth PRIVATE __LINUX_ALSA__)
-    target_link_libraries(BabysFirstSynth asound Threads::Threads)
+    target_link_libraries(BabysFirstSynth asound Threads::Threads m)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # CoreMIDI support for macOS
     target_compile_definitions(BabysFirstSynth PRIVATE __MACOSX_CORE__)
     find_library(COREMIDI CoreMIDI)
     find_library(COREAUDIO CoreAudio)
     find_library(COREFOUNDATION CoreFoundation)
-    target_link_libraries(BabysFirstSynth ${COREMIDI} ${COREAUDIO} ${COREFOUNDATION})
+    target_link_libraries(BabysFirstSynth ${COREMIDI} ${COREAUDIO} ${COREFOUNDATION} m)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Multimedia Library support for Windows
-    target_compile_definitions(BabysFirstSynth PRIVATE __WINDOWS_MM__)
+    target_compile_definitions(BabysFirstSynth PRIVATE __WINDOWS_MM__ m)
     target_link_libraries(BabysFirstSynth winmm)
 endif()
 

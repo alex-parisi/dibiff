@@ -40,7 +40,7 @@ float dibiff::level::AutomaticGainControl::process(float sample) {
     float inputLevel = std::fabs(sample);
     // Calculate RMS level
     rmsLevel = rmsCoefficient * rmsLevel + (1.0f - rmsCoefficient) * inputLevel * inputLevel;
-    float rmsValue = std::sqrtf(rmsLevel);
+    float rmsValue = std::sqrt(rmsLevel);
     // Gain adjustment
     float desiredGain = targetLevelLinear / (rmsValue + 1e-6f); // Avoid division by zero
     if (desiredGain < currentGain) {

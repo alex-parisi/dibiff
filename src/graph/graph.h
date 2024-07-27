@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <memory>
 
 /// TODO: Put these in separate files
 

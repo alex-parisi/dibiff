@@ -26,7 +26,7 @@ dibiff::filter::PeakingEQFilter::PeakingEQFilter(float gain, float cutoff, float
 dibiff::filter::Coefficients dibiff::filter::PeakingEQFilter::calculateCoefficients(float gain, float cutoff, float sampleRate, float qFactor) {
     float A = std::pow(10.0f, gain / 40.0f);
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b0 = 1.0f + (alpha * A);
     float b1 = -2.0f * std::cosf(w0);
     float b2 = 1.0f - (alpha * A);

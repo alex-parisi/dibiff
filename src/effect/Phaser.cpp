@@ -44,7 +44,7 @@ void dibiff::effect::Phaser::initialize() {
  */
 float dibiff::effect::Phaser::process(float sample) {
     // Calculate the current modulation factor
-    float lfo = (1.0f + std::sinf(2.0f * M_PI * modulationRate * phase)) / 2.0f;
+    float lfo = (1.0f + std::sin(2.0f * M_PI * modulationRate * phase)) / 2.0f;
     float currentModulation = baseCutoff + lfo * modulationDepth;
     // Apply modulation to each all-pass filter
     for (auto& filter : allPassFilters) {

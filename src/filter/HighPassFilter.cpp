@@ -24,8 +24,8 @@ dibiff::filter::HighPassFilter::HighPassFilter(float cutoff, float sampleRate, f
  */
 dibiff::filter::Coefficients dibiff::filter::HighPassFilter::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float cosw0 = std::cosf(w0);
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float cosw0 = std::cos(w0);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b1 = -(1.0f + cosw0);
     float b0 = -b1 / 2.0f;
     float a0 = 1.0f + alpha;

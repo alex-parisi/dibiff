@@ -24,7 +24,7 @@ dibiff::filter::NotchFilter::NotchFilter(float cutoff, float sampleRate, float q
  */
 dibiff::filter::Coefficients dibiff::filter::NotchFilter::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sinf(w0) / (2.0f * qFactor);
+    float alpha = std::sin(w0) / (2.0f * qFactor);
     float b1 = -2.0f * std::cosf(w0);
     float a0 = 1.0f + alpha;
     float a2 = 1.0f - alpha;

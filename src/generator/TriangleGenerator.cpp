@@ -48,6 +48,12 @@ void dibiff::generator::TriangleGenerator::process() {
         }
         freq = midiFrequency;
     }
+    /// Check if the frequency has changed
+    if (freq != lastFrequency) {
+        /// Set t = 0, ensures the new sine wave starts at 0
+        currentSample = 0;
+        lastFrequency = freq;
+    }
     /// Generate Triangle Wave samples at the specified frequency
     Eigen::VectorXd audioData(blockSize);
     audioData.setZero();

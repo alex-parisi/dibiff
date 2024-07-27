@@ -47,6 +47,12 @@ void dibiff::generator::SquareGenerator::process() {
         }
         freq = midiFrequency;
     }
+    /// Check if the frequency has changed
+    if (freq != lastFrequency) {
+        /// Set t = 0, ensures the new sine wave starts at 0
+        currentSample = 0;
+        lastFrequency = freq;
+    }
     /// Generate Square Wave samples at the specified frequency
     Eigen::VectorXf audioData(blockSize);
     audioData.setZero();

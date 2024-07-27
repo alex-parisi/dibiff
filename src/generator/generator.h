@@ -32,6 +32,7 @@ namespace dibiff {
 class dibiff::generator::Generator : public dibiff::graph::AudioObject {
     protected:
         float midiFrequency;
+        float lastFrequency = 0.0f;
     public:
         Generator() 
         : dibiff::graph::AudioObject(), 

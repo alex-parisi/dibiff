@@ -6,6 +6,7 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include <cmath>
 
 /// TODO: Put these in separate files
 

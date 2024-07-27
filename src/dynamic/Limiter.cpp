@@ -41,7 +41,7 @@ void dibiff::dynamic::Limiter::initialize() {
  */
 float dibiff::dynamic::Limiter::process(float sample) {
     /// Convert to dB
-    float inputdB = 20.0f * std::log10f(sample);
+    float inputdB = 20.0f * std::log10(sample);
     /// Static Characteristic
     float xSc = calculateStaticCharacteristic(inputdB);
     /// Gain Smoothing
@@ -112,9 +112,9 @@ void dibiff::dynamic::Limiter::updateGainSmoothing(float xSc, float inputdB) {
     float gC = xSc - inputdB; /// Potentially just input?
     float alpha = [=]() -> float {
         if (gC <= gS) {
-            return std::expf(-log10f(9.0f) / (attack * sampleRate));
+            return std::expf(-log10(9.0f) / (attack * sampleRate));
         } else {
-            return std::expf(-log10f(9.0f) / (release * sampleRate));
+            return std::expf(-log10(9.0f) / (release * sampleRate));
         }
     }();
     gS = alpha * gS + (1.0f - alpha) * gC;

@@ -36,7 +36,7 @@ void dibiff::dynamic::Expander::initialize() {
  */
 float dibiff::dynamic::Expander::process(float sample) {
     /// Convert to dB
-    float inputdB = 20.0f * std::log10f(std::fabsf(sample));
+    float inputdB = 20.0f * std::log10(std::fabsf(sample));
     /// Static Characteristic
     float xSc = calculateStaticCharacteristic(inputdB);
     /// Gain Smoothing
@@ -106,9 +106,9 @@ void dibiff::dynamic::Expander::updateGainSmoothing(float xSc, float inputdB) {
     float gC = xSc - inputdB; /// Gain change
     float alpha = [=]() -> float {
         if (gC >= gS) {
-            return std::expf(-std::log10f(9.0f) / (attack * sampleRate));
+            return std::expf(-std::log10(9.0f) / (attack * sampleRate));
         } else {
-            return std::expf(-std::log10f(9.0f) / (release * sampleRate));
+            return std::expf(-std::log10(9.0f) / (release * sampleRate));
         }
     }();
     gS = alpha * gS + (1.0f - alpha) * gC;

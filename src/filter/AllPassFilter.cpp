@@ -59,7 +59,7 @@ void dibiff::filter::AllPassFilter::setQFactor(float qFactor) {
  * @param bandwidth The bandwidth of the filter 
  */
 void dibiff::filter::AllPassFilter::setBandwidth(float bandwidth) {
-    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10f(2.0f) / 2.0f));
+    float Q = 1.0f / (2.0f * std::sinhf(bandwidth * std::log10(2.0f) / 2.0f));
     setQFactor(Q);
 }
 /**

@@ -16,6 +16,21 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential cmake
+    - name: Install GCC 9
+      run: |
+        sudo apt-get install -y gcc-9 g++-9
+    - name: Set up GCC 9
+      run: |
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 \
+                                --slave /usr/bin/g++ g++ /usr/bin/g++-9
+    - name: Check GCC version
+      run: gcc --version
+    - name: Check G++ version
+      run: g++ --version
+    - name: Export compilers
+      run: |
+        export CC=gcc-9
+        export CXX=g++-9
     - name: Configure the project
       run: |
         mkdir -p build
@@ -24,4 +39,4 @@ jobs:
     - name: Build the project
       run: |
         cd build
-        make -j$(nproc)
+        make -j$(nproc) VERBOSE=1

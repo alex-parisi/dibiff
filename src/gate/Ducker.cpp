@@ -29,9 +29,9 @@ void dibiff::gate::Ducker::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "DuckerInput"));
     reference = std::make_shared<dibiff::graph::AudioReference>(dibiff::graph::AudioReference(shared_from_this(), "DuckerReference"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "DuckerOutput"));
-    attackCoefficient = std::expf(-1.0f / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::expf(-1.0f / (releaseTime * sampleRate / 1000.0f));
-    thresholdLevel = std::powf(10.0f, threshold / 20.0f); // Convert dB to linear
+    attackCoefficient = std::exp(-1.0f / (attackTime * sampleRate / 1000.0f));
+    releaseCoefficient = std::exp(-1.0f / (releaseTime * sampleRate / 1000.0f));
+    thresholdLevel = std::pow(10.0f, threshold / 20.0f); // Convert dB to linear
 }
 /**
  * @brief Process a sample
@@ -40,14 +40,14 @@ void dibiff::gate::Ducker::initialize() {
  * @param sidechain The sidechain input sample
  */
 float dibiff::gate::Ducker::process(float sample, float reference) {
-    float sidechainLevel = std::fabsf(reference);
+    float sidechainLevel = std::fabs(reference);
     if (sidechainLevel > thresholdLevel) {
         envelope = attackCoefficient * (envelope - sidechainLevel) + sidechainLevel;
     } else {
         envelope = releaseCoefficient * envelope;
     }
     if (sidechainLevel > thresholdLevel) {
-        float gainReduction = std::powf(envelope / thresholdLevel, 1.0f - ratio);
+        float gainReduction = std::pow(envelope / thresholdLevel, 1.0f - ratio);
         return sample * gainReduction;
     }
     return sample;

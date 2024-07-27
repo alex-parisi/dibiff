@@ -49,7 +49,7 @@ float dibiff::dynamic::Limiter::process(float sample) {
     /// Makeup Gain
     float gM = gS * makeupGain.value();
     /// Convert back to linear scale
-    float gLin = std::powf(10.0f, gM / 20.0f);
+    float gLin = std::pow(10.0f, gM / 20.0f);
     /// Output
     return gLin * sample;
 }
@@ -90,7 +90,7 @@ float dibiff::dynamic::Limiter::calculateStaticCharacteristic(float inputdB) {
         } else if (inputdB > (threshold + (knee.value() / 2.0f))) {
             return threshold;
         } else {
-            float numerator = std::powf(inputdB - threshold + (knee.value() / 2.0f), 2.0f);
+            float numerator = std::pow(inputdB - threshold + (knee.value() / 2.0f), 2.0f);
             return inputdB - (numerator / (2.0f * knee.value()));
         } 
     } else {
@@ -112,9 +112,9 @@ void dibiff::dynamic::Limiter::updateGainSmoothing(float xSc, float inputdB) {
     float gC = xSc - inputdB; /// Potentially just input?
     float alpha = [=]() -> float {
         if (gC <= gS) {
-            return std::expf(-log10(9.0f) / (attack * sampleRate));
+            return std::exp(-log10(9.0f) / (attack * sampleRate));
         } else {
-            return std::expf(-log10(9.0f) / (release * sampleRate));
+            return std::exp(-log10(9.0f) / (release * sampleRate));
         }
     }();
     gS = alpha * gS + (1.0f - alpha) * gC;

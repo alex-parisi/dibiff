@@ -27,8 +27,8 @@ dibiff::gate::NoiseGate::NoiseGate(float threshold, float attackTime, float rele
 void dibiff::gate::NoiseGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "NoiseGateInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "NoiseGateOutput"));
-    attackCoefficient = std::expf(-1.0 / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::expf(-1.0 / (releaseTime * sampleRate / 1000.0f));
+    attackCoefficient = std::exp(-1.0 / (attackTime * sampleRate / 1000.0f));
+    releaseCoefficient = std::exp(-1.0 / (releaseTime * sampleRate / 1000.0f));
 }
 /**
  * @brief Process a sample

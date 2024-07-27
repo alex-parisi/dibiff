@@ -24,7 +24,7 @@ dibiff::filter::PeakingEQFilter::PeakingEQFilter(float gain, float cutoff, float
  * @param qFactor The quality factor of the filter
  */
 dibiff::filter::Coefficients dibiff::filter::PeakingEQFilter::calculateCoefficients(float gain, float cutoff, float sampleRate, float qFactor) {
-    float A = std::powf(10.0f, gain / 40.0f);
+    float A = std::pow(10.0f, gain / 40.0f);
     float w0 = 2.0f * M_PI * cutoff / sampleRate;
     float alpha = std::sinf(w0) / (2.0f * qFactor);
     float b0 = 1.0f + (alpha * A);

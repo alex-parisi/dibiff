@@ -28,9 +28,9 @@ dibiff::gate::LookaheadGate::LookaheadGate(float threshold, float attackTime, fl
 void dibiff::gate::LookaheadGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "LookaheadGateInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "LookaheadGateOutput"));
-    attackCoefficient = std::expf(-1.0f / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::expf(-1.0f / (releaseTime * sampleRate / 1000.0f));
-    thresholdLevel = std::powf(10.0f, threshold / 20.0f);
+    attackCoefficient = std::exp(-1.0f / (attackTime * sampleRate / 1000.0f));
+    releaseCoefficient = std::exp(-1.0f / (releaseTime * sampleRate / 1000.0f));
+    thresholdLevel = std::pow(10.0f, threshold / 20.0f);
     lookaheadSamples = static_cast<int>(lookaheadTime * sampleRate / 1000.0f);
     delayBuffer.resize(lookaheadSamples, 0.0f);
 }
@@ -41,7 +41,7 @@ void dibiff::gate::LookaheadGate::initialize() {
  */
 float dibiff::gate::LookaheadGate::process(float sample) {
     float sidechainInput = delayBuffer[bufferIndex];
-    float sidechainLevel = std::fabsf(sidechainInput);
+    float sidechainLevel = std::fabs(sidechainInput);
     if (sidechainLevel > thresholdLevel) {
         envelope = attackCoefficient * (envelope - sidechainLevel) + sidechainLevel;
     } else {

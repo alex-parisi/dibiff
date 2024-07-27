@@ -35,8 +35,8 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON
+        cmake ..
     - name: Build the project
       run: |
         cd build
-        make -j$(nproc) VERBOSE=1
+        make -j$(nproc)

@@ -106,4 +106,5 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
         float frequency;
         int totalSamples;
         int currentSample;
+        float phase;
 };

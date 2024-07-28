@@ -19,7 +19,7 @@ std::string dibiff::generator::SineGenerator::getName() const { return "SineGene
  */
 dibiff::generator::SineGenerator::SineGenerator(int blockSize, int sampleRate, float frequency, int totalSamples)
 : dibiff::generator::Generator(), 
-  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples) {}
+  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {}
 /**
  * @brief Initialize
  * @details Initializes the sine wave source connection points
@@ -33,11 +33,11 @@ void dibiff::generator::SineGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SineGenerator::process() {
-    /// If there is a duration set, and we've gone past it, stop generating samples
+    // If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
         auto midiData = *input->getData();
@@ -46,22 +46,24 @@ void dibiff::generator::SineGenerator::process() {
         }
         freq = midiFrequency;
     }
-    /// Check if the frequency has changed
-    if (freq != lastFrequency) {
-        /// Set t = 0, ensures the new sine wave starts at 0
-        currentSample = 0;
-        lastFrequency = freq;
-    }
-    /// Generate Sine Wave samples at the specified frequency
-    Eigen::VectorXf audioData(blockSize);
-    audioData.setZero();
-    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, currentSample, currentSample + blockSize - 1);
-    audioData = (2.0f * M_PI * freq * indices / sampleRate).array().sin();
+    // Calculate phase increment based on the current frequency
+    float phaseIncrement = 2.0f * static_cast<float>(M_PI) * freq / sampleRate;
+    // Generate samples using Eigen vectorized operations
+    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, 0, blockSize - 1);
+    Eigen::VectorXf phaseArray = (indices.array() * phaseIncrement + phase).cast<float>();
+    // Wrap phase values within [0, 2π]
+    phaseArray = phaseArray.unaryExpr([](float x) { return std::fmod(x, 2.0f * static_cast<float>(M_PI)); });
+    Eigen::VectorXf audioData = phaseArray.array().sin();
+    // Update the current sample count and phase
     currentSample += blockSize;
-    /// Preserve size if we've exceeded the total number of samples
+    phase = std::fmod(phase + blockSize * phaseIncrement, 2.0f * static_cast<float>(M_PI));
+    // Update the last frequency to the new frequency
+    lastFrequency = freq;
+    // Preserve size if we've exceeded the total number of samples
     if (totalSamples != -1 && currentSample > totalSamples) {
         audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
+    // Output the generated audio data
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();

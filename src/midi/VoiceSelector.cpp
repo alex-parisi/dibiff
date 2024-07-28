@@ -106,14 +106,10 @@ void dibiff::midi::VoiceSelector::processMidiMessage(std::vector<unsigned char> 
 
     if (type == 0x90 && velocity > 0) { // Note on
         /// Find the next available voice and assign the frequency
-        for (int i = 0; i < voices.size(); ++i) {
-            if (!voices[i].active) {
-                voices[i].frequency = frequency;
-                voices[i].active = true;
-                voices[i].midiMessage = message;
-                break;
-            }
-        }
+        voices[voiceIndex].frequency = frequency;
+        voices[voiceIndex].active = true;
+        voices[voiceIndex].midiMessage = message;
+        voiceIndex = (voiceIndex + 1) % voices.size();
     } else if (type == 0x80 || (type == 0x90 && velocity == 0)) { // Note off
         /// Find the voice with the matching frequency and deactivate it
         for (int i = 0; i < voices.size(); ++i) {

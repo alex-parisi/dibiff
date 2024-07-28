@@ -19,7 +19,7 @@ std::string dibiff::generator::TriangleGenerator::getName() const { return "Tria
  */
 dibiff::generator::TriangleGenerator::TriangleGenerator(int blockSize, int sampleRate, float frequency, int totalSamples)
 : dibiff::generator::Generator(), 
-  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples) {}
+  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {}
 /**
  * @brief Initialize
  * @details Initializes the triangle wave source connection points
@@ -35,11 +35,11 @@ void dibiff::generator::TriangleGenerator::initialize() {
  * contributing to phase misalignment.
  */
 void dibiff::generator::TriangleGenerator::process() {
-    /// If there is a duration set, and we've gone past it, stop generating samples
+    // If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
         auto midiData = *input->getData();
@@ -48,34 +48,27 @@ void dibiff::generator::TriangleGenerator::process() {
         }
         freq = midiFrequency;
     }
-    /// Check if the frequency has changed
-    if (freq != lastFrequency) {
-        /// Set t = 0, ensures the new sine wave starts at 0
-        currentSample = 0;
-        lastFrequency = freq;
-    }
-    /// Generate Triangle Wave samples at the specified frequency
-    Eigen::VectorXd audioData(blockSize);
-    audioData.setZero();
-    // Use double precision for sample rate and frequency
-    const double periodSamples = static_cast<double>(sampleRate / freq);
-    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-    // Generate indices for the current block using double precision
-    Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(effectiveBlockSize, static_cast<double>(currentSample), static_cast<double>(currentSample + effectiveBlockSize - 1));
-    // Apply the 1/4 period offset
-    Eigen::VectorXd offsetIndices = indices.array() + periodSamples / 4.0;
-    // Calculate position in period for each sample
-    Eigen::VectorXd positionInPeriod = offsetIndices.array() - (offsetIndices.array() / periodSamples).floor() * periodSamples;
-    // Calculate the triangle wave values based on the position in the period
-    audioData = (positionInPeriod.array() < periodSamples / 2.0).select(
-        -1.0 + 2.0 * (positionInPeriod.array() / (periodSamples / 2.0)),
-        1.0 - 2.0 * ((positionInPeriod.array() - periodSamples / 2.0) / (periodSamples / 2.0))
-    );
-    currentSample += effectiveBlockSize;
-    /// Preserve size if we've exceeded the total number of samples
+    // Calculate phase increment based on the current frequency
+    double phaseIncrement = 2.0 * M_PI * freq / static_cast<double>(sampleRate);
+    // Generate samples using Eigen vectorized operations
+    Eigen::VectorXd indices = Eigen::VectorXd::LinSpaced(blockSize, 0, blockSize - 1);
+    Eigen::VectorXd phaseArray = (indices.array() * phaseIncrement + phase + M_PI / 2.0).cast<double>();
+    // Wrap phase values within [0, 2π]
+    phaseArray = phaseArray.unaryExpr([](double x) { return std::fmod(x, 2.0 * M_PI); });
+    // Calculate the triangle wave values based on the phase
+    Eigen::VectorXd audioData = phaseArray.unaryExpr([](double x) {
+        return x < M_PI ? -1.0 + (2.0 / M_PI) * x : 3.0 - (2.0 / M_PI) * x;
+    });
+    // Update the current sample count and phase
+    currentSample += blockSize;
+    phase = std::fmod(phase + blockSize * phaseIncrement, 2.0 * M_PI);
+    // Update the last frequency to the new frequency
+    lastFrequency = freq;
+    // Preserve size if we've exceeded the total number of samples
     if (totalSamples != -1 && currentSample > totalSamples) {
         audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
+    // Output the generated audio data
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();

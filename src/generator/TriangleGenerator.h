@@ -101,4 +101,5 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
         float frequency;
         int totalSamples;
         int currentSample;
+        float phase;
 };

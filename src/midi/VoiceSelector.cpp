@@ -97,13 +97,11 @@ std::shared_ptr<dibiff::midi::VoiceSelector> dibiff::midi::VoiceSelector::create
 
 void dibiff::midi::VoiceSelector::processMidiMessage(std::vector<unsigned char> message) {
     if (message.empty()) return;
-
     unsigned char status = message[0];
     unsigned char type = status & 0xF0;
     unsigned char noteNumber = message[1];
     unsigned char velocity = message[2];
     float frequency = midiNoteToFrequency(noteNumber);
-
     if (type == 0x90 && velocity > 0) { // Note on
         /// Find the next available voice and assign the frequency
         voices[voiceIndex].frequency = frequency;

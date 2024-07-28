@@ -20,7 +20,7 @@ std::string dibiff::generator::SquareGenerator::getName() const { return "Square
  */
 dibiff::generator::SquareGenerator::SquareGenerator(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples)
 : dibiff::generator::Generator(), 
-  blockSize(blockSize), sampleRate(sampleRate), dutyCycle(dutyCycle), frequency(frequency), totalSamples(totalSamples) {}
+  blockSize(blockSize), sampleRate(sampleRate), dutyCycle(dutyCycle), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {}
 /**
  * @brief Initialize
  * @details Initializes the square wave source connection points
@@ -34,11 +34,11 @@ void dibiff::generator::SquareGenerator::initialize() {
  * @details Generates a block of audio data
  */
 void dibiff::generator::SquareGenerator::process() {
-    /// If there is a duration set, and we've gone past it, stop generating samples
+    // If there is a duration set, and we've gone past it, stop generating samples
     if (totalSamples != -1 && currentSample >= totalSamples) {
         return;
     }
-    /// If the MIDI input is connected, process the MIDI messages to set the frequency
+    // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
         auto midiData = *input->getData();
@@ -47,29 +47,26 @@ void dibiff::generator::SquareGenerator::process() {
         }
         freq = midiFrequency;
     }
-    /// Check if the frequency has changed
-    if (freq != lastFrequency) {
-        /// Set t = 0, ensures the new sine wave starts at 0
-        currentSample = 0;
-        lastFrequency = freq;
-    }
-    /// Generate Square Wave samples at the specified frequency
-    Eigen::VectorXf audioData(blockSize);
-    audioData.setZero();
-    // Calculate the period of the wave in samples
-    const float period = sampleRate / freq;
-    int effectiveBlockSize = (totalSamples == -1) ? blockSize : std::min(blockSize, totalSamples - currentSample);
-    // Generate indices for the current block
-    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(effectiveBlockSize, currentSample, currentSample + effectiveBlockSize - 1);
-    // Calculate phase for each sample using Eigen's array operations
-    Eigen::VectorXf phases = (indices.array() / period).array() - ((indices.array() / period).array().floor());
+    // Calculate phase increment based on the current frequency
+    float phaseIncrement = 2.0f * static_cast<float>(M_PI) * freq / sampleRate;
+    // Generate samples using Eigen vectorized operations
+    Eigen::VectorXf indices = Eigen::VectorXf::LinSpaced(blockSize, 0, blockSize - 1);
+    Eigen::VectorXf phaseArray = (indices.array() * phaseIncrement + phase).cast<float>();
+    // Wrap phase values within [0, 2π]
+    phaseArray = phaseArray.unaryExpr([](float x) { return std::fmod(x, 2.0f * static_cast<float>(M_PI)); });
     // Calculate the square wave values based on the phase and duty cycle
-    audioData = (phases.array() < dutyCycle).select(Eigen::VectorXf::Constant(effectiveBlockSize, 1.0f), Eigen::VectorXf::Constant(effectiveBlockSize, -1.0f));
-    currentSample += effectiveBlockSize;
-    /// Preserve size if we've exceeded the total number of samples
+    Eigen::VectorXf audioData = (phaseArray.array() < dutyCycle * 2.0f * static_cast<float>(M_PI))
+        .select(Eigen::VectorXf::Constant(blockSize, 1.0f), Eigen::VectorXf::Constant(blockSize, -1.0f));
+    // Update the current sample count and phase
+    currentSample += blockSize;
+    phase = std::fmod(phase + blockSize * phaseIncrement, 2.0f * static_cast<float>(M_PI));
+    // Update the last frequency to the new frequency
+    lastFrequency = freq;
+    // Preserve size if we've exceeded the total number of samples
     if (totalSamples != -1 && currentSample > totalSamples) {
         audioData.conservativeResize(totalSamples - currentSample + blockSize);
     }
+    // Output the generated audio data
     std::vector<float> out(audioData.data(), audioData.data() + audioData.size());
     output->setData(out, out.size());
     markProcessed();

@@ -35,17 +35,22 @@ void dibiff::effect::Chorus::initialize() {
  * @param sample The input sample
  */
 float dibiff::effect::Chorus::process(float sample) {
-    // Calculate the current delay time
+    // Calculate the current delay time using the LFO
     float lfo = (1.0f + std::sin(2.0f * M_PI * modulationRate * phase)) / 2.0f;
-    int delaySamples = static_cast<int>(lfo * maxDelaySamples);
-    // Get the delayed sample
-    int delayIndex = (bufferIndex - delaySamples + buffer.size()) % buffer.size();
-    float delayedSample = buffer[delayIndex];
-    // Update the buffer
+    float delaySamples = lfo * maxDelaySamples;
+    // Calculate the indices for interpolation
+    int intDelaySamples = static_cast<int>(delaySamples);
+    float fracDelaySamples = delaySamples - intDelaySamples;
+    int delayIndex1 = (bufferIndex - intDelaySamples + buffer.size()) % buffer.size();
+    int delayIndex2 = (delayIndex1 - 1 + buffer.size()) % buffer.size();
+    // Linear interpolation between two samples
+    float delayedSample = buffer[delayIndex1] * (1.0f - fracDelaySamples) +
+                          buffer[delayIndex2] * fracDelaySamples;
+    // Update the buffer with the current sample
     buffer[bufferIndex] = sample;
     bufferIndex = (bufferIndex + 1) % buffer.size();
     // Increment the phase for the LFO
-    phase += 1.0f / sampleRate;
+    phase += modulationRate / sampleRate;
     if (phase >= 1.0f) {
         phase -= 1.0f;
     }

@@ -19,7 +19,7 @@ std::string dibiff::effect::Phaser::getName() const { return "Phaser"; }
  * @param mix The mix of the phaser effect, default value is 0.5
  * @param numStages The number of all-pass filter in the phaser, default value is 4
  */
-dibiff::effect::Phaser::Phaser(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff = 1000.0f, float mix = 0.5f, int numStages = 4)
+dibiff::effect::Phaser::Phaser(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff, float mix, int numStages)
 : dibiff::graph::AudioObject(),
     modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), baseCutoff(baseCutoff), mix(mix), numStages(numStages) {};
 /**
@@ -143,7 +143,7 @@ bool dibiff::effect::Phaser::isReadyToProcess() const {
  * @param mix The mix of the phaser effect, default value is 0.5
  * @param numStages The number of all-pass filter in the phaser, default value is 4
  */
-std::shared_ptr<dibiff::effect::Phaser> dibiff::effect::Phaser::create(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff = 1000.0f, float mix = 0.5f, int numStages = 4) {
+std::shared_ptr<dibiff::effect::Phaser> dibiff::effect::Phaser::create(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff, float mix, int numStages) {
     auto instance = std::make_shared<dibiff::effect::Phaser>(modulationDepth, modulationRate, sampleRate, baseCutoff, mix, numStages);
     instance->initialize();
     return instance;

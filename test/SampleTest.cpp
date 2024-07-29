@@ -7,26 +7,17 @@ int main() {
 
     dibiff::graph::AudioGraph graph;
 
-    /// Create Baby's First Synth
-    dibiff::synth::BabysFirstSynthParameters params;
-    params.blockSize = blockSize;
-    params.sampleRate = sampleRate;
-    params.midiPortNum = 0;
-    params.numVoices = 16;
-    params.gain = 12.0f;
-    params.attack = 0.1f;
-    params.decay = 0.1f;
-    params.sustain = 0.5f;
-    params.release = 0.5f;
-    params.modulationRate = 0.4f;
-    params.modulationDepth = 2.0f;
-    auto babysFirstSynth = graph.add(dibiff::synth::BabysFirstSynth::create(params));
+    /// Create MIDI Input
+    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize, 0));
+
+    /// Create Sample Generator
+    auto sampleGenerator = graph.add(dibiff::generator::SampleGenerator::create("../test/testAudio/sample.wav", blockSize, sampleRate));
 
     /// Create Reverb
     auto reverb = graph.add(dibiff::effect::Reverb::create(2, 10, sampleRate));
 
     /// Create the WavWriter
-    auto wavWriter1 = graph.add(dibiff::sink::WavWriter::create("synthOutput.wav", sampleRate));
+    auto wavWriter1 = graph.add(dibiff::sink::WavWriter::create("sampleOutput.wav", sampleRate));
     auto wavWriter2 = graph.add(dibiff::sink::WavWriter::create("reverbOutput.wav", sampleRate));
 
     /// Create AudioPlayer
@@ -34,8 +25,9 @@ int main() {
     auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
 
     /// Connect everything
-    graph.connect(babysFirstSynth->getOutput(), reverb->getInput());
-    graph.connect(babysFirstSynth->getOutput(), wavWriter1->getInput());
+    graph.connect(midiInput->getOutput(), sampleGenerator->getInput());
+    graph.connect(sampleGenerator->getOutput(), wavWriter1->getInput());
+    graph.connect(sampleGenerator->getOutput(), reverb->getInput());
     graph.connect(reverb->getOutput(), wavWriter2->getInput());
     graph.connect(reverb->getOutput(), audioPlayer->getInput());
 

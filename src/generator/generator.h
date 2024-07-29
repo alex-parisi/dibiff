@@ -19,6 +19,7 @@ namespace dibiff {
         class TriangleGenerator;
         class SquareGenerator;
         class WhiteNoiseGenerator;
+        class SampleGenerator;
     }
 }
 

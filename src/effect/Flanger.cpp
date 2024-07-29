@@ -17,9 +17,9 @@ std::string dibiff::effect::Flanger::getName() const { return "Flanger"; }
  * @param sampleRate The sample rate of the input signal
  * @param feedback The feedback amount of the flanger effect
  */
-dibiff::effect::Flanger::Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback) 
+dibiff::effect::Flanger::Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback, float wetLevel) 
 : dibiff::graph::AudioObject(), 
-    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), feedback(feedback) {};
+    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), feedback(feedback), wetLevel(wetLevel) {};
 /**
  * @brief Initialize
  * @details Initializes the flanger connection points and buffer
@@ -70,7 +70,7 @@ void dibiff::effect::Flanger::process() {
         }
         std::vector<float> out(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            out[i] = y(i);
+            out[i] = wetLevel * y(i) + (1.0f - wetLevel) * x(i);
         }
         output->setData(out, blockSize);
         markProcessed();
@@ -127,8 +127,8 @@ bool dibiff::effect::Flanger::isReadyToProcess() const {
  * @param sampleRate The sample rate of the input signal
  * @param feedback The feedback amount of the flanger effect
  */
-std::shared_ptr<dibiff::effect::Flanger> dibiff::effect::Flanger::create(float modulationDepth, float modulationRate, float sampleRate, float feedback) {
-    auto instance = std::make_shared<dibiff::effect::Flanger>(modulationDepth, modulationRate, sampleRate, feedback);
+std::shared_ptr<dibiff::effect::Flanger> dibiff::effect::Flanger::create(float modulationDepth, float modulationRate, float sampleRate, float feedback, float wetLevel) {
+    auto instance = std::make_shared<dibiff::effect::Flanger>(modulationDepth, modulationRate, sampleRate, feedback, wetLevel);
     instance->initialize();
     return instance;
 }

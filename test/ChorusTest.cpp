@@ -23,7 +23,8 @@ int main() {
     auto chorus = graph.add(dibiff::effect::Chorus::create(0.4f, 2.0f, sampleRate));
 
     /// Create the WavWriter
-    auto wavWriter = graph.add(dibiff::sink::WavWriter::create("output.wav", sampleRate));
+    auto wavWriter1 = graph.add(dibiff::sink::WavWriter::create("chorusOutput.wav", sampleRate));
+    auto wavWriter2 = graph.add(dibiff::sink::WavWriter::create("gainOutput.wav", sampleRate));
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
@@ -35,7 +36,8 @@ int main() {
     graph.connect(sineGenerator->getOutput(), envelope->getInput());
     graph.connect(envelope->getOutput(), gain->getInput());
     graph.connect(gain->getOutput(), chorus->getInput());
-    graph.connect(chorus->getOutput(), wavWriter->getInput());
+    graph.connect(gain->getOutput(), wavWriter2->getInput());
+    graph.connect(chorus->getOutput(), wavWriter1->getInput());
     graph.connect(chorus->getOutput(), audioPlayer->getInput());
 
     /// Run the graph

@@ -8,6 +8,9 @@
 #include <memory>
 #include <cmath>
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <cstdint>
 #include <math.h>
 
 /// TODO: Put these in separate files

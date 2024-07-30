@@ -18,11 +18,6 @@
 class dibiff::filter::AllPassFilter : public dibiff::filter::DigitalBiquadFilter {
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the filter with default values
          */

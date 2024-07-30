@@ -3,11 +3,6 @@
 #include "WavWriter.h"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::sink::WavWriter::getName() const { return "WavWriter"; }
-/**
  * @brief Constructor
  * @details Initializes the WAV sink with a certain filename, sample rate,
  * and total number of samples
@@ -15,7 +10,9 @@ std::string dibiff::sink::WavWriter::getName() const { return "WavWriter"; }
  * @param rate The sample rate of the WAV file
  */
 dibiff::sink::WavWriter::WavWriter(const std::string& filename, int rate)
-    : filename(filename), sampleRate(rate), writtenSamples(0) {}
+: dibiff::graph::AudioObject(), filename(filename), sampleRate(rate), writtenSamples(0) {
+    name = "WavWriter";
+}
 /**
  * @brief Initialize
  * @details Initializes the WAV sink connection points and opens the WAV file

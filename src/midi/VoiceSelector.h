@@ -23,7 +23,6 @@ class dibiff::midi::VoiceSelector : public dibiff::graph::AudioObject {
     std::vector<std::shared_ptr<dibiff::graph::MidiOutput>> outputs;
     std::vector<dibiff::midi::Voice> voices;
     public:
-        std::string getName() const override;
         VoiceSelector(int blockSize, int numVoices = 3);
         void initialize() override;
         void process() override;

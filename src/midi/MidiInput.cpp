@@ -4,19 +4,15 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- */
-std::string dibiff::midi::MidiInput::getName() const {
-    return "MidiInput";
-}
-/**
  * @brief Constructor
  * @details Constructs a MIDI input object
  * @param blockSize The block size of the MIDI input
  * @param portNum The port number of the MIDI input
  */
 dibiff::midi::MidiInput::MidiInput(int blockSize, int portNum)
-: dibiff::graph::AudioObject(), blockSize(blockSize), portNum(portNum) {}
+: dibiff::graph::AudioObject(), blockSize(blockSize), portNum(portNum) {
+    name = "MidiInput";
+}
 /**
  * @brief Initialize
  * @details Initializes the MIDI input object

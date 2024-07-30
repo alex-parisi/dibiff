@@ -3,18 +3,15 @@
 #include "PeakingEQFilter.h"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::PeakingEQFilter::getName() const { return "PeakingEQFilter"; }
-/**
  * @brief Constructor
  * @details Initializes the filter with default values
  */
 dibiff::filter::PeakingEQFilter::PeakingEQFilter(float gain, float cutoff, float sampleRate, float qFactor)
 : dibiff::filter::DigitalBiquadFilter([&, gain, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
     return calculateCoefficients(gain, cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {};
+}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+    name = "PeakingEQFilter";
+};
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the gain, cutoff frequency, sample rate, and quality factor

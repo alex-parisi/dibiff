@@ -2,10 +2,10 @@
 
 #include "SampleGenerator.h"
 
-std::string dibiff::generator::SampleGenerator::getName() const { return "SampleGenerator"; }
-
 dibiff::generator::SampleGenerator::SampleGenerator(std::string filename, int blockSize, int sampleRate)
-: dibiff::generator::Generator(), filename(filename), blockSize(blockSize), sampleRate(sampleRate), currentSample(-1) {}
+: dibiff::generator::Generator(), filename(filename), blockSize(blockSize), sampleRate(sampleRate), currentSample(-1) {
+    name = "SampleGenerator";
+}
 
 void dibiff::generator::SampleGenerator::initialize() {
     input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SampleGeneratorMidiInput"));

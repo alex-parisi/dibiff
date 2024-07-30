@@ -5,11 +5,6 @@
 
 #include <iostream>
 
-/**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::dynamic::Envelope::getName() const { return "Envelope"; }
 enum EnvelopeStage {
     Attack,
     Decay,
@@ -28,7 +23,9 @@ enum EnvelopeStage {
  */
 dibiff::dynamic::Envelope::Envelope(float attackTime, float decayTime, float sustainLevel, float releaseTime, float sampleRate)
 : dibiff::graph::AudioObject(), 
-    attackTime(attackTime), decayTime(decayTime), sustainLevel(sustainLevel), releaseTime(releaseTime), sampleRate(sampleRate) {};
+  attackTime(attackTime), decayTime(decayTime), sustainLevel(sustainLevel), releaseTime(releaseTime), sampleRate(sampleRate) {
+    name = "Envelope";
+};
 /**
  * @brief Initialize
  * @details Initializes the envelope connection points and parameters

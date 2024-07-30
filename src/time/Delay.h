@@ -18,11 +18,6 @@ class dibiff::time::Delay : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the delay object with a certain delay time
          * @param delayTime The delay time of the object in milliseconds

@@ -8,12 +8,10 @@
 #include <mutex>
 #include <condition_variable>
 
-std::string dibiff::sink::AudioPlayer::getName() const {
-    return "AudioPlayer";
-}
-
 dibiff::sink::AudioPlayer::AudioPlayer(int rate, int blockSize)
-    : sampleRate(rate), blockSize(blockSize) {}
+: dibiff::graph::AudioObject(), sampleRate(rate), blockSize(blockSize) {
+    name = "AudioPlayer";
+}
 
 void dibiff::sink::AudioPlayer::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "AudioPlayerInput");

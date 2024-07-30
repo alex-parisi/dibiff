@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::dynamic::Expander::getName() const { return "Expander"; }
-/**
  * @brief Constructor
  * @details Initializes the expander with default values
  * @param threshold The threshold of the expander in dB
@@ -20,7 +15,9 @@ std::string dibiff::dynamic::Expander::getName() const { return "Expander"; }
  */
 dibiff::dynamic::Expander::Expander(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> kneeWidth = std::nullopt)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), knee(kneeWidth) {};
+  threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), knee(kneeWidth) {
+    name = "Expander";
+};
 /**
  * @brief Initialize
  * @details Initializes the expander connection points

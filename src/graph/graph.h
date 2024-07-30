@@ -56,6 +56,7 @@ class dibiff::graph::AudioConnectionPoint {
  */
 class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObject> {
     public:
+        std::string name = "AudioObject";
         virtual void reset() = 0;
         virtual void clear() = 0;
         virtual void process() = 0;
@@ -65,7 +66,8 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() = 0;
         virtual bool isFinished() const = 0;
         virtual void initialize() = 0;
-        virtual std::string getName() const = 0;
+        std::string getName() { return name; }
+        void setName(std::string name) { this->name = name; }
         virtual ~AudioObject() {};
         virtual void RenderImGui() {}; /// Optional ImGui rendering
         void markProcessed(bool processed = true) { this->processed = processed; }

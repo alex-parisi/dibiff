@@ -6,17 +6,13 @@
 #include <iostream>
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::midi::VoiceSelector::getName() const { return "VoiceSelector"; }
-/**
  * @brief Constructor
  * @param blockSize The block size of the object
  * @param numVoices The number of voices to create
  */
 dibiff::midi::VoiceSelector::VoiceSelector(int blockSize, int numVoices)
 : dibiff::graph::AudioObject(), blockSize(blockSize) {
+    name = "VoiceSelector";
     for (int i = 0; i < numVoices; ++i) {
         voices.push_back(dibiff::midi::Voice());
     }

@@ -3,18 +3,15 @@
 #include "BandPassFilter.h"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::BandPassFilterConstantSkirtGain::getName() const { return "BandPassFilterConstantSkirtGain"; }
-/**
  * @brief Constructor
  * @details Initializes the filter with default values
  */
 dibiff::filter::BandPassFilterConstantSkirtGain::BandPassFilterConstantSkirtGain(float cutoff, float sampleRate, float qFactor)
 : dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
     return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {};
+}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+    name = "BandPassFilterConstantSkirtGain";
+};
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -77,18 +74,15 @@ std::shared_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter:
 }
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::BandPassFilterConstantPeakGain::getName() const { return "BandPassFilterConstantPeakGain"; }
-/**
  * @brief Constructor
  * @details Initializes the filter with default values
  */
 dibiff::filter::BandPassFilterConstantPeakGain::BandPassFilterConstantPeakGain(float cutoff, float sampleRate, float qFactor)
 : dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
     return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {};
+}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+    name = "BandPassFilterConstantPeakGain";
+};
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor

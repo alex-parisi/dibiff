@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::gate::ExpanderGate::getName() const { return "ExpanderGate"; }
-/**
  * @brief Constructor
  * @details Initializes the expander gate object with a certain threshold,
  * ratio, attack time, release time, and sample rate
@@ -20,7 +15,9 @@ std::string dibiff::gate::ExpanderGate::getName() const { return "ExpanderGate";
  */
 dibiff::gate::ExpanderGate::ExpanderGate(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {};
+  threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {
+    name = "ExpanderGate";
+};
 /**
  * @brief Initialize
  * @details Initializes the expander gate connection points and envelope

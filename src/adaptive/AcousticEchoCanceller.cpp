@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::adaptive::AcousticEchoCanceller::getName() const { return "AcousticEchoCanceller"; }
-/**
  * @brief Constructor
  * @details Initializes the acoustic echo canceller with a certain filter length,
  * step size, buffer size, and sample rate
@@ -18,7 +13,9 @@ std::string dibiff::adaptive::AcousticEchoCanceller::getName() const { return "A
  */
 dibiff::adaptive::AcousticEchoCanceller::AcousticEchoCanceller(int filterLength, float stepSize, float sampleRate)
 : dibiff::graph::AudioObject(), 
-    filterLength(filterLength), stepSize(stepSize), sampleRate(sampleRate) {};
+  filterLength(filterLength), stepSize(stepSize), sampleRate(sampleRate) {
+    name = "AcousticEchoCanceller";
+};
 /**
  * @brief Initialize
  * @details Initializes the acoustic echo canceller connection points and adaptive filter

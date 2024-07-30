@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Chorus::getName() const { return "Chorus"; }
-/**
  * @brief Constructor
  * @details Initializes the chorus object with a certain modulation depth
  * and modulation rate
@@ -17,8 +12,9 @@ std::string dibiff::effect::Chorus::getName() const { return "Chorus"; }
  * @param sampleRate The sample rate of the input signal
  */
 dibiff::effect::Chorus::Chorus(float modulationDepth, float modulationRate, float sampleRate, float wetLevel) 
-: dibiff::graph::AudioObject(), 
-    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), wetLevel(wetLevel) {};
+: dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), wetLevel(wetLevel) {
+    name = "Chorus";
+};
 /**
  * @brief Initialize
  * @details Initializes the chorus connection points and buffer

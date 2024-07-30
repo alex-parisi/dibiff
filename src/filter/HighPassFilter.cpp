@@ -3,18 +3,15 @@
 #include "HighPassFilter.h"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::HighPassFilter::getName() const { return "HighPassFilter"; }
-/**
  * @brief Constructor
  * @details Initializes the filter with default values
  */
 dibiff::filter::HighPassFilter::HighPassFilter(float cutoff, float sampleRate, float qFactor)
 : dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
     return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {};
+}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+    name = "HighPassFilter";
+};
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor

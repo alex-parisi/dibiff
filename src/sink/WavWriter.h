@@ -19,11 +19,6 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
     std::string filename;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the WAV sink with a certain filename, sample rate,
          * and total number of samples

@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Flanger::getName() const { return "Flanger"; }
-/**
  * @brief Constructor
  * @details Initializes the flanger object with a certain modulation depth
  * and modulation rate
@@ -18,8 +13,9 @@ std::string dibiff::effect::Flanger::getName() const { return "Flanger"; }
  * @param feedback The feedback amount of the flanger effect
  */
 dibiff::effect::Flanger::Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback, float wetLevel) 
-: dibiff::graph::AudioObject(), 
-    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), feedback(feedback), wetLevel(wetLevel) {};
+: dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), feedback(feedback), wetLevel(wetLevel) {
+    name = "Flanger";
+};
 /**
  * @brief Initialize
  * @details Initializes the flanger connection points and buffer

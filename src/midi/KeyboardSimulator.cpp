@@ -4,16 +4,14 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- */
-std::string dibiff::midi::KeyboardSimulator::getName() const { return "KeyboardSimulator"; }
-/**
  * @brief Constructor
  * @details Constructs a MIDI input object
  * @param blockSize The block size of the MIDI input
  */
 dibiff::midi::KeyboardSimulator::KeyboardSimulator(int blockSize)
-: dibiff::graph::AudioObject(), blockSize(blockSize) {}
+: dibiff::graph::AudioObject(), blockSize(blockSize) {
+    name = "KeyboardSimulator";
+}
 /**
  * @brief Initialize
  * @details Initializes the MIDI input object

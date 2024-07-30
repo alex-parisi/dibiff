@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::level::AutomaticGainControl::getName() const { return "AutomaticGainControl"; }
-/**
  * @brief Constructor
  * @details Initializes the AGC with given parameters
  * @param targetLevel The target output level in dB
@@ -19,7 +14,9 @@ std::string dibiff::level::AutomaticGainControl::getName() const { return "Autom
  */
 dibiff::level::AutomaticGainControl::AutomaticGainControl(float targetLevel, float sampleRate, float attack, float release, float rmsCoefficient)
 : dibiff::graph::AudioObject(), 
-    targetLevel(targetLevel), sampleRate(sampleRate), attack(attack), release(release), rmsCoefficient(rmsCoefficient) {};
+  targetLevel(targetLevel), sampleRate(sampleRate), attack(attack), release(release), rmsCoefficient(rmsCoefficient) {
+    name = "AutomaticGainControl";
+};
 /**
  * @brief Initialize
  * @details Initializes the AGC connection points and parameters

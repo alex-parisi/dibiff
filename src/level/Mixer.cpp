@@ -4,17 +4,14 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::level::Mixer::getName() const { return "Mixer"; }
-/**
  * @brief Constructor
  * @details Initializes the mixer object with a certain value
  * @param value The mixer of the object in dB
  */
 dibiff::level::Mixer::Mixer(int numInputs)
-: dibiff::graph::AudioObject(), numInputs(numInputs) {};
+: dibiff::graph::AudioObject(), numInputs(numInputs) {
+    name = "Mixer";
+};
 /**
  * @brief Initialize
  * @details Initializes the mixer connection points

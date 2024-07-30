@@ -21,11 +21,6 @@ class dibiff::midi::KeyboardSimulator : public dibiff::graph::AudioObject {
     std::vector<std::vector<unsigned char>> simulatedMidiEvents;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Constructs a MIDI input object
          */

@@ -20,11 +20,6 @@ class dibiff::gate::NoiseGate : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the noise gate object with a certain threshold,
          * attack time, release time, and sample rate

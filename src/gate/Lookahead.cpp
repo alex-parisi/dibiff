@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::gate::LookaheadGate::getName() const { return "LookaheadGate"; }
-/**
  * @brief Constructor
  * @details Initializes the lookahead gate object with a certain threshold,
  * attack time, release time, lookahead time, and sample rate
@@ -20,7 +15,9 @@ std::string dibiff::gate::LookaheadGate::getName() const { return "LookaheadGate
  */
 dibiff::gate::LookaheadGate::LookaheadGate(float threshold, float attackTime, float releaseTime, float lookaheadTime, float sampleRate)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), attackTime(attackTime), releaseTime(releaseTime), lookaheadTime(lookaheadTime), sampleRate(sampleRate) {};
+  threshold(threshold), attackTime(attackTime), releaseTime(releaseTime), lookaheadTime(lookaheadTime), sampleRate(sampleRate) {
+    name = "LookaheadGate";
+};
 /**
  * @brief Initialize
  * @details Initializes the lookahead gate connection points and envelope

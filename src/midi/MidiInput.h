@@ -21,11 +21,6 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
     static void midiCallback(double deltatime, std::vector<unsigned char> *message, void *userData);
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Constructs a MIDI input object
          */

@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Phaser::getName() const { return "Phaser"; }
-/**
  * @brief Constructor
  * @details Initializes the phaser object with a certain modulation depth
  * and modulation rate
@@ -20,8 +15,9 @@ std::string dibiff::effect::Phaser::getName() const { return "Phaser"; }
  * @param numStages The number of all-pass filter in the phaser, default value is 4
  */
 dibiff::effect::Phaser::Phaser(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff, float mix, int numStages)
-: dibiff::graph::AudioObject(),
-    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), baseCutoff(baseCutoff), mix(mix), numStages(numStages) {};
+: dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), baseCutoff(baseCutoff), mix(mix), numStages(numStages) {
+    name = "Phaser";
+};
 /**
  * @brief Initialize
  * @details Initializes the phaser connection points and all-pass filters

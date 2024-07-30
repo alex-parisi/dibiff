@@ -24,11 +24,6 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
         int blockSize;
         ma_device device;
         std::unique_ptr<RingBuffer> ringBuffer;
-        /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
 
         /**
          * @brief Constructor

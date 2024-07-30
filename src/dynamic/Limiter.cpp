@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::dynamic::Limiter::getName() const { return "Limiter"; }
-/**
  * @brief Constructor
  * @details Initializes the limiter with default values
  * @param threshold The threshold of the limiter in dB
@@ -21,7 +16,9 @@ std::string dibiff::dynamic::Limiter::getName() const { return "Limiter"; }
  */
 dibiff::dynamic::Limiter::Limiter(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), makeupGain(makeupGain), knee(kneeWidth) {};
+  threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), makeupGain(makeupGain), knee(kneeWidth) {
+    name = "Limiter";
+};
 /**
  * @brief Initialize
  * @details Initializes the limiter connection points and makeup gain

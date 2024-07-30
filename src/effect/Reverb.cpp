@@ -6,11 +6,6 @@
 #include <iostream>
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Reverb::getName() const { return "Reverb"; }
-/**
  * @brief Constructor
  * @details Initializes the reverb object with a certain decay time
  * and room size
@@ -19,8 +14,9 @@ std::string dibiff::effect::Reverb::getName() const { return "Reverb"; }
  * @param sampleRate The sample rate of the input signal
  */
 dibiff::effect::Reverb::Reverb(float decayTime, float roomSize, float sampleRate, int numDelays, float wetLevel) 
-: dibiff::graph::AudioObject(), 
-    decayTime(decayTime), roomSize(roomSize), sampleRate(sampleRate), numDelays(numDelays), wetLevel(wetLevel) {};
+: dibiff::graph::AudioObject(), decayTime(decayTime), roomSize(roomSize), sampleRate(sampleRate), numDelays(numDelays), wetLevel(wetLevel) {
+    name = "Reverb";
+};
 /**
  * @brief Initialize
  * @details Initializes the reverb connection points and delay buffers

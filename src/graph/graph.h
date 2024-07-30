@@ -2,6 +2,12 @@
 
 #pragma once
 
+#include "../inc/glad/glad.h"
+#include "../inc/glfw-3.4/include/GLFW/glfw3.h"
+#include "../inc/imgui/imgui.h"
+#include "../inc/imgui/backends/imgui_impl_glfw.h"
+#include "../inc/imgui/backends/imgui_impl_opengl3.h"
+
 #include <string>
 #include <vector>
 #include <optional>
@@ -61,8 +67,10 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         virtual void initialize() = 0;
         virtual std::string getName() const = 0;
         virtual ~AudioObject() {};
+        virtual void RenderImGui() {}; /// Optional ImGui rendering
         void markProcessed(bool processed = true) { this->processed = processed; }
         bool isProcessed() const { return processed; }
+        static void glfw_error_callback(int error, const char* description);
     protected:
         bool processed = false;
 };

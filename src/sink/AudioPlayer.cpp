@@ -29,12 +29,12 @@ void dibiff::sink::AudioPlayer::initialize() {
     config.periodSizeInFrames = blockSize;
 
     if (ma_device_init(nullptr, &config, &device) != MA_SUCCESS) {
-        std::cerr << "Failed to initialize audio device." << std::endl;
+        std::cerr << "Failed to initialize audio device.\n";
         return;
     }
 
     if (ma_device_start(&device) != MA_SUCCESS) {
-        std::cerr << "Failed to start audio device." << std::endl;
+        std::cerr << "Failed to start audio device.\n";
         ma_device_uninit(&device);
     }
 }

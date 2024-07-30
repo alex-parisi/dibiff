@@ -99,7 +99,7 @@ std::shared_ptr<dibiff::sink::AudioPlayer> dibiff::sink::AudioPlayer::create(int
  */
 void dibiff::sink::AudioPlayer::RenderImGui() {
     ImGui::Begin(getName().c_str());
-    ImGui::PlotLines("", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
+    ImGui::PlotLines("##AudioPlayerPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
     ImGui::End();
     displaySamples.clear();
 }

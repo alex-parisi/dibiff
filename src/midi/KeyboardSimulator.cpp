@@ -62,7 +62,6 @@ bool dibiff::midi::KeyboardSimulator::isFinished() const {
  */
 void dibiff::midi::KeyboardSimulator::RenderImGui() {
     ImGui::Begin(getName().c_str());
-    ImGui::Text("Settings for %s", getName().c_str());
     ImGuiIO& io = ImGui::GetIO();
     for (int key = ImGuiKey_Tab; key < ImGuiKey_COUNT; key++) {
         // Check if the key is pressed and was not already active
@@ -70,8 +69,6 @@ void dibiff::midi::KeyboardSimulator::RenderImGui() {
             auto it = keyToMidiNote.find(key);
             if (it != keyToMidiNote.end()) {
                 int midiNote = it->second;
-                // Generate MIDI note on event
-                std::cout << "MIDI Note On: " << midiNote << " (Key " << key << ")" << std::endl;
                 // Record the key as active
                 activeKeys.insert(key);
                 /// Convert to MIDI message
@@ -88,8 +85,6 @@ void dibiff::midi::KeyboardSimulator::RenderImGui() {
             auto it = keyToMidiNote.find(key);
             if (it != keyToMidiNote.end()) {
                 int midiNote = it->second;
-                // Generate MIDI note off event
-                std::cout << "MIDI Note Off: " << midiNote << " (Key " << key << ")" << std::endl;
                 // Remove the key from active keys
                 activeKeys.erase(key);
                 /// Convert to MIDI message
@@ -102,6 +97,7 @@ void dibiff::midi::KeyboardSimulator::RenderImGui() {
             }
         }
     }
+    /// TODO: Draw a keyboard
     ImGui::End();
 }
 /**

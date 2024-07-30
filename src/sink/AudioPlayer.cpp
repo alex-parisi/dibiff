@@ -57,6 +57,7 @@ void dibiff::sink::AudioPlayer::dataCallback(ma_device* pDevice, void* pOutput, 
     if (audioPlayer == nullptr || audioPlayer->ringBuffer == nullptr) return;
     float* outputBuffer = static_cast<float*>(pOutput);
     size_t samplesAvailable = audioPlayer->ringBuffer->available();
+    if (samplesAvailable == 0) return;
     audioPlayer->ringBuffer->read(outputBuffer, samplesAvailable);
 
     // Signal that the callback has finished processing

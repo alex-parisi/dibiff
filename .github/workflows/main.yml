@@ -15,7 +15,7 @@ jobs:
     - name: Update apt-get
       run: sudo apt-get update
     - name: Install dependencies
-      run: sudo apt-get install -y build-essential cmake libasound2-dev wayland-protocols libwayland-dev libxkbcommon-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev 
+      run: sudo apt-get install -y build-essential cmake libasound2-dev wayland-protocols libwayland-dev libxkbcommon-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev
     - name: Configure the project
       run: cmake -S . -B build
     - name: Build the project

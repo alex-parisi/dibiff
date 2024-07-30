@@ -12,8 +12,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Update apt-get
+      run: sudo apt-get update
     - name: Install dependencies
-      run: sudo apt-get install -y build-essential cmake libasound2-dev wayland-protocols libwayland-dev
+      run: sudo apt-get install -y build-essential cmake libasound2-dev wayland-protocols libwayland-dev libxkbcommon-dev
     - name: Configure the project
       run: cmake -S . -B build
     - name: Build the project

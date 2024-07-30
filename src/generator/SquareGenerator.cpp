@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::generator::SquareGenerator::getName() const { return "SquareGenerator"; }
-/**
  * @brief Constructor
  * @details Initializes the square wave source with a certain frequency,
  * sample rate, total number of samples, block size, and duty cycle
@@ -20,7 +15,9 @@ std::string dibiff::generator::SquareGenerator::getName() const { return "Square
  */
 dibiff::generator::SquareGenerator::SquareGenerator(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples)
 : dibiff::generator::Generator(), 
-  blockSize(blockSize), sampleRate(sampleRate), dutyCycle(dutyCycle), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {}
+  blockSize(blockSize), sampleRate(sampleRate), dutyCycle(dutyCycle), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {
+    name = "SquareGenerator";
+}
 /**
  * @brief Initialize
  * @details Initializes the square wave source connection points

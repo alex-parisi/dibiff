@@ -34,12 +34,6 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
         };
         EnvelopeStage currentStage = Idle;
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        
-        /**
          * @brief Constructor
          * @details Initializes the ADSR envelope with given parameters
          * @param attackTime The attack time in seconds

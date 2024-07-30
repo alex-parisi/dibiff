@@ -204,6 +204,12 @@ std::shared_ptr<dibiff::graph::AudioCompositeObject> dibiff::graph::AudioGraph::
     return obj;
 }
 /**
+ * @brief GLFW Error Callback
+ */
+void dibiff::graph::AudioObject::glfw_error_callback(int error, const char* description) {
+    std::cerr << "GLFW Error " << error << ": " << description << "\n";
+}
+/**
  * @brief Process the audio graph
  * @details Processes the audio graph by running the audio objects in the correct order
  * and connecting the audio objects together. The audio graph processes the audio objects
@@ -214,7 +220,44 @@ std::shared_ptr<dibiff::graph::AudioCompositeObject> dibiff::graph::AudioGraph::
 void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize) {
     const double blockDuration = static_cast<double>(blockSize) / sampleRate;
     int iter = 0;
-    while (true) {
+    double lastRenderTime = 0.0;
+    const double renderFPS = 60.0;
+    const double renderInterval = 1.0 / renderFPS;
+    // Initialize GLFW
+    glfwSetErrorCallback(dibiff::graph::AudioObject::glfw_error_callback);
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
+        return;
+    }
+    // Set GLFW context version and profile
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // Create a GLFW window
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui + GLFW + AudioObject Example", NULL, NULL);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window\n";
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+    // Load OpenGL functions using glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize OpenGL context\n";
+        return;
+    }
+    // Set up ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    // Initialize ImGui backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    while (!glfwWindowShouldClose(window)) {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        double elapsedTime = std::chrono::duration<double>(currentTime.time_since_epoch()).count();
         auto startTime = std::chrono::high_resolution_clock::now();
         std::queue<std::shared_ptr<dibiff::graph::AudioObject>> readyQueue;
         std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> processed;
@@ -272,7 +315,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
             }
         }
         if (allSourcesFinished) {
-            std::cout << "All sources finished." << std::endl;
+            std::cout << "All sources finished.\n";
             break;
         }
         iter++;
@@ -286,7 +329,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
                 }
             }
             if (audioPlayer == nullptr) {
-                std::cerr << ("Warning: Audio player not found in real-time mode.") << std::endl;
+                std::cerr << "Warning: Audio player not found in real-time mode.\n";
                 auto endTime = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = endTime - startTime;
                 double sleepTime = blockDuration - elapsed.count();
@@ -299,7 +342,34 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
                 audioPlayer->cv.wait(lock);
             }
         }
+        if ((elapsedTime - lastRenderTime) >= renderInterval) {
+            lastRenderTime = elapsedTime;
+            glfwPollEvents();
+            // Start the ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            // Render ImGui UI for each AudioObject
+            for (auto& obj : objects) {
+                obj->RenderImGui();
+            }
+            // Rendering
+            ImGui::Render();
+            int display_w, display_h;
+            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glfwSwapBuffers(window);
+        }
     }
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 /**
  * @brief Connect two audio objects

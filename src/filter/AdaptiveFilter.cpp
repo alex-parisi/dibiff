@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::AdaptiveFilter::getName() const { return "AdaptiveFilter"; }
-/**
  * @brief Constructor
  * @details Initializes the adaptive filter with the specified length
  * and step size
@@ -16,7 +11,9 @@ std::string dibiff::filter::AdaptiveFilter::getName() const { return "AdaptiveFi
  * @param stepSize The step size of the filter
  */
 dibiff::filter::AdaptiveFilter::AdaptiveFilter(int filterLength, float stepSize)
-: filterLength(filterLength), stepSize(stepSize), filterCoefficients(filterLength, 0.0f), buffer(filterLength, 0.0f) {};
+: filterLength(filterLength), stepSize(stepSize), filterCoefficients(filterLength, 0.0f), buffer(filterLength, 0.0f) {
+    name = "AdaptiveFilter";
+};
 /**
  * @brief Initialize
  * @details Initializes the adaptive filter connection points

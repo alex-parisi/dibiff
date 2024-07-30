@@ -21,11 +21,6 @@ class dibiff::level::AutomaticGainControl : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the AGC with given parameters
          * @param targetLevel The target output level in dB

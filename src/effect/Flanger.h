@@ -20,11 +20,6 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the flanger object with a certain modulation depth
          * and modulation rate
@@ -32,8 +27,9 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the flanger in Hz
          * @param sampleRate The sample rate of the input signal
          * @param feedback The feedback amount of the flanger effect
+         * @param wetLevel The wet level of the flanger
          */
-        Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f);
+        Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f, float wetLevel = 0.5f);
         /**
          * @brief Initialize
          * @details Initializes the flanger connection points and buffer
@@ -91,13 +87,15 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the flanger in Hz
          * @param sampleRate The sample rate of the input signal
          * @param feedback The feedback amount of the flanger effect
+         * @param wetLevel The wet level of the flanger
          */
-        static std::shared_ptr<Flanger> create(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f);
+        static std::shared_ptr<Flanger> create(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f, float wetLevel = 0.5f);
     private:
         float modulationDepth;
         float modulationRate;
         float sampleRate;
         float feedback;
+        float wetLevel;
         std::vector<float> buffer;
         int bufferIndex = 0;
         int maxDelaySamples;

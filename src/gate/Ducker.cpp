@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::gate::Ducker::getName() const { return "Ducker"; }
-/**
  * @brief Constructor
  * @details Initializes the ducker object with a certain threshold,
  * ratio, attack time, release time, and sample rate
@@ -20,7 +15,9 @@ std::string dibiff::gate::Ducker::getName() const { return "Ducker"; }
  */
 dibiff::gate::Ducker::Ducker(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {};
+  threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {
+    name = "Ducker";
+};
 /**
  * @brief Initialize
  * @details Initializes the ducker connection points and envelope

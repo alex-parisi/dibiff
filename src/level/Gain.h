@@ -17,11 +17,6 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the gain object with a certain value
          * @param value The gain of the object in dB

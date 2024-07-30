@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::generator::SineGenerator::getName() const { return "SineGenerator"; }
-/**
  * @brief Constructor
  * @details Initializes the sine wave source with a certain frequency,
  * sample rate, total number of samples, and block size
@@ -19,7 +14,9 @@ std::string dibiff::generator::SineGenerator::getName() const { return "SineGene
  */
 dibiff::generator::SineGenerator::SineGenerator(int blockSize, int sampleRate, float frequency, int totalSamples)
 : dibiff::generator::Generator(), 
-  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {}
+  blockSize(blockSize), sampleRate(sampleRate), frequency(frequency), totalSamples(totalSamples), phase(0.0f) {
+    name = "SineGenerator";
+}
 /**
  * @brief Initialize
  * @details Initializes the sine wave source connection points

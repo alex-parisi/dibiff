@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::dynamic::Compressor::getName() const { return "Compressor"; }
-/**
  * @brief Constructor
  * @details Initializes the compressor with default values
  * @param threshold The threshold of the compressor in dB
@@ -22,7 +17,9 @@ std::string dibiff::dynamic::Compressor::getName() const { return "Compressor"; 
  */
 dibiff::dynamic::Compressor::Compressor(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt)
 : dibiff::graph::AudioObject(), 
-    threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), makeupGain(makeupGain), knee(kneeWidth) {};
+  threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), makeupGain(makeupGain), knee(kneeWidth) {
+    name = "Compressor";
+};
 /**
  * @brief Initialize
  * @details Initializes the compressor connection points and makeup gain

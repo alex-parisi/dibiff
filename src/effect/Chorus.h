@@ -20,19 +20,15 @@ class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the chorus object with a certain modulation depth
          * and modulation rate
          * @param modulationDepth The modulation depth of the chorus in milliseconds
          * @param modulationRate The modulation rate of the chorus in Hz
          * @param sampleRate The sample rate of the input signal
+         * @param wetLevel The wet level of the chorus
          */
-        Chorus(float modulationDepth, float modulationRate, float sampleRate);
+        Chorus(float modulationDepth, float modulationRate, float sampleRate, float wetLevel = 0.5f);
         /**
          * @brief Initialize
          * @details Initializes the chorus connection points and buffer
@@ -89,12 +85,14 @@ class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
          * @param modulationDepth The modulation depth of the chorus in milliseconds
          * @param modulationRate The modulation rate of the chorus in Hz
          * @param sampleRate The sample rate of the input signal
+         * @param wetLevel The wet level of the chorus
          */
-        static std::shared_ptr<Chorus> create(float modulationDepth, float modulationRate, float sampleRate);
+        static std::shared_ptr<Chorus> create(float modulationDepth, float modulationRate, float sampleRate, float wetLevel = 0.5f);
     private:
         float modulationDepth;
         float modulationRate;
         float sampleRate;
+        float wetLevel;
         std::vector<float> buffer;
         int bufferIndex = 0;
         int maxDelaySamples;

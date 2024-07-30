@@ -20,11 +20,7 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
     // Callback function to handle incoming MIDI messages
     static void midiCallback(double deltatime, std::vector<unsigned char> *message, void *userData);
     public:
-        /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
+        bool setup = false;
         /**
          * @brief Constructor
          * @details Constructs a MIDI input object
@@ -78,7 +74,7 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
         /**
          * Create a new MIDI input object
          */
-        static std::shared_ptr<MidiInput> create(int blockSize, int portNum = 0);
+        static std::shared_ptr<dibiff::graph::AudioObject> create(int blockSize, int portNum = 0);
     private:
         int blockSize;
         int portNum;

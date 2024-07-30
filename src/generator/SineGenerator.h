@@ -20,11 +20,6 @@ class dibiff::generator::SineGenerator : public dibiff::generator::Generator {
     std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the sine wave source with a sample rate, 
          * total number of samples, and block size

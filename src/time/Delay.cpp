@@ -4,19 +4,15 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::time::Delay::getName() const { return "Delay"; }
-/**
  * @brief Constructor
  * @details Initializes the delay object with a certain delay time
  * @param delayTime The delay time of the object in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
 dibiff::time::Delay::Delay(float delayTime, float sampleRate)
-: dibiff::graph::AudioObject(),
-    delayTime(delayTime), sampleRate(sampleRate) {};
+: dibiff::graph::AudioObject(), delayTime(delayTime), sampleRate(sampleRate) {
+    name = "Delay";
+};
 /**
  * @brief Initialize
  * @details Initializes the delay connection points and buffer

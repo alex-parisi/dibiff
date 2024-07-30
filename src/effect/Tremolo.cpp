@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Tremolo::getName() const { return "Tremolo"; }
-/**
  * @brief Constructor
  * @details Initializes the tremolo object with a certain modulation depth
  * and modulation rate
@@ -17,8 +12,9 @@ std::string dibiff::effect::Tremolo::getName() const { return "Tremolo"; }
  * @param sampleRate The sample rate of the input signal
  */
 dibiff::effect::Tremolo::Tremolo(float modulationDepth, float modulationRate, float sampleRate)
-: dibiff::graph::AudioObject(), 
-    modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate) {};
+: dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate) {
+    name = "Tremolo";
+};
 /**
  * @brief Initialize
  * @details Initializes the tremolo connection points

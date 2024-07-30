@@ -1,0 +1,6 @@
+[submodule "inc/imgui"]
+	path = inc/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "inc/glfw-3"]
+	path = inc/glfw-3
+	url = git@github.com:glfw/glfw.git

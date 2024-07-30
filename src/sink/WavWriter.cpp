@@ -3,11 +3,6 @@
 #include "WavWriter.h"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::sink::WavWriter::getName() const { return "WavWriter"; }
-/**
  * @brief Constructor
  * @details Initializes the WAV sink with a certain filename, sample rate,
  * and total number of samples
@@ -15,7 +10,9 @@ std::string dibiff::sink::WavWriter::getName() const { return "WavWriter"; }
  * @param rate The sample rate of the WAV file
  */
 dibiff::sink::WavWriter::WavWriter(const std::string& filename, int rate)
-    : filename(filename), sampleRate(rate), writtenSamples(0) {}
+: dibiff::graph::AudioObject(), filename(filename), sampleRate(rate), writtenSamples(0) {
+    name = "WavWriter";
+}
 /**
  * @brief Initialize
  * @details Initializes the WAV sink connection points and opens the WAV file
@@ -45,6 +42,9 @@ void dibiff::sink::WavWriter::process() {
     if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displaySamples.insert(displaySamples.end(), audioData->begin(), audioData->end());
+        /// Also write the audioData to the .wav file
         for (int i = 0; i < blockSize; ++i) {
             int16_t intSample = static_cast<int16_t>((*audioData)[i] * 32767);
             file.write(reinterpret_cast<const char*>(&intSample), sizeof(int16_t));
@@ -127,4 +127,13 @@ void dibiff::sink::WavWriter::writeWord(uint32_t value, unsigned size) {
     for (; size; --size, value >>= 8) {
         file.put(static_cast<char>(value & 0xFF));
     }
+}
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::sink::WavWriter::RenderImGui() {
+    ImGui::Begin(getName().c_str());
+    ImGui::PlotLines("##WavWriterPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
+    ImGui::End();
+    displaySamples.clear();
 }

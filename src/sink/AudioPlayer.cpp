@@ -8,12 +8,10 @@
 #include <mutex>
 #include <condition_variable>
 
-std::string dibiff::sink::AudioPlayer::getName() const {
-    return "AudioPlayer";
-}
-
 dibiff::sink::AudioPlayer::AudioPlayer(int rate, int blockSize)
-    : sampleRate(rate), blockSize(blockSize) {}
+: dibiff::graph::AudioObject(), sampleRate(rate), blockSize(blockSize) {
+    name = "AudioPlayer";
+}
 
 void dibiff::sink::AudioPlayer::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "AudioPlayerInput");
@@ -29,12 +27,12 @@ void dibiff::sink::AudioPlayer::initialize() {
     config.periodSizeInFrames = blockSize;
 
     if (ma_device_init(nullptr, &config, &device) != MA_SUCCESS) {
-        std::cerr << "Failed to initialize audio device." << std::endl;
+        std::cerr << "Failed to initialize audio device.\n";
         return;
     }
 
     if (ma_device_start(&device) != MA_SUCCESS) {
-        std::cerr << "Failed to start audio device." << std::endl;
+        std::cerr << "Failed to start audio device.\n";
         ma_device_uninit(&device);
     }
 }
@@ -47,6 +45,9 @@ void dibiff::sink::AudioPlayer::process() {
     if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displaySamples.insert(displaySamples.end(), audioData->begin(), audioData->end());
+        /// Add the audioData to the ring buffer
         ringBuffer->write(audioData->data(), blockSize);
         markProcessed();
     }
@@ -57,6 +58,7 @@ void dibiff::sink::AudioPlayer::dataCallback(ma_device* pDevice, void* pOutput, 
     if (audioPlayer == nullptr || audioPlayer->ringBuffer == nullptr) return;
     float* outputBuffer = static_cast<float*>(pOutput);
     size_t samplesAvailable = audioPlayer->ringBuffer->available();
+    if (samplesAvailable == 0) return;
     audioPlayer->ringBuffer->read(outputBuffer, samplesAvailable);
 
     // Signal that the callback has finished processing
@@ -88,4 +90,14 @@ std::shared_ptr<dibiff::sink::AudioPlayer> dibiff::sink::AudioPlayer::create(int
     auto instance = std::make_shared<AudioPlayer>(rate, blockSize);
     instance->initialize();
     return instance;
+}
+
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::sink::AudioPlayer::RenderImGui() {
+    ImGui::Begin(getName().c_str());
+    ImGui::PlotLines("##AudioPlayerPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
+    ImGui::End();
+    displaySamples.clear();
 }

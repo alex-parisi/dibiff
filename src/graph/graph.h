@@ -2,12 +2,21 @@
 
 #pragma once
 
+#include "../inc/glad/glad.h"
+#include "../inc/glfw-3.4/include/GLFW/glfw3.h"
+#include "../inc/imgui/imgui.h"
+#include "../inc/imgui/backends/imgui_impl_glfw.h"
+#include "../inc/imgui/backends/imgui_impl_opengl3.h"
+
 #include <string>
 #include <vector>
 #include <optional>
 #include <memory>
 #include <cmath>
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <cstdint>
 #include <math.h>
 
 /// TODO: Put these in separate files
@@ -47,6 +56,7 @@ class dibiff::graph::AudioConnectionPoint {
  */
 class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObject> {
     public:
+        std::string name = "AudioObject";
         virtual void reset() = 0;
         virtual void clear() = 0;
         virtual void process() = 0;
@@ -56,10 +66,13 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         virtual std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() = 0;
         virtual bool isFinished() const = 0;
         virtual void initialize() = 0;
-        virtual std::string getName() const = 0;
+        std::string getName() { return name; }
+        void setName(std::string name) { this->name = name; }
         virtual ~AudioObject() {};
+        virtual void RenderImGui() {}; /// Optional ImGui rendering
         void markProcessed(bool processed = true) { this->processed = processed; }
         bool isProcessed() const { return processed; }
+        static void glfw_error_callback(int error, const char* description);
     protected:
         bool processed = false;
 };

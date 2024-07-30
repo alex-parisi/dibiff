@@ -4,11 +4,6 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::generator::WhiteNoiseGenerator::getName() const { return "WhiteNoiseGenerator"; }
-/**
  * @brief Constructor
  * @details Initializes the white noise source with a certain frequency,
  * sample rate, total number of samples, and block size
@@ -17,9 +12,10 @@ std::string dibiff::generator::WhiteNoiseGenerator::getName() const { return "Wh
  * @param totalSamples The total number of samples to generate
  */
 dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(int blockSize, int sampleRate, int totalSamples)
-: dibiff::generator::Generator(), 
-    engine(rd()), distribution(-1.0f, 1.0f),
-    blockSize(blockSize), sampleRate(sampleRate), totalSamples(totalSamples) {}
+: dibiff::generator::Generator(), engine(rd()), distribution(-1.0f, 1.0f),
+  blockSize(blockSize), sampleRate(sampleRate), totalSamples(totalSamples) {
+    name = "WhiteNoiseGenerator";
+}
 /**
  * @brief Initialize
  * @details Initializes the white noise source connection points

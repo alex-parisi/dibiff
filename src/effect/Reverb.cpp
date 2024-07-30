@@ -6,11 +6,6 @@
 #include <iostream>
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::effect::Reverb::getName() const { return "Reverb"; }
-/**
  * @brief Constructor
  * @details Initializes the reverb object with a certain decay time
  * and room size
@@ -18,9 +13,10 @@ std::string dibiff::effect::Reverb::getName() const { return "Reverb"; }
  * @param roomSize The room size of the reverb in meters
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::effect::Reverb::Reverb(float decayTime, float roomSize, float sampleRate, int numDelays) 
-: dibiff::graph::AudioObject(), 
-    decayTime(decayTime), roomSize(roomSize), sampleRate(sampleRate), numDelays(numDelays) {};
+dibiff::effect::Reverb::Reverb(float decayTime, float roomSize, float sampleRate, int numDelays, float wetLevel) 
+: dibiff::graph::AudioObject(), decayTime(decayTime), roomSize(roomSize), sampleRate(sampleRate), numDelays(numDelays), wetLevel(wetLevel) {
+    name = "Reverb";
+};
 /**
  * @brief Initialize
  * @details Initializes the reverb connection points and delay buffers
@@ -77,7 +73,7 @@ void dibiff::effect::Reverb::process() {
         }
         std::vector<float> out(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            out[i] = y(i);
+            out[i] = wetLevel * y(i) + (1.0f - wetLevel) * x(i);
         }
         output->setData(out, blockSize);
         markProcessed();
@@ -139,8 +135,8 @@ bool dibiff::effect::Reverb::isReadyToProcess() const {
  * @param sampleRate The sample rate of the input signal
  * @param numDelays The number of delay lines
  */
-std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float decayTime, float roomSize, float sampleRate, int numDelays) {
-    auto instance = std::make_shared<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays);
+std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float decayTime, float roomSize, float sampleRate, int numDelays, float wetLevel) {
+    auto instance = std::make_shared<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays, wetLevel);
     instance->initialize();
     return instance;
 }

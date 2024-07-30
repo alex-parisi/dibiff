@@ -4,18 +4,14 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::level::Gain::getName() const { return "Gain"; }
-/**
  * @brief Constructor
  * @details Initializes the gain object with a certain value
  * @param value The gain of the object in dB
  */
 dibiff::level::Gain::Gain(float value)
-: dibiff::graph::AudioObject(), 
-    value(std::pow(10.0f, value / 20.0f)) {};
+: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)) {
+    name = "Gain";
+};
 /**
  * @brief Initialize
  * @details Initializes the gain connection points

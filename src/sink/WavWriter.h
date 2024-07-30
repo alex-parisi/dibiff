@@ -19,11 +19,6 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
     std::string filename;
     public:
         /**
-         * @brief Get the name of the object
-         * @return The name of the object
-         */
-        std::string getName() const override;
-        /**
          * @brief Constructor
          * @details Initializes the WAV sink with a certain filename, sample rate,
          * and total number of samples
@@ -92,7 +87,12 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
          * @param rate The sample rate of the WAV file
          */
         static std::shared_ptr<WavWriter> create(const std::string& filename, int rate);
+        /**
+         * @brief Render the ImGui interface
+         */
+        void RenderImGui() override;
     private:
+        std::vector<float> displaySamples;
         /**
          * @brief Write the WAV header
          * @details Writes the WAV header to the file

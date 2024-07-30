@@ -6,17 +6,13 @@
 #include <iostream>
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::midi::VoiceSelector::getName() const { return "VoiceSelector"; }
-/**
  * @brief Constructor
  * @param blockSize The block size of the object
  * @param numVoices The number of voices to create
  */
 dibiff::midi::VoiceSelector::VoiceSelector(int blockSize, int numVoices)
 : dibiff::graph::AudioObject(), blockSize(blockSize) {
+    name = "VoiceSelector";
     for (int i = 0; i < numVoices; ++i) {
         voices.push_back(dibiff::midi::Voice());
     }
@@ -97,13 +93,11 @@ std::shared_ptr<dibiff::midi::VoiceSelector> dibiff::midi::VoiceSelector::create
 
 void dibiff::midi::VoiceSelector::processMidiMessage(std::vector<unsigned char> message) {
     if (message.empty()) return;
-
     unsigned char status = message[0];
     unsigned char type = status & 0xF0;
     unsigned char noteNumber = message[1];
     unsigned char velocity = message[2];
     float frequency = midiNoteToFrequency(noteNumber);
-
     if (type == 0x90 && velocity > 0) { // Note on
         /// Find the next available voice and assign the frequency
         voices[voiceIndex].frequency = frequency;

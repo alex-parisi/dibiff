@@ -4,18 +4,15 @@
 #include "../inc/Eigen/Dense"
 
 /**
- * @brief Get the name of the object
- * @return The name of the object
- */
-std::string dibiff::filter::DigitalBiquadFilter::getName() const { return "DigitalBiquadFilter"; }
-/**
  * @brief Constructor
  * @details Initializes the filter with default values
  * @see reset
  */
 dibiff::filter::DigitalBiquadFilter::DigitalBiquadFilter() 
 : dibiff::graph::AudioObject(), 
-    b0(0), b1(0), b2(0), a0(0), a1(0), a2(0) {};
+  b0(0), b1(0), b2(0), a0(0), a1(0), a2(0) {
+    name = "DigitalBiquadFilter";
+};
 /**
  * @brief Constructor
  * @details Initializes the filter with custom coefficients
@@ -28,6 +25,7 @@ dibiff::filter::DigitalBiquadFilter::DigitalBiquadFilter(const dibiff::filter::C
 : dibiff::graph::AudioObject(), 
     b0(coeffs.b0), b1(coeffs.b1), b2(coeffs.b2), 
     a0(coeffs.a0), a1(coeffs.a1), a2(coeffs.a2) {
+    name = "DigitalBiquadFilter";
     reset();
 };
 /**

@@ -22,16 +22,26 @@ int main() {
     params.modulationDepth = 2.0f;
     auto babysFirstSynth = graph.add(dibiff::synth::BabysFirstSynth::create(params));
 
+    /// Create Reverb
+    auto reverb = graph.add(dibiff::effect::Reverb::create(2, 10, sampleRate));
+    reverb->setName("reverb");
+
     /// Create the WavWriter
-    auto wavWriter = graph.add(dibiff::sink::WavWriter::create("output.wav", sampleRate));
+    auto wavWriter1 = graph.add(dibiff::sink::WavWriter::create("synthOutput.wav", sampleRate));
+    wavWriter1->setName("synth-output");
+    auto wavWriter2 = graph.add(dibiff::sink::WavWriter::create("reverbOutput.wav", sampleRate));
+    wavWriter2->setName("reverb-output");
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
     auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
+    audioPlayer->setName("audio-player");
 
     /// Connect everything
-    graph.connect(babysFirstSynth->getOutput(), wavWriter->getInput());
-    graph.connect(babysFirstSynth->getOutput(), audioPlayer->getInput());
+    graph.connect(babysFirstSynth->getOutput(), reverb->getInput());
+    graph.connect(babysFirstSynth->getOutput(), wavWriter1->getInput());
+    graph.connect(reverb->getOutput(), wavWriter2->getInput());
+    graph.connect(reverb->getOutput(), audioPlayer->getInput());
 
     /// Run the graph
     graph.run(true);

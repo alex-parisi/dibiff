@@ -103,7 +103,13 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
          */
         static std::shared_ptr<AudioPlayer> create(int rate, int blockSize);
 
+        /**
+         * @brief Render the ImGui interface
+         */
+        void RenderImGui() override;
+
     private:
+        std::vector<float> displaySamples;
         /**
          * @brief Audio playback callback
          * @details Callback function to provide audio data to the audio output device

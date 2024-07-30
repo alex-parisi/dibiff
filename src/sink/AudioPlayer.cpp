@@ -47,6 +47,9 @@ void dibiff::sink::AudioPlayer::process() {
     if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displaySamples.insert(displaySamples.end(), audioData->begin(), audioData->end());
+        /// Add the audioData to the ring buffer
         ringBuffer->write(audioData->data(), blockSize);
         markProcessed();
     }
@@ -89,4 +92,14 @@ std::shared_ptr<dibiff::sink::AudioPlayer> dibiff::sink::AudioPlayer::create(int
     auto instance = std::make_shared<AudioPlayer>(rate, blockSize);
     instance->initialize();
     return instance;
+}
+
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::sink::AudioPlayer::RenderImGui() {
+    ImGui::Begin(getName().c_str());
+    ImGui::PlotLines("", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
+    ImGui::End();
+    displaySamples.clear();
 }

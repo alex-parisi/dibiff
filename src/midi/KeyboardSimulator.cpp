@@ -57,6 +57,9 @@ bool dibiff::midi::KeyboardSimulator::isReadyToProcess() const {
 bool dibiff::midi::KeyboardSimulator::isFinished() const {
     return false;
 }
+/**
+ * @brief Render the ImGui interface
+ */
 void dibiff::midi::KeyboardSimulator::RenderImGui() {
     ImGui::Begin(getName().c_str());
     ImGui::Text("Settings for %s", getName().c_str());

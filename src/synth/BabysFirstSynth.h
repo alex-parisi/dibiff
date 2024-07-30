@@ -35,7 +35,7 @@ struct dibiff::synth::BabysFirstSynthParameters {
  * @brief Baby's First Synth
  */
 class dibiff::synth::BabysFirstSynth : public dibiff::graph::AudioCompositeObject {
-    std::shared_ptr<dibiff::midi::MidiInput> midiInput;
+    std::shared_ptr<dibiff::graph::AudioObject> midiInput;
     std::shared_ptr<dibiff::midi::VoiceSelector> voiceSelector;
     std::vector<std::shared_ptr<dibiff::generator::SineGenerator>> sineGenerators;
     std::vector<std::shared_ptr<dibiff::dynamic::Envelope>> envelopes;

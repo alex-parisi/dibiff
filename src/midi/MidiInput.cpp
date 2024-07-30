@@ -1,6 +1,7 @@
 /// MidiInput.cpp
 
 #include "MidiInput.h"
+#include "KeyboardSimulator.h"
 #include "../inc/Eigen/Dense"
 
 /**
@@ -20,6 +21,7 @@ dibiff::midi::MidiInput::MidiInput(int blockSize, int portNum)
 void dibiff::midi::MidiInput::initialize() {
     output = std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "MidiInputOutput"));
     midiIn = std::make_unique<RtMidiIn>();
+    setup = true;
     // Check for available ports.
     unsigned int nPorts = midiIn->getPortCount();
     std::cout << "\n[" << nPorts << "] MIDI input source(s) available.\n";
@@ -29,6 +31,7 @@ void dibiff::midi::MidiInput::initialize() {
             portName = midiIn->getPortName(i);
         } catch (RtMidiError &error) {
             error.printMessage();
+            setup = false;
         }
         std::cout << "\tInput Port #" << i << ": " << portName << "\n";
     }
@@ -36,7 +39,8 @@ void dibiff::midi::MidiInput::initialize() {
     try {
         midiIn->openPort(portNum);
     } catch (RtMidiError &error) {
-        throw error;
+        std::cerr << error.getMessage() << "\n";
+        setup = false;
     }
     // Don't ignore sysex, timing, or active sensing messages.
     midiIn->ignoreTypes(false, false, false);
@@ -102,8 +106,12 @@ bool dibiff::midi::MidiInput::isFinished() const {
  * @param blockSize The block size of the MIDI input
  * @param portNum The port number of the MIDI input
  */
-std::shared_ptr<dibiff::midi::MidiInput> dibiff::midi::MidiInput::create(int blockSize, int portNum) {
+std::shared_ptr<dibiff::graph::AudioObject> dibiff::midi::MidiInput::create(int blockSize, int portNum) {
     auto instance = std::make_shared<dibiff::midi::MidiInput>(blockSize, portNum);
     instance->initialize();
+    /// If the MIDI device wasn't setup properly, return a KeyboardSimulator object instead
+    if (!instance->setup) {
+        return dibiff::midi::KeyboardSimulator::create(blockSize);
+    }
     return instance;
 }

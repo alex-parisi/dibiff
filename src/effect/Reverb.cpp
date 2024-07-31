@@ -161,7 +161,5 @@ void dibiff::effect::Reverb::RenderImGui() {
     ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
     displayInSamples.clear();
     displayOutSamples.clear();
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    std::cout << windowSize.x << " " << windowSize.y << std::endl;
     ImGui::End();
 }

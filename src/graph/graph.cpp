@@ -234,7 +234,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // Create a GLFW window
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui + GLFW + AudioObject Example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "DIBIFF", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -251,6 +251,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
     ImGui::StyleColorsDark();
     // Initialize ImGui backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -349,6 +350,8 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            // Create a dockspace
+            ImGui::DockSpaceOverViewport(0);
             // Render ImGui UI for each AudioObject
             for (auto& obj : objects) {
                 obj->RenderImGui();

@@ -2,6 +2,7 @@
 
 #include "Tremolo.h"
 #include "../inc/Eigen/Dense"
+#include "../inc/imgui-knobs/imgui-knobs.h"
 
 /**
  * @brief Constructor
@@ -120,15 +121,16 @@ std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float m
  * @brief Render the ImGui interface
  */
 void dibiff::effect::Tremolo::RenderImGui() {
-    ImGui::SetNextWindowSize(ImVec2(319, 110), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(320, 140), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Modulation Depth (ms)", &modulationDepth, 0.01f, 0.01f, 1.0f);
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Modulation Rate (Hz)", &modulationRate, 0.1f, 0.1f, 10.0f);
-    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGuiKnobs::Knob("Modulation\nDepth", &modulationDepth, 0.01f, 1.0f, 0.01f, "%.01f", ImGuiKnobVariant_Wiper);
     ImGui::SameLine();
+    ImGuiKnobs::Knob("Modulation\nRate", &modulationRate, 1.0f, 10.0f, 0.1f, "%.1fHz", ImGuiKnobVariant_Wiper);
+    ImGui::SameLine();
+    ImGui::BeginChild("##TremoloElementPlots", ImVec2(0, 100), false);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
     ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::EndChild();
     displayInSamples.clear();
     displayOutSamples.clear();
     ImGui::End();

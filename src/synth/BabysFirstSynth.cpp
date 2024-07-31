@@ -34,7 +34,9 @@ void dibiff::synth::BabysFirstSynth::initialize() {
     tremolo->setName("babys-first-synth-tremolo");
     for (int i = 0; i < params.numVoices; i++) {
         sineGenerators[i] = dibiff::generator::SineGenerator::create(params.blockSize, params.sampleRate);
+        sineGenerators[i]->setName("babys-first-synth-sine-generator");
         envelopes[i] = dibiff::dynamic::Envelope::create(params.attack, params.decay, params.sustain, params.release, params.sampleRate);
+        envelopes[i]->setName("babys-first-synth-envelope");
     }
     /// Add the objects to the graph
     objects.push_back(midiInput);

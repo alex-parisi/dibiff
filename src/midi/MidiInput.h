@@ -75,6 +75,10 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
          * Create a new MIDI input object
          */
         static std::shared_ptr<dibiff::graph::AudioObject> create(int blockSize, int portNum = 0);
+        /**
+         * @brief Render the ImGui interface
+         */
+        void RenderImGui() override;
     private:
         int blockSize;
         int portNum;

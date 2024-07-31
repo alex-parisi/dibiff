@@ -2,6 +2,7 @@
 
 #include "Reverb.h"
 #include "../inc/Eigen/Dense"
+#include "../inc/imgui-knobs/imgui-knobs.h"
 
 #include <iostream>
 
@@ -161,17 +162,18 @@ std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float dec
  * @brief Render the ImGui interface
  */
 void dibiff::effect::Reverb::RenderImGui() {
-    ImGui::SetNextWindowSize(ImVec2(314, 130), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(344, 141), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Decay Time (s)", &decayTime, 0.01f, 0.01f, 10.0f);
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Room Size (m)", &roomSize, 1.0f, 1.0f, 1000.0f);
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Wet Level (%)", &wetLevel, 0.001f, 0.0f, 1.0f);
-    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGuiKnobs::Knob("Decay\nTime", &decayTime, 0.01f, 10.0f, 0.01f, "%.01fs", ImGuiKnobVariant_Wiper);
     ImGui::SameLine();
+    ImGuiKnobs::Knob("Room\nSize", &roomSize, 1.0f, 1000.0f, 1.0f, "%1.0fm", ImGuiKnobVariant_Wiper);
+    ImGui::SameLine();
+    ImGuiKnobs::Knob("Wet\nLevel", &wetLevel, 0.0f, 1.0f, 0.001f, "%.001f", ImGuiKnobVariant_Wiper);
+    ImGui::SameLine();
+    ImGui::BeginChild("##ReverbElementPlots", ImVec2(0, 100), false);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
     ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::EndChild();
     displayInSamples.clear();
     displayOutSamples.clear();
     ImGui::End();

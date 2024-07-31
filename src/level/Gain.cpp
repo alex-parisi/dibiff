@@ -2,6 +2,7 @@
 
 #include "Gain.h"
 #include "../inc/Eigen/Dense"
+#include "../inc/imgui-knobs/imgui-knobs.h"
 
 /**
  * @brief Constructor
@@ -100,13 +101,14 @@ std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float value) {
  * @brief Render the ImGui interface
  */
 void dibiff::level::Gain::RenderImGui() {
-    ImGui::SetNextWindowSize(ImVec2(319, 86), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(247, 136), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
-    ImGui::PushItemWidth(100);
-    ImGui::DragFloat("Gain (dB)", &valuedB, 0.25f, -100.0f, 30.0f);
-    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGuiKnobs::Knob("Gain", &valuedB, -80.0f, 30.0f, 0.1f, "%.1fdB", ImGuiKnobVariant_Wiper);
     ImGui::SameLine();
+    ImGui::BeginChild("##GainElementPlots", ImVec2(0, 100), false);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
     ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::EndChild();
     displayInSamples.clear();
     displayOutSamples.clear();
     ImGui::End();

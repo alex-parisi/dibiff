@@ -15,6 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/inc/rtmidi)
 include_directories(${PROJECT_SOURCE_DIR}/inc/imgui)
 include_directories(${PROJECT_SOURCE_DIR}/inc/imgui/backends)
 include_directories(${PROJECT_SOURCE_DIR}/include/glad)
+include_directories(${PROJECT_SOURCE_DIR}/inc/imgui-knobs)
 
 # Include GLFW source and headers
 add_subdirectory(${PROJECT_SOURCE_DIR}/inc/glfw-3.4 ${PROJECT_BINARY_DIR}/glfw)
@@ -26,7 +27,7 @@ include_directories(${PROJECT_BINARY_DIR}/glfw/include ${PROJECT_SOURCE_DIR}/inc
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/inc/rtmidi/RtMidi.cpp)
 list(APPEND SOURCES
-    ${PROJECT_SOURCE_DIR}/inc/glad/glad.c  # Add glad source file
+    ${PROJECT_SOURCE_DIR}/inc/glad/glad.c
     ${PROJECT_SOURCE_DIR}/inc/imgui/imgui.cpp
     ${PROJECT_SOURCE_DIR}/inc/imgui/imgui_draw.cpp
     ${PROJECT_SOURCE_DIR}/inc/imgui/imgui_widgets.cpp
@@ -34,6 +35,7 @@ list(APPEND SOURCES
     ${PROJECT_SOURCE_DIR}/inc/imgui/imgui_demo.cpp
     ${PROJECT_SOURCE_DIR}/inc/imgui/backends/imgui_impl_glfw.cpp
     ${PROJECT_SOURCE_DIR}/inc/imgui/backends/imgui_impl_opengl3.cpp
+    ${PROJECT_SOURCE_DIR}/inc/imgui-knobs/imgui-knobs.cpp
 )
 
 # Create an object library for shared sources

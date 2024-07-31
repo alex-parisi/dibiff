@@ -59,6 +59,7 @@ bool dibiff::midi::KeyboardSimulator::isFinished() const {
  * @brief Render the ImGui interface
  */
 void dibiff::midi::KeyboardSimulator::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(154, 32), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGuiIO& io = ImGui::GetIO();
     for (int key = ImGuiKey_Tab; key < ImGuiKey_COUNT; key++) {

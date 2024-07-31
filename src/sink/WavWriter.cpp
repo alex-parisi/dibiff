@@ -132,6 +132,7 @@ void dibiff::sink::WavWriter::writeWord(uint32_t value, unsigned size) {
  * @brief Render the ImGui interface
  */
 void dibiff::sink::WavWriter::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(250, 150), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGui::PlotLines("##WavWriterPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
     ImGui::End();

@@ -62,11 +62,13 @@ float dibiff::effect::Reverb::process(float sample) {
  */
 void dibiff::effect::Reverb::process() {
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displayInSamples.insert(displayInSamples.end(), audioData.begin(), audioData.end());
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));
@@ -75,6 +77,8 @@ void dibiff::effect::Reverb::process() {
         for (int i = 0; i < blockSize; ++i) {
             out[i] = wetLevel * y(i) + (1.0f - wetLevel) * x(i);
         }
+        /// Insert out data into the end of displayOutSamples
+        displayOutSamples.insert(displayOutSamples.end(), out.begin(), out.end());
         output->setData(out, blockSize);
         markProcessed();
     }
@@ -139,4 +143,25 @@ std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float dec
     auto instance = std::make_shared<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays, wetLevel);
     instance->initialize();
     return instance;
+}
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::effect::Reverb::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(314, 130), ImGuiCond_FirstUseEver);
+    ImGui::Begin(getName().c_str());
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Decay Time (s)", &decayTime, 0.01f, 0.01f, 10.0f);
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Room Size (m)", &roomSize, 1.0f, 1.0f, 1000.0f);
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Wet Level (%)", &wetLevel, 0.001f, 0.0f, 1.0f);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::SameLine();
+    ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    displayInSamples.clear();
+    displayOutSamples.clear();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    std::cout << windowSize.x << " " << windowSize.y << std::endl;
+    ImGui::End();
 }

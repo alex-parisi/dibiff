@@ -90,7 +90,13 @@ class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
          * @param wetLevel The wet level of the reverb
          */
         static std::shared_ptr<Reverb> create(float decayTime, float roomSize, float sampleRate, int numDelays = 4, float wetLevel = 0.5f);
+        /**
+         * @brief Render the ImGui interface
+         */
+        void RenderImGui() override;
     private:
+        std::vector<float> displayInSamples;
+        std::vector<float> displayOutSamples;
         float decayTime;
         float roomSize;
         float sampleRate;

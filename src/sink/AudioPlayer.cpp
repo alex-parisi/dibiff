@@ -96,6 +96,7 @@ std::shared_ptr<dibiff::sink::AudioPlayer> dibiff::sink::AudioPlayer::create(int
  * @brief Render the ImGui interface
  */
 void dibiff::sink::AudioPlayer::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(250, 150), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGui::PlotLines("##AudioPlayerPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
     ImGui::End();

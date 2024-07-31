@@ -9,7 +9,7 @@
  * @param value The gain of the object in dB
  */
 dibiff::level::Gain::Gain(float value)
-: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)) {
+: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)), valuedB(value) {
     name = "Gain";
 };
 /**
@@ -33,12 +33,16 @@ float dibiff::level::Gain::process(float sample) {
  * @details Processes a block of audio data
  */
 void dibiff::level::Gain::process() {
+    /// Update value
+    value = std::pow(10.0f, valuedB / 20.0f);
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displayInSamples.insert(displayInSamples.end(), audioData.begin(), audioData.end());
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));
@@ -47,6 +51,8 @@ void dibiff::level::Gain::process() {
         for (int i = 0; i < blockSize; ++i) {
             out[i] = y(i);
         }
+        /// Insert out data into the end of displayOutSamples
+        displayOutSamples.insert(displayOutSamples.end(), out.begin(), out.end());
         output->setData(out, blockSize);
         markProcessed();
     }
@@ -89,4 +95,19 @@ std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float value) {
     auto instance = std::make_shared<dibiff::level::Gain>(value);
     instance->initialize();
     return instance;
+}
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::level::Gain::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(319, 86), ImGuiCond_FirstUseEver);
+    ImGui::Begin(getName().c_str());
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Gain (dB)", &valuedB, 0.25f, -100.0f, 30.0f);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::SameLine();
+    ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    displayInSamples.clear();
+    displayOutSamples.clear();
+    ImGui::End();
 }

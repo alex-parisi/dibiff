@@ -7,7 +7,7 @@
  * @brief Constructor
  * @details Initializes the tremolo object with a certain modulation depth
  * and modulation rate
- * @param modulationDepth The modulation depth of the tremolo (0 to 1)
+ * @param modulationDepth The modulation depth of the tremolo in milliseconds
  * @param modulationRate The modulation rate of the tremolo in Hz
  * @param sampleRate The sample rate of the input signal
  */
@@ -47,11 +47,13 @@ float dibiff::effect::Tremolo::process(float sample) {
  */
 void dibiff::effect::Tremolo::process() {
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
+        /// Insert audioData into the end of displaySamples
+        displayInSamples.insert(displayInSamples.end(), audioData.begin(), audioData.end());
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));
@@ -60,6 +62,8 @@ void dibiff::effect::Tremolo::process() {
         for (int i = 0; i < blockSize; ++i) {
             out[i] = y(i);
         }
+        /// Insert out data into the end of displayOutSamples
+        displayOutSamples.insert(displayOutSamples.end(), out.begin(), out.end());
         output->setData(out, blockSize);
         markProcessed();
     }
@@ -111,4 +115,21 @@ std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float m
     auto instance = std::make_shared<dibiff::effect::Tremolo>(modulationDepth, modulationRate, sampleRate);
     instance->initialize();
     return instance;
+}
+/**
+ * @brief Render the ImGui interface
+ */
+void dibiff::effect::Tremolo::RenderImGui() {
+    ImGui::SetNextWindowSize(ImVec2(319, 110), ImGuiCond_FirstUseEver);
+    ImGui::Begin(getName().c_str());
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Modulation Depth (ms)", &modulationDepth, 0.01f, 0.01f, 1.0f);
+    ImGui::PushItemWidth(100);
+    ImGui::DragFloat("Modulation Rate (Hz)", &modulationRate, 0.1f, 0.1f, 10.0f);
+    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    ImGui::SameLine();
+    ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
+    displayInSamples.clear();
+    displayOutSamples.clear();
+    ImGui::End();
 }

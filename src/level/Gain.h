@@ -78,6 +78,13 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          * @param value The gain of the object in dB
          */
         static std::shared_ptr<Gain> create(float value);
+        /**
+         * @brief Render the ImGui interface
+         */
+        void RenderImGui() override;
     private:
+        std::vector<float> displayInSamples;
+        std::vector<float> displayOutSamples;
         float value;
+        float valuedB;
 };

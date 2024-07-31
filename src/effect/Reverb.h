@@ -106,4 +106,6 @@ class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
         const float speedOfSound = 343.0f;
         std::vector<std::vector<float>> buffers;
         std::vector<int> bufferIndices;
+        float lastDecayTime;
+        float lastRoomSize;
 };

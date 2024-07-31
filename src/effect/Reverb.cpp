@@ -61,6 +61,17 @@ float dibiff::effect::Reverb::process(float sample) {
  * @details Processes a block of audio data
  */
 void dibiff::effect::Reverb::process() {
+    /// Check if the decay time or room size has changed
+    if (decayTime != lastDecayTime || roomSize != lastRoomSize) {
+        /// If so, reset the delay buffers
+        int delayLength;
+        for (int i = 0; i < numDelays; ++i) {
+            delayLength = static_cast<int>((roomSize / speedOfSound) * sampleRate) * (i + 1);
+            buffers[i].resize(delayLength, 0.0f);
+            bufferIndices[i] = 0;
+        }
+        feedback = std::pow(10, -3.0f * delayLength / (decayTime * sampleRate));
+    }
     if (input->isReady()) {
         std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
@@ -82,6 +93,8 @@ void dibiff::effect::Reverb::process() {
         output->setData(out, blockSize);
         markProcessed();
     }
+    lastDecayTime = decayTime;
+    lastRoomSize = roomSize;
 }
 /**
  * @brief Reset the reverb

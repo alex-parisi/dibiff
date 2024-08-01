@@ -85,13 +85,7 @@ class dibiff::effect::Tremolo : public dibiff::graph::AudioObject {
          * @param sampleRate The sample rate of the input signal
          */
         static std::shared_ptr<Tremolo> create(float modulationDepth, float modulationRate, float sampleRate);
-        /**
-         * @brief Render the ImGui interface
-         */
-        void RenderImGui() override;
     private:
-        std::vector<float> displayInSamples;
-        std::vector<float> displayOutSamples;
         float modulationDepth;
         float modulationRate;
         float sampleRate;

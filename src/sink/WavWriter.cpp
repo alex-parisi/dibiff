@@ -42,8 +42,6 @@ void dibiff::sink::WavWriter::process() {
     if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
-        /// Insert audioData into the end of displaySamples
-        displaySamples.insert(displaySamples.end(), audioData->begin(), audioData->end());
         /// Also write the audioData to the .wav file
         for (int i = 0; i < blockSize; ++i) {
             int16_t intSample = static_cast<int16_t>((*audioData)[i] * 32767);
@@ -127,15 +125,4 @@ void dibiff::sink::WavWriter::writeWord(uint32_t value, unsigned size) {
     for (; size; --size, value >>= 8) {
         file.put(static_cast<char>(value & 0xFF));
     }
-}
-/**
- * @brief Render the ImGui interface
- */
-void dibiff::sink::WavWriter::RenderImGui() {
-    if (!showGui) return;
-    ImGui::SetNextWindowSize(ImVec2(250, 150), ImGuiCond_FirstUseEver);
-    ImGui::Begin(getName().c_str());
-    ImGui::PlotLines("##WavWriterPlot", displaySamples.data(), static_cast<int>(displaySamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(-1, -1));
-    ImGui::End();
-    displaySamples.clear();
 }

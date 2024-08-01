@@ -4,7 +4,6 @@
 
 #include "midi.h"
 #include "../graph/graph.h"
-#include "RtMidi.h"
 #include <vector>
 #include <mutex>
 
@@ -14,13 +13,7 @@
  */
 class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
     std::shared_ptr<dibiff::graph::MidiOutput> output;
-    std::unique_ptr<RtMidiIn> midiIn;
-    std::vector<std::vector<unsigned char>> midiEvents;
-    std::mutex midiMutex;
-    // Callback function to handle incoming MIDI messages
-    static void midiCallback(double deltatime, std::vector<unsigned char> *message, void *userData);
     public:
-        bool setup = false;
         /**
          * @brief Constructor
          * @details Constructs a MIDI input object
@@ -74,11 +67,7 @@ class dibiff::midi::MidiInput : public dibiff::graph::AudioObject {
         /**
          * Create a new MIDI input object
          */
-        static std::shared_ptr<dibiff::graph::AudioObject> create(int blockSize, int portNum = 0);
-        /**
-         * @brief Render the ImGui interface
-         */
-        void RenderImGui() override;
+        static std::shared_ptr<dibiff::midi::MidiInput> create(int blockSize, int portNum = 0);
     private:
         int blockSize;
         int portNum;

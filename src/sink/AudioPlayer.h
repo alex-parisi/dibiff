@@ -4,7 +4,6 @@
 
 #include "sink.h"
 #include "../graph/graph.h"
-#include "miniaudio.h"
 #include "../util/RingBuffer.h"
 
 #include <vector>
@@ -22,7 +21,7 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
         std::shared_ptr<dibiff::graph::AudioInput> input;
         int sampleRate;
         int blockSize;
-        ma_device device;
+        // ma_device device;
         std::unique_ptr<RingBuffer> ringBuffer;
 
         /**
@@ -37,12 +36,6 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
          * @details Initializes the Audio Player connection points and audio device
          */
         void initialize() override;
-
-        /**
-         * @brief Destructor
-         * @details Finalizes the audio device and cleans up resources
-         */
-        ~AudioPlayer();
 
         /**
          * @brief Process a block of samples
@@ -97,17 +90,4 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
          * @param rate The sample rate of the audio data
          */
         static std::shared_ptr<AudioPlayer> create(int rate, int blockSize);
-
-        /**
-         * @brief Render the ImGui interface
-         */
-        void RenderImGui() override;
-
-    private:
-        std::vector<float> displaySamples;
-        /**
-         * @brief Audio playback callback
-         * @details Callback function to provide audio data to the audio output device
-         */
-        static void dataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount);
 };

@@ -2,13 +2,6 @@
 
 #pragma once
 
-#include "../inc/glad/glad.h"
-#include "../inc/glfw-3.4/include/GLFW/glfw3.h"
-#include "../inc/imgui/imgui.h"
-#include "../inc/imgui/imgui_internal.h"
-#include "../inc/imgui/backends/imgui_impl_glfw.h"
-#include "../inc/imgui/backends/imgui_impl_opengl3.h"
-
 #include <string>
 #include <vector>
 #include <optional>
@@ -29,7 +22,6 @@ namespace dibiff {
      */
     namespace graph {
         class AudioObject;
-        class GuiObject;
         class AudioCompositeObject;
         class AudioInput;
         class MidiInput;
@@ -71,32 +63,10 @@ class dibiff::graph::AudioObject : public std::enable_shared_from_this<AudioObje
         std::string getName() { return name; }
         void setName(std::string name) { this->name = name; }
         virtual ~AudioObject() {};
-        virtual void RenderImGui() {}; /// Optional ImGui rendering
         void markProcessed(bool processed = true) { this->processed = processed; }
         bool isProcessed() const { return processed; }
-        void show(bool show = true) { this->showGui = show; }
-        static void glfw_error_callback(int error, const char* description);
     protected:
         bool processed = false;
-        bool showGui = true;
-};
-/**
- * @brief Generic GUI Object
- * @details A generic GUI object
- */
-class dibiff::graph::GuiObject : public dibiff::graph::AudioObject {
-    public:
-        void reset() override {};
-        void clear() override {};
-        void process() override { markProcessed(); };
-        bool isReadyToProcess() const override { return true;}
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override { return std::weak_ptr<dibiff::graph::AudioConnectionPoint>(); }
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override { return std::weak_ptr<dibiff::graph::AudioConnectionPoint>(); }
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override { return std::weak_ptr<dibiff::graph::AudioConnectionPoint>(); }
-        bool isFinished() const override { return false; }
-        virtual void initialize() override = 0;
-        ~GuiObject() {};
-        virtual void RenderImGui() override = 0;
 };
 /**
  * @brief Audio Composite Object

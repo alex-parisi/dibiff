@@ -2,7 +2,6 @@
 
 #include "Gain.h"
 #include "../inc/Eigen/Dense"
-#include "../inc/imgui-knobs/imgui-knobs.h"
 
 /**
  * @brief Constructor
@@ -39,8 +38,6 @@ void dibiff::level::Gain::process() {
     if (input->isReady()) {
         std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
-        /// Insert audioData into the end of displaySamples
-        displayInSamples.insert(displayInSamples.end(), audioData.begin(), audioData.end());
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = audioData[i];
@@ -52,8 +49,6 @@ void dibiff::level::Gain::process() {
         for (int i = 0; i < blockSize; ++i) {
             out[i] = y(i);
         }
-        /// Insert out data into the end of displayOutSamples
-        displayOutSamples.insert(displayOutSamples.end(), out.begin(), out.end());
         output->setData(out, blockSize);
         markProcessed();
     }
@@ -96,21 +91,4 @@ std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float value) {
     auto instance = std::make_shared<dibiff::level::Gain>(value);
     instance->initialize();
     return instance;
-}
-/**
- * @brief Render the ImGui interface
- */
-void dibiff::level::Gain::RenderImGui() {
-    if (!showGui) return;
-    // ImGui::SetNextWindowSize(ImVec2(247, 136), ImGuiCond_FirstUseEver);
-    ImGui::Begin(getName().c_str());
-    ImGuiKnobs::Knob("Gain", &valuedB, -80.0f, 30.0f, 0.1f, "%.1fdB", ImGuiKnobVariant_Wiper);
-    ImGui::SameLine();
-    ImGui::BeginChild("##GainElementPlots", ImVec2(0, 100), false);
-    ImGui::PlotLines("Input", displayInSamples.data(), static_cast<int>(displayInSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
-    ImGui::PlotLines("Output", displayOutSamples.data(), static_cast<int>(displayOutSamples.size()), 0, NULL, -1.0f, 1.0f, ImVec2(100, 25));
-    ImGui::EndChild();
-    displayInSamples.clear();
-    displayOutSamples.clear();
-    ImGui::End();
 }

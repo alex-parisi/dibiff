@@ -122,36 +122,3 @@ void dibiff::midi::VoiceSelector::processMidiMessage(std::vector<unsigned char> 
 float dibiff::midi::VoiceSelector::midiNoteToFrequency(int noteNumber) {
     return 440.0f * std::pow(2.0f, (noteNumber - 69) / 12.0f);
 }
-/**
- * @brief Render the ImGui interface
- */
-void dibiff::midi::VoiceSelector::RenderImGui() {
-    if (!showGui) return;
-    // ImGui::SetNextWindowSize(ImVec2(254, 20 * numVoices), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin(getName().c_str())) {
-        ImGui::BeginTable("##VoiceSelectorTable", 2);
-        ImGui::TableSetupColumn("Voice");
-        ImGui::TableSetupColumn("Frequency");
-        for (int i = 0; i < voices.size(); ++i) {
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            if (voices[i].active) {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            }
-            ImGui::Text("Voice %d", i);
-            if (voices[i].active) {
-                ImGui::PopStyleColor();
-            }
-            ImGui::TableSetColumnIndex(1);
-            if (voices[i].active) {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-            }
-            ImGui::Text("%f", voices[i].frequency);
-            if (voices[i].active) {
-                ImGui::PopStyleColor();
-            }
-        }
-        ImGui::EndTable();
-    }
-    ImGui::End();
-}

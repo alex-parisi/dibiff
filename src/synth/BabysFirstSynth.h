@@ -31,14 +31,6 @@ struct dibiff::synth::BabysFirstSynthParameters {
     float modulationDepth = 0.0f;
 };
 /**
- * @brief Baby's First Synth GUI
- */
-class dibiff::synth::BabysFirstSynthGui : public dibiff::graph::GuiObject {
-    public:
-        void initialize() override;
-        void RenderImGui() override;
-};
-/**
  * @brief Baby's First Synth
  */
 class dibiff::synth::BabysFirstSynth : public dibiff::graph::AudioCompositeObject {
@@ -49,7 +41,6 @@ class dibiff::synth::BabysFirstSynth : public dibiff::graph::AudioCompositeObjec
     std::shared_ptr<dibiff::level::Mixer> mixer;
     std::shared_ptr<dibiff::level::Gain> gain;
     std::shared_ptr<dibiff::effect::Tremolo> tremolo;
-    std::shared_ptr<dibiff::synth::BabysFirstSynthGui> gui;
     public:
         /**
          * @brief Get the name of the object

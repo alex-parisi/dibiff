@@ -12,6 +12,5 @@ namespace dibiff {
         class MidiInput;
         class Voice;
         class VoiceSelector;
-        class KeyboardSimulator;
     }
 }

@@ -9,8 +9,8 @@
  * @param blockSize The block size of the MIDI input
  * @param portNum The port number of the MIDI input
  */
-dibiff::midi::MidiInput::MidiInput(int blockSize, int portNum)
-: dibiff::graph::AudioObject(), blockSize(blockSize), portNum(portNum) {
+dibiff::midi::MidiInput::MidiInput(int blockSize)
+: dibiff::graph::AudioObject(), blockSize(blockSize) {
     name = "MidiInput";
 }
 /**
@@ -19,6 +19,7 @@ dibiff::midi::MidiInput::MidiInput(int blockSize, int portNum)
  */
 void dibiff::midi::MidiInput::initialize() {
     output = std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "MidiInputOutput"));
+    midiRingBuffer = std::make_shared<RingBuffer<std::vector<unsigned char>>>(1024);
 }
 /**
  * @brief Generate a block of samples
@@ -26,7 +27,15 @@ void dibiff::midi::MidiInput::initialize() {
  */
 void dibiff::midi::MidiInput::process() {
     std::vector<std::vector<unsigned char>> messages;
-    // Set the MIDI data to the output
+    std::vector<unsigned char> midiMessage;
+    while (midiRingBuffer->available() > 0) {
+        midiMessage.clear();
+        size_t messagesRead = midiRingBuffer->read(&midiMessage, 1);
+        if (messagesRead > 0) {
+            messages.push_back(midiMessage);
+        }
+    }
+    /// Set the MIDI data to the output
     output->setData(messages, blockSize);
     markProcessed();
 }
@@ -59,8 +68,16 @@ bool dibiff::midi::MidiInput::isFinished() const {
  * @param blockSize The block size of the MIDI input
  * @param portNum The port number of the MIDI input
  */
-std::shared_ptr<dibiff::midi::MidiInput> dibiff::midi::MidiInput::create(int blockSize, int portNum) {
-    auto instance = std::make_shared<dibiff::midi::MidiInput>(blockSize, portNum);
+std::shared_ptr<dibiff::midi::MidiInput> dibiff::midi::MidiInput::create(int blockSize) {
+    auto instance = std::make_shared<dibiff::midi::MidiInput>(blockSize);
     instance->initialize();
     return instance;
+}
+/**
+ * @brief Add a MIDI message
+ * @details Adds a MIDI message to the MIDI input
+ * @param message The MIDI message to add
+ */
+void dibiff::midi::MidiInput::addMidiMessage(const std::vector<unsigned char>& message) {
+    midiRingBuffer->write(&message, 1);
 }

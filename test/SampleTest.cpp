@@ -8,7 +8,7 @@ int main() {
     dibiff::graph::AudioGraph graph;
 
     /// Create MIDI Input
-    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize, 0));
+    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize));
     midiInput->setName("midi-input");
 
     /// Create Sample Generator
@@ -27,7 +27,7 @@ int main() {
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
-    auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(sampleRate, blockSize));
     audioPlayer->setName("audio-player");
 
     /// Connect everything

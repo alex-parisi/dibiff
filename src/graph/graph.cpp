@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "../generator/generator.h"
-#include "../sink/AudioPlayer.h"
+#include "../sink/GraphSink.h"
 
 /**
  * Audio Input implementation
@@ -241,6 +241,7 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
                 // Create a thread to process the object
                 threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
                     obj->process();
+                    std::cout << "Processed: " << obj->getName() << std::endl;
                     std::lock_guard<std::mutex> lock(processedMutex);
                     processed.insert(obj);
                     inQueueOrProcessed.insert(obj);
@@ -278,14 +279,14 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
         iter++;
         if (realTime) {
             /// First, pull out the audio player object
-            std::shared_ptr<dibiff::sink::AudioPlayer> audioPlayer = nullptr;
+            std::shared_ptr<dibiff::sink::GraphSink> graphSink = nullptr;
             for (auto& obj : objects) {
-                if (auto o = std::dynamic_pointer_cast<dibiff::sink::AudioPlayer>(obj)) {
-                    audioPlayer = std::dynamic_pointer_cast<dibiff::sink::AudioPlayer>(obj);
+                if (auto o = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj)) {
+                    graphSink = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj);
                     break;
                 }
             }
-            if (audioPlayer == nullptr) {
+            if (graphSink == nullptr) {
                 std::cerr << "Warning: Audio player not found in real-time mode.\n";
                 auto endTime = std::chrono::high_resolution_clock::now();
                 std::chrono::duration<double> elapsed = endTime - startTime;
@@ -294,9 +295,10 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
                     std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
                 }
             } else {
+                std::cout << "Waiting for audio player to finish processing...\n";
                 /// Wait for the audio player to finish processing
-                std::unique_lock<std::mutex> lock(audioPlayer->cv_mtx);
-                audioPlayer->cv.wait(lock);
+                std::unique_lock<std::mutex> lock(graphSink->cv_mtx);
+                graphSink->cv.wait(lock);
             }
         }
     }

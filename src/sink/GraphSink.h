@@ -11,29 +11,29 @@
 #include <condition_variable>
 
 /**
- * @brief Audio Player Sink
- * @details An Audio Player sink object that sends audio data to the default audio output device.
+ * @brief Graph Sink
+ * @details A graph sink object that sends audio data to the thread responsible for handling
+ * the audio data.
  */
-class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
+class dibiff::sink::GraphSink : public dibiff::graph::AudioObject {
     public:
         std::condition_variable cv;
         std::mutex cv_mtx;
         std::shared_ptr<dibiff::graph::AudioInput> input;
         int sampleRate;
         int blockSize;
-        // ma_device device;
-        std::unique_ptr<RingBuffer> ringBuffer;
+        std::shared_ptr<RingBuffer<float>> ringBuffer;
 
         /**
          * @brief Constructor
-         * @details Initializes the Audio Player with a certain sample rate.
+         * @details Initializes the GraphSink with a certain sample rate.
          * @param rate The sample rate of the audio data
          */
-        AudioPlayer(int rate, int blockSize);
+        GraphSink(int rate, int blockSize);
 
         /**
          * @brief Initialize
-         * @details Initializes the Audio Player connection points and audio device
+         * @details Initializes the GraphSink connection points and audio device
          */
         void initialize() override;
 
@@ -44,13 +44,13 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
         void process() override;
 
         /**
-         * @brief Reset the Audio Player
+         * @brief Reset the GraphSink
          * @details Not used.
          */
         void reset() override {}
 
         /**
-         * @brief Clear the Audio Player
+         * @brief Clear the GraphSink
          * @details Not used.
          */
         void clear() override {}
@@ -74,20 +74,20 @@ class dibiff::sink::AudioPlayer : public dibiff::graph::AudioObject {
         std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
 
         /**
-         * @brief Check if the Audio Player is finished processing
-         * @return True if the Audio Player is finished processing, false otherwise
+         * @brief Check if the GraphSink is finished processing
+         * @return True if the GraphSink is finished processing, false otherwise
          */
         bool isFinished() const override;
 
         /**
-         * @brief Check if the Audio Player is ready to process
-         * @return True if the Audio Player is ready to process, false otherwise
+         * @brief Check if the GraphSink is ready to process
+         * @return True if the GraphSink is ready to process, false otherwise
          */
         bool isReadyToProcess() const override;
 
         /**
-         * @brief Creates a new Audio Player object
+         * @brief Creates a new GraphSink object
          * @param rate The sample rate of the audio data
          */
-        static std::shared_ptr<AudioPlayer> create(int rate, int blockSize);
+        static std::shared_ptr<GraphSink> create(int rate, int blockSize);
 };

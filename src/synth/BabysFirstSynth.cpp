@@ -23,7 +23,7 @@ dibiff::synth::BabysFirstSynth::BabysFirstSynth(BabysFirstSynthParameters params
  */
 void dibiff::synth::BabysFirstSynth::initialize() {
     /// Create the objects:
-    midiInput = dibiff::midi::MidiInput::create(params.blockSize, params.midiPortNum);
+    midiInput = dibiff::midi::MidiInput::create(params.blockSize);
     voiceSelector = dibiff::midi::VoiceSelector::create(params.blockSize, params.numVoices);
     voiceSelector->setName("babys-first-synth-voice-selector");
     mixer = dibiff::level::Mixer::create(params.numVoices);

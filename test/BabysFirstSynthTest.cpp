@@ -34,7 +34,7 @@ int main() {
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
-    auto audioPlayer = graph.add(dibiff::sink::AudioPlayer::create(sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(sampleRate, blockSize));
     audioPlayer->setName("audio-player");
 
     /// Connect everything

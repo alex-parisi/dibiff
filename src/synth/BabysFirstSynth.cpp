@@ -23,14 +23,20 @@ dibiff::synth::BabysFirstSynth::BabysFirstSynth(BabysFirstSynthParameters params
  */
 void dibiff::synth::BabysFirstSynth::initialize() {
     /// Create the objects:
-    midiInput = dibiff::midi::MidiInput::create(params.blockSize, params.midiPortNum);
+    midiInput = dibiff::midi::MidiInput::create(params.blockSize);
     voiceSelector = dibiff::midi::VoiceSelector::create(params.blockSize, params.numVoices);
+    voiceSelector->setName("babys-first-synth-voice-selector");
     mixer = dibiff::level::Mixer::create(params.numVoices);
+    mixer->setName("babys-first-synth-mixer");
     gain = dibiff::level::Gain::create(params.gain);
+    gain->setName("babys-first-synth-gain");
     tremolo = dibiff::effect::Tremolo::create(params.modulationRate, params.modulationDepth, params.sampleRate);
+    tremolo->setName("babys-first-synth-tremolo");
     for (int i = 0; i < params.numVoices; i++) {
         sineGenerators[i] = dibiff::generator::SineGenerator::create(params.blockSize, params.sampleRate);
+        sineGenerators[i]->setName("babys-first-synth-sine-generator");
         envelopes[i] = dibiff::dynamic::Envelope::create(params.attack, params.decay, params.sustain, params.release, params.sampleRate);
+        envelopes[i]->setName("babys-first-synth-envelope");
     }
     /// Add the objects to the graph
     objects.push_back(midiInput);

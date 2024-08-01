@@ -30,7 +30,6 @@ struct dibiff::synth::BabysFirstSynthParameters {
     float modulationRate = 0.0f;
     float modulationDepth = 0.0f;
 };
-
 /**
  * @brief Baby's First Synth
  */

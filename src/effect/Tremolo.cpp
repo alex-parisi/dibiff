@@ -7,7 +7,7 @@
  * @brief Constructor
  * @details Initializes the tremolo object with a certain modulation depth
  * and modulation rate
- * @param modulationDepth The modulation depth of the tremolo (0 to 1)
+ * @param modulationDepth The modulation depth of the tremolo in milliseconds
  * @param modulationRate The modulation rate of the tremolo in Hz
  * @param sampleRate The sample rate of the input signal
  */
@@ -47,11 +47,11 @@ float dibiff::effect::Tremolo::process(float sample) {
  */
 void dibiff::effect::Tremolo::process() {
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));

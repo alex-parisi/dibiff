@@ -36,6 +36,7 @@ class dibiff::midi::VoiceSelector : public dibiff::graph::AudioObject {
         static std::shared_ptr<VoiceSelector> create(int blockSize, int numVoices = 3);
     private:
         int blockSize;
+        int numVoices;
         int voiceIndex = 0;
         void processMidiMessage(std::vector<unsigned char> message);
         float midiNoteToFrequency(int noteNumber);

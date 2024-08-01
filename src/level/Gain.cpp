@@ -9,7 +9,7 @@
  * @param value The gain of the object in dB
  */
 dibiff::level::Gain::Gain(float value)
-: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)) {
+: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)), valuedB(value) {
     name = "Gain";
 };
 /**
@@ -33,12 +33,14 @@ float dibiff::level::Gain::process(float sample) {
  * @details Processes a block of audio data
  */
 void dibiff::level::Gain::process() {
+    /// Update value
+    value = std::pow(10.0f, valuedB / 20.0f);
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));

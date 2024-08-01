@@ -62,11 +62,11 @@ float dibiff::effect::Reverb::process(float sample) {
  */
 void dibiff::effect::Reverb::process() {
     if (input->isReady()) {
-        std::vector<float> data = *input->getData();
+        std::vector<float> audioData = *input->getData();
         int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
-            x(i) = data[i];
+            x(i) = audioData[i];
         }
         for (int i = 0; i < blockSize; ++i) {
             y(i) = process(x(i));

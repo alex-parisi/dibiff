@@ -11,7 +11,7 @@
  * @param numVoices The number of voices to create
  */
 dibiff::midi::VoiceSelector::VoiceSelector(int blockSize, int numVoices)
-: dibiff::graph::AudioObject(), blockSize(blockSize) {
+: dibiff::graph::AudioObject(), blockSize(blockSize), numVoices(numVoices) {
     name = "VoiceSelector";
     for (int i = 0; i < numVoices; ++i) {
         voices.push_back(dibiff::midi::Voice());

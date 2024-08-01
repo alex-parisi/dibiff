@@ -80,4 +80,5 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
         static std::shared_ptr<Gain> create(float value);
     private:
         float value;
+        float valuedB;
 };

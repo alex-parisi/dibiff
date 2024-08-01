@@ -5,9 +5,6 @@ project(MyProject VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Set OpenGL Policy
-set(OpenGL_GL_PREFERENCE LEGACY)
-
 # Include directories for Eigen, miniaudio, RtMidi, ImGui, and glad
 include_directories(${PROJECT_SOURCE_DIR}/inc)
 include_directories(${PROJECT_SOURCE_DIR}/inc/Eigen)

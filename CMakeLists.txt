@@ -23,7 +23,7 @@ target_link_libraries(libTest PRIVATE $<TARGET_OBJECTS:shared_sources> ${CMAKE_D
 
 # Platform-specific settings and dependencies
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(libtest PRIVATE m)
+  target_link_libraries(libTest PRIVATE m)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_compile_definitions(shared_sources PRIVATE __MACOSX_CORE__)
   target_link_libraries(libTest PRIVATE m)

@@ -121,6 +121,7 @@ std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float m
  * @brief Render the ImGui interface
  */
 void dibiff::effect::Tremolo::RenderImGui() {
+    if (!showGui) return;
     ImGui::SetNextWindowSize(ImVec2(320, 140), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGuiKnobs::Knob("Modulation\nDepth", &modulationDepth, 0.01f, 1.0f, 0.01f, "%.01f", ImGuiKnobVariant_Wiper);

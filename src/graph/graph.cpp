@@ -350,8 +350,6 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            // Create a dockspace
-            ImGui::DockSpaceOverViewport(0);
             // Render ImGui UI for each AudioObject
             for (auto& obj : objects) {
                 obj->RenderImGui();

@@ -119,6 +119,7 @@ std::shared_ptr<dibiff::graph::AudioObject> dibiff::midi::MidiInput::create(int 
  * @brief Render the ImGui interface
  */
 void dibiff::midi::MidiInput::RenderImGui() {
+    if (!showGui) return;
     ImGui::Begin(getName().c_str());
     ImGui::End();
 }

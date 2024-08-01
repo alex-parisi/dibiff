@@ -162,6 +162,7 @@ std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float dec
  * @brief Render the ImGui interface
  */
 void dibiff::effect::Reverb::RenderImGui() {
+    if (!showGui) return;
     ImGui::SetNextWindowSize(ImVec2(344, 141), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGuiKnobs::Knob("Decay\nTime", &decayTime, 0.01f, 10.0f, 0.01f, "%.01fs", ImGuiKnobVariant_Wiper);

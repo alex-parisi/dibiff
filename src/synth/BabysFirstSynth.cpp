@@ -2,6 +2,46 @@
 
 #include "BabysFirstSynth.h"
 
+void dibiff::synth::BabysFirstSynthGui::initialize() {
+    name = "BabysFirstSynthGui";
+};
+
+void dibiff::synth::BabysFirstSynthGui::RenderImGui() {
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+    ImVec2 window_pos = ImVec2(50, 50);
+    ImVec2 window_size = ImVec2(550, 350);
+
+    ImGui::SetNextWindowPos(window_pos, ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(window_size, ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Baby's First Synth", nullptr, window_flags);
+
+    ImGuiID dockspace_id = ImGui::GetID("BabysFirstSynthDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+
+    static bool first_time = true;
+    if (first_time) {
+        first_time = false;
+
+        ImGui::DockBuilderRemoveNode(dockspace_id); // Clear any previous layout
+        ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspace_id, window_size);
+
+        // Vertically split the dockspace into two nodes
+        ImGuiID dock_id_voice_selector = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.35f, nullptr, &dockspace_id);
+        ImGuiID dock_id_gain = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.5f, nullptr, &dockspace_id);
+
+        // Dock the sub-windows into the stacked nodes
+        ImGui::DockBuilderDockWindow("babys-first-synth-voice-selector", dock_id_voice_selector);
+        ImGui::DockBuilderDockWindow("babys-first-synth-gain", dock_id_gain);
+        ImGui::DockBuilderDockWindow("babys-first-synth-tremolo", dockspace_id);
+        ImGui::DockBuilderFinish(dockspace_id);
+    }
+    ImVec2 currentWindowSize = ImGui::GetWindowSize();
+    std::cout << "Current window size: " << currentWindowSize.x << "x" << currentWindowSize.y << std::endl;
+    ImGui::End(); // End the main parent window
+}
 /**
  * @brief Get the name of the object
  * @return The name of the object
@@ -38,7 +78,10 @@ void dibiff::synth::BabysFirstSynth::initialize() {
         envelopes[i] = dibiff::dynamic::Envelope::create(params.attack, params.decay, params.sustain, params.release, params.sampleRate);
         envelopes[i]->setName("babys-first-synth-envelope");
     }
+    gui = std::make_shared<BabysFirstSynthGui>();
+    gui->initialize();
     /// Add the objects to the graph
+    objects.push_back(gui);
     objects.push_back(midiInput);
     objects.push_back(voiceSelector);
     for (int i = 0; i < params.numVoices; i++) {

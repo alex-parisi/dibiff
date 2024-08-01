@@ -101,7 +101,8 @@ std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float value) {
  * @brief Render the ImGui interface
  */
 void dibiff::level::Gain::RenderImGui() {
-    ImGui::SetNextWindowSize(ImVec2(247, 136), ImGuiCond_FirstUseEver);
+    if (!showGui) return;
+    // ImGui::SetNextWindowSize(ImVec2(247, 136), ImGuiCond_FirstUseEver);
     ImGui::Begin(getName().c_str());
     ImGuiKnobs::Knob("Gain", &valuedB, -80.0f, 30.0f, 0.1f, "%.1fdB", ImGuiKnobVariant_Wiper);
     ImGui::SameLine();

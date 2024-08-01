@@ -10,6 +10,7 @@ namespace dibiff {
      */
     namespace synth {
         struct BabysFirstSynthParameters;
+        class BabysFirstSynthGui;
         class BabysFirstSynth;
     }
 }

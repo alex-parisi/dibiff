@@ -241,7 +241,6 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
                 // Create a thread to process the object
                 threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
                     obj->process();
-                    std::cout << "Processed: " << obj->getName() << std::endl;
                     std::lock_guard<std::mutex> lock(processedMutex);
                     processed.insert(obj);
                     inQueueOrProcessed.insert(obj);
@@ -331,7 +330,6 @@ void dibiff::graph::AudioGraph::tick() {
             // Create a thread to process the object
             threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
                 obj->process();
-                std::cout << "Processed: " << obj->getName() << std::endl;
                 std::lock_guard<std::mutex> lock(processedMutex);
                 processed.insert(obj);
                 inQueueOrProcessed.insert(obj);

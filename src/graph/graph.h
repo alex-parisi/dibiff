@@ -187,6 +187,7 @@ class dibiff::graph::AudioGraph {
         std::shared_ptr<dibiff::graph::AudioObject> add(std::shared_ptr<dibiff::graph::AudioObject> obj);
         std::shared_ptr<dibiff::graph::AudioCompositeObject> add(std::shared_ptr<dibiff::graph::AudioCompositeObject> obj);
         void run(bool realTime = false, int sampleRate = 48000, int blockSize = 512);
+        void tick();
         static void connect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioInput> inChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioReference> refChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);

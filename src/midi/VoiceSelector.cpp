@@ -36,21 +36,29 @@ void dibiff::midi::VoiceSelector::process() {
     for (int i = 0; i < voices.size(); ++i) {
         voices[i].midiMessage.clear();
     }
-    if (input->isConnected()) {
+    if (!input->isConnected()) {
+        /// Assign empty MIDI messages to all voices
+        for (int i = 0; i < voices.size(); ++i) {
+            std::vector<std::vector<unsigned char>> outputData;
+            outputData.push_back(voices[i].midiMessage);
+            outputs[i]->setData(outputData, blockSize);
+        }
+        markProcessed();
+    } else if (input->isConnected()) {
         std::vector<std::vector<unsigned char>> data = *input->getData();
         int blockSize = input->getBlockSize();
         /// Process the MIDI message and assign to voices
         for (auto message : data) {
             processMidiMessage(message);
         }
+        /// Assign Voice outputs
+        for (int i = 0; i < voices.size(); ++i) {
+            std::vector<std::vector<unsigned char>> outputData;
+            outputData.push_back(voices[i].midiMessage);
+            outputs[i]->setData(outputData, blockSize);
+        }
+        markProcessed();
     }
-    /// Assign Voice outputs
-    for (int i = 0; i < voices.size(); ++i) {
-        std::vector<std::vector<unsigned char>> outputData;
-        outputData.push_back(voices[i].midiMessage);
-        outputs[i]->setData(outputData, blockSize);
-    }
-    markProcessed();
 }
 /**
  * @brief Get the input connection point.
@@ -77,8 +85,10 @@ bool dibiff::midi::VoiceSelector::isFinished() const {
  * @brief Check if the object is ready to process.
  */
 bool dibiff::midi::VoiceSelector::isReadyToProcess() const {
-    // Check if input is connected
-    return input->isConnected() && input->isReady() && !processed;
+    if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && !processed;
 }
 /**
  * @brief Create a new instance of the object.

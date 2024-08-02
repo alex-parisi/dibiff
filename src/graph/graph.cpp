@@ -303,6 +303,58 @@ void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize
         }
     }
 }
+
+void dibiff::graph::AudioGraph::tick() {
+    std::queue<std::shared_ptr<dibiff::graph::AudioObject>> readyQueue;
+    std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> processed;
+    std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> inQueueOrProcessed;
+    std::mutex queueMutex;
+    std::mutex processedMutex;
+    // Initialize the queue with objects that are ready to process
+    for (auto& obj : objects) {
+        // Mark all objects as not processed at the start of each block
+        obj->markProcessed(false);
+        if (obj->isReadyToProcess()) {
+            readyQueue.push(obj);
+            inQueueOrProcessed.insert(obj);
+        }
+    }
+    if (readyQueue.empty()) {
+        /// No objects to process.
+        return;
+    }
+    while (!readyQueue.empty()) {
+        std::vector<std::thread> threads;
+        while (!readyQueue.empty()) {
+            auto obj = readyQueue.front();
+            readyQueue.pop();
+            // Create a thread to process the object
+            threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
+                obj->process();
+                std::cout << "Processed: " << obj->getName() << std::endl;
+                std::lock_guard<std::mutex> lock(processedMutex);
+                processed.insert(obj);
+                inQueueOrProcessed.insert(obj);
+            }));
+        }
+        // Join all threads
+        for (auto& thread : threads) {
+            thread.join();
+        }
+        // Check connected objects to see if they are now ready to process
+        for (auto& connectedObj : objects) {
+            std::lock_guard<std::mutex> lock(processedMutex);
+            if (processed.find(connectedObj) == processed.end() &&
+                connectedObj->isReadyToProcess() &&
+                inQueueOrProcessed.find(connectedObj) == inQueueOrProcessed.end()) {
+                readyQueue.push(connectedObj);
+                inQueueOrProcessed.insert(connectedObj);
+            }
+        }
+    }
+}
+
+
 /**
  * @brief Connect two audio objects
  * @details Connects two audio objects together

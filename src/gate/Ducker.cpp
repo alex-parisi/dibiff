@@ -54,7 +54,18 @@ float dibiff::gate::Ducker::process(float sample, float reference) {
  * @details Processes a block of audio data
  */
 void dibiff::gate::Ducker::process() {
-    if (input->isReady() && reference->isReady()) {
+    if (!input->isConnected()) {
+        /// If no input is connected, just dump zeros into the output
+        std::vector<float> inData = *input->getData();
+        int inBlockSize = input->getBlockSize();
+        std::vector<float> out(inBlockSize, 0.0f);
+        output->setData(out, inBlockSize);
+    } else if (!reference->isConnected()) {
+        /// If no reference is connected, just pass the input through
+        std::vector<float> inData = *input->getData();
+        int inBlockSize = input->getBlockSize();
+        output->setData(inData, inBlockSize);
+    } else if (input->isReady() && reference->isReady()) {
         std::vector<float> inData = *input->getData();
         std::vector<float> refData = *reference->getData();
         int inBlockSize = input->getBlockSize();
@@ -112,8 +123,12 @@ bool dibiff::gate::Ducker::isFinished() const {
  * @return True if the filter is ready to process, false otherwise
  */
 bool dibiff::gate::Ducker::isReadyToProcess() const {
-    // Check if input is connected
-    return input->isConnected() && input->isReady() && reference->isConnected() && reference->isReady() && !processed;
+    if (!reference->isConnected()) {
+        return input->isConnected() && input->isReady() && !processed;
+    } else if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && reference->isReady() && !processed;
 }
 /**
  * Create a new ducker object

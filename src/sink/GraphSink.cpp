@@ -19,7 +19,12 @@ void dibiff::sink::GraphSink::initialize() {
 }
 
 void dibiff::sink::GraphSink::process() {
-    if (input->isReady()) {
+    if (!input->isConnected()) {
+        /// Fill ring buffer with zeros
+        std::vector<float> zeros(blockSize, 0.0f);
+        ringBuffer->write(zeros.data(), blockSize);
+        markProcessed();
+    } else if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
         /// Add the audioData to the ring buffer
@@ -45,7 +50,10 @@ bool dibiff::sink::GraphSink::isFinished() const {
 }
 
 bool dibiff::sink::GraphSink::isReadyToProcess() const {
-    return input->isConnected() && input->isReady() && !processed;
+    if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && !processed;
 }
 
 std::shared_ptr<dibiff::sink::GraphSink> dibiff::sink::GraphSink::create(int rate, int blockSize) {

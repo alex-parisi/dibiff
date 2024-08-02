@@ -39,7 +39,10 @@ dibiff::sink::WavWriter::~WavWriter() {
  * @details Processes a block of audio data
  */
 void dibiff::sink::WavWriter::process() {
-    if (input->isReady()) {
+    if (!input->isConnected()) {
+        /// Don't do anything if the input is not connected
+        markProcessed();
+    } else if (input->isReady()) {
         auto audioData = input->getData();
         int blockSize = input->getBlockSize();
         /// Also write the audioData to the .wav file
@@ -78,7 +81,10 @@ bool dibiff::sink::WavWriter::isFinished() const {
  * @return True if the WAV sink is ready to process, false otherwise
  */
 bool dibiff::sink::WavWriter::isReadyToProcess() const {
-    return input->isConnected() && input->isReady() && !processed;
+    if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && !processed;
 }
 /**
  * @brief Finalize the WAV header

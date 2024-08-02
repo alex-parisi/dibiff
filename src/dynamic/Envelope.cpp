@@ -94,7 +94,13 @@ void dibiff::dynamic::Envelope::process() {
             noteOff();
         }
     }
-    if (input->isReady()) {
+    if (!input->isConnected()) {
+        /// If no input is connected, just dump zeros into the output
+        std::vector<float> inData = *input->getData();
+        int inBlockSize = input->getBlockSize();
+        std::vector<float> out(inBlockSize, 0.0f);
+        output->setData(out, inBlockSize);
+    } else if (input->isReady()) {
         std::vector<float> data = *input->getData();
         int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
@@ -165,8 +171,10 @@ bool dibiff::dynamic::Envelope::isFinished() const {
  * @return True if the filter is ready to process, false otherwise
  */
 bool dibiff::dynamic::Envelope::isReadyToProcess() const {
-    // Check if input is connected
-    return input->isConnected() && input->isReady() && !processed;
+    if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && !processed;
 }
 /**
  * Create a new envelope object

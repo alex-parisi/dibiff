@@ -35,7 +35,19 @@ void dibiff::adaptive::AcousticEchoCanceller::initialize() {
  * @param blockSize The size of the block
  */
 void dibiff::adaptive::AcousticEchoCanceller::process() {
-    if (input->isReady() && reference->isReady()) {
+    if (!input->isConnected()) {
+        /// If no input is connected, just dump zeros into the output
+        std::vector<float> inData = *input->getData();
+        int inBlockSize = input->getBlockSize();
+        std::vector<float> out(inBlockSize, 0.0f);
+        output->setData(out, inBlockSize);
+    } else if (!reference->isConnected()) {
+        /// If no reference is connected, just pass the input through
+        std::vector<float> inData = *input->getData();
+        int inBlockSize = input->getBlockSize();
+        output->setData(inData, inBlockSize);
+    } else if (input->isReady() && reference->isReady()) {
+        /// If both are connected and ready, process the data
         std::vector<float> inData = *input->getData();
         std::vector<float> refData = *reference->getData();
         int inBlockSize = input->getBlockSize();
@@ -100,8 +112,12 @@ bool dibiff::adaptive::AcousticEchoCanceller::isFinished() const {
  * @return True if the filter is ready to process, false otherwise
  */
 bool dibiff::adaptive::AcousticEchoCanceller::isReadyToProcess() const {
-    // Check if input is connected
-    return input->isConnected() && input->isReady() && reference->isConnected() && reference->isReady() && !processed;
+    if (!reference->isConnected()) {
+        return input->isConnected() && input->isReady() && !processed;
+    } else if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && reference->isReady() && !processed;
 }
 /**
  * Create a new acoustic echo canceller object

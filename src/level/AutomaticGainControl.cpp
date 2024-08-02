@@ -53,7 +53,12 @@ float dibiff::level::AutomaticGainControl::process(float sample) {
  * @details Processes a block of audio data
  */
 void dibiff::level::AutomaticGainControl::process() {
-    if (input->isReady()) {
+    if (!input->isConnected()) {
+        /// If no input is connected, just dump zeros into the output
+        std::vector<float> out(input->getBlockSize(), 0.0f);
+        output->setData(out, input->getBlockSize());
+        markProcessed();
+    } else if (input->isReady()) {
         std::vector<float> data = *input->getData();
         int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
@@ -106,8 +111,10 @@ bool dibiff::level::AutomaticGainControl::isFinished() const {
  * @return True if the filter is ready to process, false otherwise
  */
 bool dibiff::level::AutomaticGainControl::isReadyToProcess() const {
-    // Check if input is connected
-    return input->isConnected() && input->isReady() && !processed;
+    if (!input->isConnected()) {
+        return true;
+    }
+    return input->isReady() && !processed;
 }
 /**
  * Create a new AGC object

@@ -12,9 +12,9 @@
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::gate::NoiseGate::NoiseGate(float threshold, float attackTime, float releaseTime, float sampleRate)
+dibiff::gate::NoiseGate::NoiseGate(float& threshold, float& attackTime, float& releaseTime, float& sampleRate)
 : dibiff::graph::AudioObject(), 
-  threshold(threshold), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {
+  _threshold(threshold), _attackTime(attackTime), _releaseTime(releaseTime), _sampleRate(sampleRate) {
     name = "NoiseGate";
 };
 /**
@@ -24,8 +24,8 @@ dibiff::gate::NoiseGate::NoiseGate(float threshold, float attackTime, float rele
 void dibiff::gate::NoiseGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "NoiseGateInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "NoiseGateOutput"));
-    attackCoefficient = std::exp(-1.0 / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::exp(-1.0 / (releaseTime * sampleRate / 1000.0f));
+    _attackCoefficient = std::exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
 }
 /**
  * @brief Process a sample
@@ -34,12 +34,12 @@ void dibiff::gate::NoiseGate::initialize() {
  */
 float dibiff::gate::NoiseGate::process(float sample) {
     float inputLevel = std::fabs(sample);
-    if (inputLevel > thresholdLevel) {
-        envelope = attackCoefficient * (envelope - inputLevel) + inputLevel;
+    if (inputLevel > _thresholdLevel) {
+        _envelope = _attackCoefficient * (_envelope - inputLevel) + inputLevel;
     } else {
-        envelope = releaseCoefficient * envelope;
+        _envelope = _releaseCoefficient * _envelope;
     }
-    if (envelope < thresholdLevel) {
+    if (_envelope < _thresholdLevel) {
         return 0.0f;
     }
     return sample;
@@ -49,6 +49,8 @@ float dibiff::gate::NoiseGate::process(float sample) {
  * @details Processes a block of audio data
  */
 void dibiff::gate::NoiseGate::process() {
+    _attackCoefficient = std::exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
         std::vector<float> out(input->getBlockSize(), 0.0f);
@@ -77,7 +79,7 @@ void dibiff::gate::NoiseGate::process() {
  * @details Resets the envelope to zero
  */
 void dibiff::gate::NoiseGate::reset() {
-    envelope = 0.0f;
+    _envelope = 0.0f;
 }
 /**
  * @brief Get the input connection point.
@@ -118,7 +120,7 @@ bool dibiff::gate::NoiseGate::isReadyToProcess() const {
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::NoiseGate> dibiff::gate::NoiseGate::create(float threshold, float attackTime, float releaseTime, float sampleRate) {
+std::shared_ptr<dibiff::gate::NoiseGate> dibiff::gate::NoiseGate::create(float& threshold, float& attackTime, float& releaseTime, float& sampleRate) {
     auto instance = std::make_shared<dibiff::gate::NoiseGate>(threshold, attackTime, releaseTime, sampleRate);
     instance->initialize();
     return instance;

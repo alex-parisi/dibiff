@@ -11,7 +11,7 @@
  * @param modulationRate The modulation rate of the tremolo in Hz
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::effect::Tremolo::Tremolo(float modulationDepth, float modulationRate, float sampleRate)
+dibiff::effect::Tremolo::Tremolo(float& modulationDepth, float& modulationRate, float& sampleRate)
 : dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate) {
     name = "Tremolo";
 };
@@ -114,7 +114,7 @@ bool dibiff::effect::Tremolo::isReadyToProcess() const {
  * @param modulationRate The modulation rate of the tremolo in Hz
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float modulationDepth, float modulationRate, float sampleRate) {
+std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
     auto instance = std::make_shared<dibiff::effect::Tremolo>(modulationDepth, modulationRate, sampleRate);
     instance->initialize();
     return instance;

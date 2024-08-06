@@ -32,7 +32,7 @@ class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        Ducker(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate);
+        Ducker(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the ducker connection points and envelope
@@ -93,15 +93,15 @@ class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Ducker> create(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate);
+        static std::shared_ptr<Ducker> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
     private:
-        float threshold;
-        float ratio;
-        float attackTime;
-        float releaseTime;
-        float sampleRate;
-        float envelope = 0.0f;
-        float attackCoefficient;
-        float releaseCoefficient;
-        float thresholdLevel;
+        float& _threshold;
+        float& _ratio;
+        float& _attackTime;
+        float& _releaseTime;
+        float& _sampleRate;
+        float _envelope = 0.0f;
+        float _attackCoefficient;
+        float _releaseCoefficient;
+        float _thresholdLevel;
 };

@@ -11,7 +11,7 @@
  * @param stepSize The step size of the adaptive filter
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::adaptive::AcousticEchoCanceller::AcousticEchoCanceller(int filterLength, float stepSize, float sampleRate)
+dibiff::adaptive::AcousticEchoCanceller::AcousticEchoCanceller(int& filterLength, float& stepSize, float& sampleRate)
 : dibiff::graph::AudioObject(), 
   filterLength(filterLength), stepSize(stepSize), sampleRate(sampleRate) {
     name = "AcousticEchoCanceller";
@@ -125,7 +125,7 @@ bool dibiff::adaptive::AcousticEchoCanceller::isReadyToProcess() const {
  * @param stepSize The step size of the adaptive filter
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::adaptive::AcousticEchoCanceller> dibiff::adaptive::AcousticEchoCanceller::create(int filterLength, float stepSize, float sampleRate) {
+std::shared_ptr<dibiff::adaptive::AcousticEchoCanceller> dibiff::adaptive::AcousticEchoCanceller::create(int& filterLength, float& stepSize, float& sampleRate) {
     auto instance = std::make_shared<dibiff::adaptive::AcousticEchoCanceller>(filterLength, stepSize, sampleRate);
     instance->initialize();
     return instance;

@@ -21,7 +21,7 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          * @details Initializes the gain object with a certain value
          * @param value The gain of the object in dB
          */
-        Gain(float value);
+        Gain(float& value);
         /**
          * @brief Initialize
          * @details Initializes the gain connection points
@@ -77,8 +77,8 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          * Create a new gain object
          * @param value The gain of the object in dB
          */
-        static std::shared_ptr<Gain> create(float value);
+        static std::shared_ptr<Gain> create(float& value);
     private:
-        float value;
-        float valuedB;
+        float& _valuedB;
+        float _value;
 };

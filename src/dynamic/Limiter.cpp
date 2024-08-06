@@ -14,7 +14,7 @@
  * @param kneeWidth The knee width of the limiter in dB, default value is calculated
  * 
  */
-dibiff::dynamic::Limiter::Limiter(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt)
+dibiff::dynamic::Limiter::Limiter(float& threshold, float& sampleRate, float& attack, float& release, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth)
 : dibiff::graph::AudioObject(), 
   threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), makeupGain(makeupGain), knee(kneeWidth) {
     name = "Limiter";
@@ -28,7 +28,9 @@ void dibiff::dynamic::Limiter::initialize() {
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "LimiterOutput"));
     /// If makeupGain is not specified, calculate it:
     if (!makeupGain) {
-        makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
+        _makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
+    } else {
+        _makeupGain = makeupGain.value();
     }
 }
 /**
@@ -44,7 +46,7 @@ float dibiff::dynamic::Limiter::process(float sample) {
     /// Gain Smoothing
     updateGainSmoothing(xSc, inputdB);
     /// Makeup Gain
-    float gM = gS * makeupGain.value();
+    float gM = gS * _makeupGain;
     /// Convert back to linear scale
     float gLin = std::pow(10.0f, gM / 20.0f);
     /// Output
@@ -169,7 +171,7 @@ bool dibiff::dynamic::Limiter::isReadyToProcess() const {
  * @param makeupGain The makeup gain of the limiter in dB, default value is calculated
  * @param kneeWidth The knee width of the limiter in dB, default value is calculated
  */
-std::shared_ptr<dibiff::dynamic::Limiter> dibiff::dynamic::Limiter::create(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt) {
+std::shared_ptr<dibiff::dynamic::Limiter> dibiff::dynamic::Limiter::create(float& threshold, float& sampleRate, float& attack, float& release, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth) {
     auto instance = std::make_shared<dibiff::dynamic::Limiter>(threshold, sampleRate, attack, release, makeupGain, kneeWidth);
     instance->initialize();
     return instance;

@@ -20,7 +20,8 @@ int main() {
     envelope->setName("envelope");
 
     /// Create Gain
-    auto gain = graph.add(dibiff::level::Gain::create(-6.0f));
+    float _gain = -6.0f;
+    auto gain = graph.add(dibiff::level::Gain::create(_gain));
     gain->setName("gain");
 
     /// Create Chorus
@@ -35,7 +36,7 @@ int main() {
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
-    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(1, sampleRate, blockSize));
     audioPlayer->setName("audio-player");
 
     /// Connect everything

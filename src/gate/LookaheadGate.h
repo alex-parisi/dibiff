@@ -30,7 +30,7 @@ class dibiff::gate::LookaheadGate : public dibiff::graph::AudioObject {
          * @param lookaheadTime The lookahead time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        LookaheadGate(float threshold, float attackTime, float releaseTime, float lookaheadTime, float sampleRate);
+        LookaheadGate(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the lookahead gate connection points and envelope
@@ -92,18 +92,18 @@ class dibiff::gate::LookaheadGate : public dibiff::graph::AudioObject {
          * @param lookaheadTime The lookahead time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<LookaheadGate> create(float threshold, float attackTime, float releaseTime, float lookaheadTime, float sampleRate);
+        static std::shared_ptr<LookaheadGate> create(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate);
     private:
-        float threshold;
-        float attackTime;
-        float releaseTime;
-        float lookaheadTime;
-        float sampleRate;
-        float envelope = 0.0f;
-        float attackCoefficient;
-        float releaseCoefficient;
-        float thresholdLevel;
-        int lookaheadSamples;
-        int bufferIndex = 0;
-        std::vector<float> delayBuffer;
+        float& _threshold;
+        float& _attackTime;
+        float& _releaseTime;
+        float& _lookaheadTime;
+        float& _sampleRate;
+        float _envelope = 0.0f;
+        float _attackCoefficient;
+        float _releaseCoefficient;
+        float _thresholdLevel;
+        int _lookaheadSamples;
+        int _bufferIndex = 0;
+        std::vector<float> _delayBuffer;
 };

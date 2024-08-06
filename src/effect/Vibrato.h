@@ -26,7 +26,7 @@ class dibiff::effect::Vibrato : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the vibrato in Hz
          * @param sampleRate The sample rate of the input signal
          */
-        Vibrato(float modulationDepth, float modulationRate, float sampleRate);
+        Vibrato(float& modulationDepth, float& modulationRate, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the vibrato connection points and buffer
@@ -84,11 +84,11 @@ class dibiff::effect::Vibrato : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the vibrato in Hz
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Vibrato> create(float modulationDepth, float modulationRate, float sampleRate);
+        static std::shared_ptr<Vibrato> create(float& modulationDepth, float& modulationRate, float& sampleRate);
     private:
-        float modulationDepth;
-        float modulationRate;
-        float sampleRate;
+        float& modulationDepth;
+        float& modulationRate;
+        float& sampleRate;
         float phase = 0.0f;
         int maxDelaySamples;
         int bufferIndex = 0;

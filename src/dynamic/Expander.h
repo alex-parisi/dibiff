@@ -33,7 +33,7 @@ class dibiff::dynamic::Expander : public dibiff::graph::AudioObject {
          * @param ratio The ratio of the expander, default value is 2.0
          * @param kneeWidth The knee width of the expander in dB, default value is calculated
          */
-        Expander(float threshold, float sampleRate, float attack, float release, float ratio, std::optional<float> kneeWidth);
+        Expander(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
         /**
          * @brief Initialize
          * @details Initializes the expander connection points
@@ -108,13 +108,13 @@ class dibiff::dynamic::Expander : public dibiff::graph::AudioObject {
          * @param ratio The ratio of the expander, default value is 2.0
          * @param kneeWidth The knee width of the expander in dB, default value is calculated
          */
-        static std::shared_ptr<Expander> create(float threshold, float sampleRate, float attack, float release, float ratio, std::optional<float> kneeWidth);
+        static std::shared_ptr<Expander> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
     private:
-        float threshold;
-        float sampleRate;
-        float attack;
-        float release;
-        float ratio;
-        std::optional<float> knee;
+        float& threshold;
+        float& sampleRate;
+        float& attack;
+        float& release;
+        float& ratio;
+        std::optional<std::reference_wrapper<float>> knee;
         float gS = 0.0f;
 };

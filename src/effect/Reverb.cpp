@@ -13,7 +13,7 @@
  * @param roomSize The room size of the reverb in meters
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::effect::Reverb::Reverb(float decayTime, float roomSize, float sampleRate, int numDelays, float wetLevel) 
+dibiff::effect::Reverb::Reverb(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel) 
 : dibiff::graph::AudioObject(), decayTime(decayTime), roomSize(roomSize), sampleRate(sampleRate), numDelays(numDelays), wetLevel(wetLevel) {
     name = "Reverb";
 };
@@ -142,7 +142,7 @@ bool dibiff::effect::Reverb::isReadyToProcess() const {
  * @param sampleRate The sample rate of the input signal
  * @param numDelays The number of delay lines
  */
-std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float decayTime, float roomSize, float sampleRate, int numDelays, float wetLevel) {
+std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel) {
     auto instance = std::make_shared<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays, wetLevel);
     instance->initialize();
     return instance;

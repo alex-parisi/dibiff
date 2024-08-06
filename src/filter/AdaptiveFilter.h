@@ -25,7 +25,7 @@ class dibiff::filter::AdaptiveFilter : public dibiff::graph::AudioObject {
          * @param filterLength The length of the filter
          * @param stepSize The step size of the filter
          */
-        AdaptiveFilter(int filterLength, float stepSize);
+        AdaptiveFilter(int& filterLength, float& stepSize);
         /**
          * @brief Initialize
          * @details Initializes the adaptive filter connection points
@@ -83,10 +83,10 @@ class dibiff::filter::AdaptiveFilter : public dibiff::graph::AudioObject {
          * @param filterLength The length of the filter
          * @param stepSize The step size of the filter
          */
-        static std::shared_ptr<AdaptiveFilter> create(int filterLength, float stepSize);
+        static std::shared_ptr<AdaptiveFilter> create(int& filterLength, float& stepSize);
     private:
-        int filterLength;
-        float stepSize;
+        int& filterLength;
+        float& stepSize;
         std::vector<float> filterCoefficients;
         std::vector<float> buffer;
 };

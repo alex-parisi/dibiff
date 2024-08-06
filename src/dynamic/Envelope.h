@@ -42,7 +42,7 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in seconds
          * @param sampleRate The sample rate of the input signal
          */
-        Envelope(float attackTime, float decayTime, float sustainLevel, float releaseTime, float sampleRate);
+        Envelope(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the envelope connection points and parameters
@@ -114,13 +114,13 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in seconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Envelope> create(float attackTime, float decayTime, float sustainLevel, float releaseTime, float sampleRate);
+        static std::shared_ptr<Envelope> create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate);
     private:
-        float attackTime;
-        float decayTime;
-        float sustainLevel;
-        float releaseTime;
-        float sampleRate;
+        float& attackTime;
+        float& decayTime;
+        float& sustainLevel;
+        float& releaseTime;
+        float& sampleRate;
         float attackIncrement;
         float decayIncrement;
         float releaseIncrement;

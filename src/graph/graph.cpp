@@ -313,6 +313,9 @@ void dibiff::graph::AudioGraph::tick() {
     for (auto& obj : objects) {
         // Mark all objects as not processed at the start of each block
         obj->markProcessed(false);
+    }
+    /// Must do this twice to prevent out-of-order processing
+    for (auto& obj : objects) {
         if (obj->isReadyToProcess()) {
             readyQueue.push(obj);
             inQueueOrProcessed.insert(obj);
@@ -349,6 +352,20 @@ void dibiff::graph::AudioGraph::tick() {
                 inQueueOrProcessed.insert(connectedObj);
             }
         }
+    }
+    /// Check to see if there are any GraphSink objects in the graph.
+    /// If so, wait for that to send the signal to continue.
+    /// If not, do it ourselves here.
+    std::shared_ptr<dibiff::sink::GraphSink> graphSink = nullptr;
+    for (auto& obj : objects) {
+        if (auto o = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj)) {
+            graphSink = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj);
+            break;
+        }
+    }
+    if (graphSink == nullptr) {
+        /// No GraphSink objects found.
+        /// TODO: Handle this. Might be fine as there are no condition variables to wait on
     }
 }
 
@@ -436,4 +453,6 @@ void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioConnec
             return;
         }
     }
+    /// Incorrect, throw error
+    throw std::runtime_error("Invalid connection.");
 }

@@ -6,12 +6,15 @@
  * @brief Constructor
  * @details Initializes the filter with default values
  */
-dibiff::filter::AllPassFilter::AllPassFilter(float cutoff, float sampleRate, float qFactor)
-: dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
-    return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+dibiff::filter::AllPassFilter::AllPassFilter(float& cutoff, float& sampleRate, float& qFactor) 
+: _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
+  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
+    calculateCoefficients();
+    return _coeffs;
+}()) {
     name = "AllPassFilter";
-};
+}
+
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -19,37 +22,37 @@ dibiff::filter::AllPassFilter::AllPassFilter(float cutoff, float sampleRate, flo
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-dibiff::filter::Coefficients dibiff::filter::AllPassFilter::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
-    float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sin(w0) / (2.0f * qFactor);
+void dibiff::filter::AllPassFilter::calculateCoefficients() {
+    float w0 = 2.0f * M_PI * _cutoff / _sampleRate;
+    float alpha = std::sin(w0) / (2.0f * _qFactor);
     float b0 = 1.0f - alpha;
     float b1 = -2.0f * std::cos(w0);
     float b2 = 1.0f + alpha;
-    return {b0, b1, b2, b2, b1, b0};
+    _coeffs = dibiff::filter::Coefficients{b0, b1, b2, b2, b1, b0};
 }
 /**
  * @brief Set the cutoff frequency of the filter
  * @param cutoff The cutoff frequency of the filter
  */
 void dibiff::filter::AllPassFilter::setCutoff(float cutoff) {
-    this->cutoff = cutoff;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _cutoff = cutoff;
+    calculateCoefficients();
 }
 /**
  * @brief Set the sample rate of the input signal
  * @param sampleRate The sample rate of the input signal
  */
 void dibiff::filter::AllPassFilter::setSampleRate(float sampleRate) {
-    this->sampleRate = sampleRate;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _sampleRate = sampleRate;
+    calculateCoefficients();
 }
 /**
  * @brief Set the quality factor of the filter
  * @param qFactor The quality factor of the filter
  */
 void dibiff::filter::AllPassFilter::setQFactor(float qFactor) {
-    this->qFactor = qFactor;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _qFactor = qFactor;
+    calculateCoefficients();
 }
 /**
  * @brief Set the bandwidth of the filter
@@ -66,7 +69,7 @@ void dibiff::filter::AllPassFilter::setBandwidth(float bandwidth) {
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::AllPassFilter> dibiff::filter::AllPassFilter::create(float cutoff, float sampleRate, float qFactor) {
+std::shared_ptr<dibiff::filter::AllPassFilter> dibiff::filter::AllPassFilter::create(float& cutoff, float& sampleRate, float& qFactor) {
     auto instance = std::make_shared<dibiff::filter::AllPassFilter>(cutoff, sampleRate, qFactor);
     instance->initialize();
     return instance;

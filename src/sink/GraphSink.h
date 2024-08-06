@@ -19,17 +19,20 @@ class dibiff::sink::GraphSink : public dibiff::graph::AudioObject {
     public:
         std::condition_variable cv;
         std::mutex cv_mtx;
-        std::shared_ptr<dibiff::graph::AudioInput> input;
+        std::vector<std::shared_ptr<dibiff::graph::AudioInput>> inputs;
         int sampleRate;
         int blockSize;
-        std::shared_ptr<RingBuffer<float>> ringBuffer;
+        int channels;
+        std::vector<std::shared_ptr<RingBuffer<float>>> ringBuffers;
 
         /**
          * @brief Constructor
          * @details Initializes the GraphSink with a certain sample rate.
+         * @param channels The number of channels in the audio data
          * @param rate The sample rate of the audio data
+         * @param blockSize The block size of the audio data
          */
-        GraphSink(int rate, int blockSize);
+        GraphSink(int channels, int rate, int blockSize);
 
         /**
          * @brief Initialize
@@ -87,7 +90,9 @@ class dibiff::sink::GraphSink : public dibiff::graph::AudioObject {
 
         /**
          * @brief Creates a new GraphSink object
+         * @param channels The number of channels in the audio data
          * @param rate The sample rate of the audio data
+         * @param blockSize The block size of the audio data
          */
-        static std::shared_ptr<GraphSink> create(int rate, int blockSize);
+        static std::shared_ptr<GraphSink> create(int channels, int rate, int blockSize);
 };

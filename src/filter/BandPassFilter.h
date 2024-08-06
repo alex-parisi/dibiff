@@ -22,7 +22,7 @@ class dibiff::filter::BandPassFilterConstantSkirtGain : public dibiff::filter::D
          * @brief Constructor
          * @details Initializes the filter with default values
          */
-        BandPassFilterConstantSkirtGain(float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        BandPassFilterConstantSkirtGain(float& cutoff, float& sampleRate, float& qFactor);
         /**
          * @brief Calculate the filter coefficients
          * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -30,7 +30,7 @@ class dibiff::filter::BandPassFilterConstantSkirtGain : public dibiff::filter::D
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        dibiff::filter::Coefficients calculateCoefficients(float cutoff, float sampleRate, float qFactor);
+        void calculateCoefficients();
         /**
          * @brief Set the cutoff frequency of the filter
          * @param cutoff The cutoff frequency of the filter
@@ -58,11 +58,12 @@ class dibiff::filter::BandPassFilterConstantSkirtGain : public dibiff::filter::D
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<BandPassFilterConstantSkirtGain> create(float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        static std::shared_ptr<BandPassFilterConstantSkirtGain> create(float& cutoff, float& sampleRate, float& qFactor);
     private:
-        float cutoff;
-        float sampleRate;
-        float qFactor;
+        float& _cutoff;
+        float& _sampleRate;
+        float& _qFactor;
+        dibiff::filter::Coefficients _coeffs;
 };
 /**
  * @brief Band Pass Filter
@@ -81,7 +82,7 @@ class dibiff::filter::BandPassFilterConstantPeakGain : public dibiff::filter::Di
          * @brief Constructor
          * @details Initializes the filter with default values
          */
-        BandPassFilterConstantPeakGain(float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        BandPassFilterConstantPeakGain(float& cutoff, float& sampleRate, float& qFactor);
         /**
          * @brief Calculate the filter coefficients
          * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -89,7 +90,7 @@ class dibiff::filter::BandPassFilterConstantPeakGain : public dibiff::filter::Di
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        dibiff::filter::Coefficients calculateCoefficients(float cutoff, float sampleRate, float qFactor);
+        void calculateCoefficients();
         /**
          * @brief Set the cutoff frequency of the filter
          * @param cutoff The cutoff frequency of the filter
@@ -117,9 +118,10 @@ class dibiff::filter::BandPassFilterConstantPeakGain : public dibiff::filter::Di
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<BandPassFilterConstantPeakGain> create(float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        static std::shared_ptr<BandPassFilterConstantPeakGain> create(float& cutoff, float& sampleRate, float& qFactor);
     private:
-        float cutoff;
-        float sampleRate;
-        float qFactor;
+        float& _cutoff;
+        float& _sampleRate;
+        float& _qFactor;
+        dibiff::filter::Coefficients _coeffs;
 };

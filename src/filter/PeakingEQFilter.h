@@ -22,7 +22,7 @@ class dibiff::filter::PeakingEQFilter : public dibiff::filter::DigitalBiquadFilt
          * @brief Constructor
          * @details Initializes the filter with default values
          */
-        PeakingEQFilter(float gain, float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        PeakingEQFilter(float& gain, float& cutoff, float& sampleRate, float& qFactor);
         /**
          * @brief Calculate the filter coefficients
          * @details Calculates the filter coefficients based on the gain, cutoff frequency, sample rate, and quality factor
@@ -31,7 +31,7 @@ class dibiff::filter::PeakingEQFilter : public dibiff::filter::DigitalBiquadFilt
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        dibiff::filter::Coefficients calculateCoefficients(float gain, float cutoff, float sampleRate, float qFactor);
+        void calculateCoefficients();
         /**
          * @brief Set the gain of the filter
          * @param gain The gain of the filter in dB
@@ -65,10 +65,11 @@ class dibiff::filter::PeakingEQFilter : public dibiff::filter::DigitalBiquadFilt
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<PeakingEQFilter> create(float gain, float cutoff, float sampleRate, float qFactor = 0.7071067811865476f);
+        static std::shared_ptr<PeakingEQFilter> create(float& gain, float& cutoff, float& sampleRate, float& qFactor);
     private:
-        float gain;
-        float cutoff;
-        float sampleRate;
-        float qFactor;
+        float& _gain;
+        float& _cutoff;
+        float& _sampleRate;
+        float& _qFactor;
+        dibiff::filter::Coefficients _coeffs;
 };

@@ -12,7 +12,7 @@
  * @param release The release time of the AGC in seconds, default value is 0.1
  * @param rmsCoefficient The coefficient for RMS level calculation, default value is 0.999
  */
-dibiff::level::AutomaticGainControl::AutomaticGainControl(float targetLevel, float sampleRate, float attack, float release, float rmsCoefficient)
+dibiff::level::AutomaticGainControl::AutomaticGainControl(float& targetLevel, float& sampleRate, float& attack, float& release, float& rmsCoefficient)
 : dibiff::graph::AudioObject(), 
   targetLevel(targetLevel), sampleRate(sampleRate), attack(attack), release(release), rmsCoefficient(rmsCoefficient) {
     name = "AutomaticGainControl";
@@ -124,7 +124,7 @@ bool dibiff::level::AutomaticGainControl::isReadyToProcess() const {
  * @param release The release time of the AGC in seconds, default value is 0.1
  * @param rmsCoefficient The coefficient for RMS level calculation, default value is 0.999
  */
-std::shared_ptr<dibiff::level::AutomaticGainControl> dibiff::level::AutomaticGainControl::create(float targetLevel, float sampleRate, float attack, float release, float rmsCoefficient) {
+std::shared_ptr<dibiff::level::AutomaticGainControl> dibiff::level::AutomaticGainControl::create(float& targetLevel, float& sampleRate, float& attack, float& release, float& rmsCoefficient) {
     auto instance = std::make_shared<dibiff::level::AutomaticGainControl>(targetLevel, sampleRate, attack, release, rmsCoefficient);
     instance->initialize();
     return instance;

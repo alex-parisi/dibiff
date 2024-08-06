@@ -26,7 +26,7 @@ class dibiff::effect::Tremolo : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the tremolo in Hz
          * @param sampleRate The sample rate of the input signal
          */
-        Tremolo(float modulationDepth, float modulationRate, float sampleRate);
+        Tremolo(float& modulationDepth, float& modulationRate, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the tremolo connection points
@@ -84,10 +84,10 @@ class dibiff::effect::Tremolo : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the tremolo in Hz
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Tremolo> create(float modulationDepth, float modulationRate, float sampleRate);
+        static std::shared_ptr<Tremolo> create(float& modulationDepth, float& modulationRate, float& sampleRate);
     private:
-        float modulationDepth;
-        float modulationRate;
-        float sampleRate;
+        float& modulationDepth;
+        float& modulationRate;
+        float& sampleRate;
         float phase = 0.0f;
 };

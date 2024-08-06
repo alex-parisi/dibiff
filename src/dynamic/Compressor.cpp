@@ -15,7 +15,7 @@
  * @param kneeWidth The knee width of the compressor in dB, default value is calculated
  * 
  */
-dibiff::dynamic::Compressor::Compressor(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt)
+dibiff::dynamic::Compressor::Compressor(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth)
 : dibiff::graph::AudioObject(), 
   threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), makeupGain(makeupGain), knee(kneeWidth) {
     name = "Compressor";
@@ -29,7 +29,9 @@ void dibiff::dynamic::Compressor::initialize() {
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "CompressorOutput"));
     /// If makeupGain is not specified, calculate it:
     if (!makeupGain) {
-        makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
+        _makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
+    } else {
+        _makeupGain = makeupGain.value();
     }
 }
 /**
@@ -45,7 +47,7 @@ float dibiff::dynamic::Compressor::process(float sample) {
     /// Gain Smoothing
     updateGainSmoothing(xSc, inputdB);
     /// Makeup Gain
-    float gM = gS * makeupGain.value();
+    float gM = gS * _makeupGain;
     /// Convert back to linear scale
     float gLin = std::pow(10.0f, gM / 20.0f);
     /// Output
@@ -174,7 +176,7 @@ bool dibiff::dynamic::Compressor::isReadyToProcess() const {
  * @param makeupGain The makeup gain of the compressor in dB, default value is calculated
  * @param kneeWidth The knee width of the compressor in dB, default value is calculated
  */
-std::shared_ptr<dibiff::dynamic::Compressor> dibiff::dynamic::Compressor::create(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> makeupGain = std::nullopt, std::optional<float> kneeWidth = std::nullopt) {
+std::shared_ptr<dibiff::dynamic::Compressor> dibiff::dynamic::Compressor::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth) {
     auto instance = std::make_shared<dibiff::dynamic::Compressor>(threshold, sampleRate, attack, release, ratio, makeupGain, kneeWidth);
     instance->initialize();
     return instance;

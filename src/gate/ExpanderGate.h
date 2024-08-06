@@ -32,7 +32,7 @@ class dibiff::gate::ExpanderGate : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        ExpanderGate(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate);
+        ExpanderGate(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the expander gate connection points and envelope
@@ -95,15 +95,15 @@ class dibiff::gate::ExpanderGate : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<ExpanderGate> create(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate);
+        static std::shared_ptr<ExpanderGate> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
     private:
-        float threshold;
-        float ratio;
-        float attackTime;
-        float releaseTime;
-        float sampleRate;
-        float envelope = 0.0f;
-        float attackCoefficient;
-        float releaseCoefficient;
-        float thresholdLevel;
+        float& _threshold;
+        float& _ratio;
+        float& _attackTime;
+        float& _releaseTime;
+        float& _sampleRate;
+        float _envelope = 0.0f;
+        float _attackCoefficient;
+        float _releaseCoefficient;
+        float _thresholdLevel;
 };

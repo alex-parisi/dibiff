@@ -33,7 +33,7 @@ class dibiff::dynamic::Limiter : public dibiff::graph::AudioObject {
          * @param kneeWidth The knee width of the limiter in dB, default value is calculated
          * 
          */
-        Limiter(float threshold, float sampleRate, float attack, float release, std::optional<float> makeupGain, std::optional<float> kneeWidth);
+        Limiter(float& threshold, float& sampleRate, float& attack, float& release, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
         /**
          * @brief Initialize
          * @details Initializes the limiter connection points and makeup gain
@@ -108,13 +108,14 @@ class dibiff::dynamic::Limiter : public dibiff::graph::AudioObject {
          * @param makeupGain The makeup gain of the limiter in dB, default value is calculated
          * @param kneeWidth The knee width of the limiter in dB, default value is calculated
          */
-        static std::shared_ptr<Limiter> create(float threshold, float sampleRate, float attack, float release, std::optional<float> makeupGain, std::optional<float> kneeWidth);
+        static std::shared_ptr<Limiter> create(float& threshold, float& sampleRate, float& attack, float& release, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
     private:
-        float release;
-        float attack;
-        float threshold;
-        float sampleRate;
-        std::optional<float> makeupGain;
-        std::optional<float> knee;
+        float& release;
+        float& attack;
+        float& threshold;
+        float& sampleRate;
+        std::optional<std::reference_wrapper<float>> makeupGain;
+        std::optional<std::reference_wrapper<float>> knee;
         float gS = 0.0f;
+        float _makeupGain = 0.0f;
 };

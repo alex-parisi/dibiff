@@ -13,9 +13,9 @@
  * @param lookaheadTime The lookahead time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::gate::LookaheadGate::LookaheadGate(float threshold, float attackTime, float releaseTime, float lookaheadTime, float sampleRate)
+dibiff::gate::LookaheadGate::LookaheadGate(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate)
 : dibiff::graph::AudioObject(), 
-  threshold(threshold), attackTime(attackTime), releaseTime(releaseTime), lookaheadTime(lookaheadTime), sampleRate(sampleRate) {
+  _threshold(threshold), _attackTime(attackTime), _releaseTime(releaseTime), _lookaheadTime(lookaheadTime), _sampleRate(sampleRate) {
     name = "LookaheadGate";
 };
 /**
@@ -25,11 +25,11 @@ dibiff::gate::LookaheadGate::LookaheadGate(float threshold, float attackTime, fl
 void dibiff::gate::LookaheadGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "LookaheadGateInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "LookaheadGateOutput"));
-    attackCoefficient = std::exp(-1.0f / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::exp(-1.0f / (releaseTime * sampleRate / 1000.0f));
-    thresholdLevel = std::pow(10.0f, threshold / 20.0f);
-    lookaheadSamples = static_cast<int>(lookaheadTime * sampleRate / 1000.0f);
-    delayBuffer.resize(lookaheadSamples, 0.0f);
+    _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = std::pow(10.0f, _threshold / 20.0f);
+    _lookaheadSamples = static_cast<int>(_lookaheadTime * _sampleRate / 1000.0f);
+    _delayBuffer.resize(_lookaheadSamples, 0.0f);
 }
 /**
  * @brief Process a sample
@@ -37,22 +37,22 @@ void dibiff::gate::LookaheadGate::initialize() {
  * @param input The input sample
  */
 float dibiff::gate::LookaheadGate::process(float sample) {
-    float sidechainInput = delayBuffer[bufferIndex];
+    float sidechainInput = _delayBuffer[_bufferIndex];
     float sidechainLevel = std::fabs(sidechainInput);
-    if (sidechainLevel > thresholdLevel) {
-        envelope = attackCoefficient * (envelope - sidechainLevel) + sidechainLevel;
+    if (sidechainLevel > _thresholdLevel) {
+        _envelope = _attackCoefficient * (_envelope - sidechainLevel) + sidechainLevel;
     } else {
-        envelope = releaseCoefficient * envelope;
+        _envelope = _releaseCoefficient * _envelope;
     }
     float out;
-    if (sidechainLevel < thresholdLevel) {
-        float gainReduction = envelope < thresholdLevel ? 0.0f : 1.0f;
+    if (sidechainLevel < _thresholdLevel) {
+        float gainReduction = _envelope < _thresholdLevel ? 0.0f : 1.0f;
         out = sample * gainReduction;
     } else {
         out = sample;
     }
-    delayBuffer[bufferIndex] = sample;
-    bufferIndex = (bufferIndex + 1) % lookaheadSamples;
+    _delayBuffer[_bufferIndex] = sample;
+    _bufferIndex = (_bufferIndex + 1) % _lookaheadSamples;
     return out;
 }
 /**
@@ -62,6 +62,10 @@ float dibiff::gate::LookaheadGate::process(float sample) {
  * @param blockSize The size of the block
  */
 void dibiff::gate::LookaheadGate::process() {
+    _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = std::pow(10.0f, _threshold / 20.0f);
+    /// TODO: Handle changes to buffer stuff
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
         std::vector<float> out(input->getBlockSize(), 0.0f);
@@ -90,8 +94,8 @@ void dibiff::gate::LookaheadGate::process() {
  * @details Resets the envelope and delay buffer
  */
 void dibiff::gate::LookaheadGate::reset() {
-    envelope = 0.0f;
-    std::fill(delayBuffer.begin(), delayBuffer.end(), 0.0f);
+    _envelope = 0.0f;
+    std::fill(_delayBuffer.begin(), _delayBuffer.end(), 0.0f);
 }
 /**
  * @brief Clear the lookahead gate
@@ -140,7 +144,7 @@ bool dibiff::gate::LookaheadGate::isReadyToProcess() const {
  * @param lookaheadTime The lookahead time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::LookaheadGate> dibiff::gate::LookaheadGate::create(float threshold, float attackTime, float releaseTime, float lookaheadTime, float sampleRate) {
+std::shared_ptr<dibiff::gate::LookaheadGate> dibiff::gate::LookaheadGate::create(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate) {
     auto instance = std::make_shared<dibiff::gate::LookaheadGate>(threshold, attackTime, releaseTime, lookaheadTime, sampleRate);
     instance->initialize();
     return instance;

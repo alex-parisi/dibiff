@@ -13,9 +13,9 @@
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::gate::ExpanderGate::ExpanderGate(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate)
+dibiff::gate::ExpanderGate::ExpanderGate(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate)
 : dibiff::graph::AudioObject(), 
-  threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {
+  _threshold(threshold), _ratio(ratio), _attackTime(attackTime), _releaseTime(releaseTime), _sampleRate(sampleRate) {
     name = "ExpanderGate";
 };
 /**
@@ -25,9 +25,9 @@ dibiff::gate::ExpanderGate::ExpanderGate(float threshold, float ratio, float att
 void dibiff::gate::ExpanderGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "ExpanderGateInput"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "ExpanderGateOutput")); 
-    attackCoefficient = exp(-1.0 / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = exp(-1.0 / (releaseTime * sampleRate / 1000.0f));
-    thresholdLevel = pow(10.0f, threshold / 20.0f); // Convert dB to linear
+    _attackCoefficient = exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = pow(10.0f, _threshold / 20.0f); // Convert dB to linear
 }
 /**
  * @brief Process a sample
@@ -37,13 +37,13 @@ void dibiff::gate::ExpanderGate::initialize() {
  */
 float dibiff::gate::ExpanderGate::process(float sample) {
     float inputLevel = fabs(sample);
-    if (inputLevel > thresholdLevel) {
-        envelope = attackCoefficient * (envelope - inputLevel) + inputLevel;
+    if (inputLevel > _thresholdLevel) {
+        _envelope = _attackCoefficient * (_envelope - inputLevel) + inputLevel;
     } else {
-        envelope = releaseCoefficient * envelope;
+        _envelope = _releaseCoefficient * _envelope;
     }
-    if (inputLevel < thresholdLevel) {
-        float gainReduction = pow(envelope / thresholdLevel, ratio - 1.0f);
+    if (inputLevel < _thresholdLevel) {
+        float gainReduction = pow(_envelope / _thresholdLevel, _ratio - 1.0f);
         return sample * gainReduction;
     }
     return sample;
@@ -55,6 +55,9 @@ float dibiff::gate::ExpanderGate::process(float sample) {
  * @param blockSize The size of the block
  */
 void dibiff::gate::ExpanderGate::process() {
+    _attackCoefficient = exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = pow(10.0f, _threshold / 20.0f);
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
         std::vector<float> out(input->getBlockSize(), 0.0f);
@@ -83,7 +86,7 @@ void dibiff::gate::ExpanderGate::process() {
  * @details Resets the envelope to zero
  */
 void dibiff::gate::ExpanderGate::reset() {
-    envelope = 0.0f;
+    _envelope = 0.0f;
 }
 /**
  * @brief Get the input connection point.
@@ -125,7 +128,7 @@ bool dibiff::gate::ExpanderGate::isReadyToProcess() const {
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::ExpanderGate> dibiff::gate::ExpanderGate::create(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate) {
+std::shared_ptr<dibiff::gate::ExpanderGate> dibiff::gate::ExpanderGate::create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate) {
     auto instance = std::make_shared<dibiff::gate::ExpanderGate>(threshold, ratio, attackTime, releaseTime, sampleRate);
     instance->initialize();
     return instance;

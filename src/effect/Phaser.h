@@ -32,7 +32,7 @@ class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
          * @param numStages The number of all-pass filter in the phaser, default value is 4
          * @param wetLevel The wet level of the phaser
          */
-        Phaser(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff = 1000.0f, float mix = 0.5f, int numStages = 4);
+        Phaser(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages);
         /**
          * @brief Initialize
          * @details Initializes the phaser connection points and all-pass filters
@@ -93,14 +93,14 @@ class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
          * @param mix The mix of the phaser effect, default value is 0.5
          * @param numStages The number of all-pass filter in the phaser, default value is 4
          */
-        static std::shared_ptr<Phaser> create(float modulationDepth, float modulationRate, float sampleRate, float baseCutoff = 1000.0f, float mix = 0.5f, int numStages = 4);
+        static std::shared_ptr<Phaser> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages);
     private:
-        float modulationDepth;
-        float modulationRate;
-        float sampleRate;
+        float& modulationDepth;
+        float& modulationRate;
+        float& sampleRate;
         float phase = 0.0f;
-        float baseCutoff;
-        float mix;
-        int numStages;
+        float& baseCutoff;
+        float& mix;
+        int& numStages;
         std::vector<dibiff::filter::AllPassFilter> allPassFilters;
 };

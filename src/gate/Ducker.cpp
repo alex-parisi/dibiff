@@ -13,9 +13,9 @@
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::gate::Ducker::Ducker(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate)
+dibiff::gate::Ducker::Ducker(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate)
 : dibiff::graph::AudioObject(), 
-  threshold(threshold), ratio(ratio), attackTime(attackTime), releaseTime(releaseTime), sampleRate(sampleRate) {
+  _threshold(threshold), _ratio(ratio), _attackTime(attackTime), _releaseTime(releaseTime), _sampleRate(sampleRate) {
     name = "Ducker";
 };
 /**
@@ -26,9 +26,9 @@ void dibiff::gate::Ducker::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "DuckerInput"));
     reference = std::make_shared<dibiff::graph::AudioReference>(dibiff::graph::AudioReference(shared_from_this(), "DuckerReference"));
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "DuckerOutput"));
-    attackCoefficient = std::exp(-1.0f / (attackTime * sampleRate / 1000.0f));
-    releaseCoefficient = std::exp(-1.0f / (releaseTime * sampleRate / 1000.0f));
-    thresholdLevel = std::pow(10.0f, threshold / 20.0f); // Convert dB to linear
+    _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = std::pow(10.0f, _threshold / 20.0f); // Convert dB to linear
 }
 /**
  * @brief Process a sample
@@ -38,13 +38,13 @@ void dibiff::gate::Ducker::initialize() {
  */
 float dibiff::gate::Ducker::process(float sample, float reference) {
     float sidechainLevel = std::fabs(reference);
-    if (sidechainLevel > thresholdLevel) {
-        envelope = attackCoefficient * (envelope - sidechainLevel) + sidechainLevel;
+    if (sidechainLevel > _thresholdLevel) {
+        _envelope = _attackCoefficient * (_envelope - sidechainLevel) + sidechainLevel;
     } else {
-        envelope = releaseCoefficient * envelope;
+        _envelope = _releaseCoefficient * _envelope;
     }
-    if (sidechainLevel > thresholdLevel) {
-        float gainReduction = std::pow(envelope / thresholdLevel, 1.0f - ratio);
+    if (sidechainLevel > _thresholdLevel) {
+        float gainReduction = std::pow(_envelope / _thresholdLevel, 1.0f - _ratio);
         return sample * gainReduction;
     }
     return sample;
@@ -54,6 +54,9 @@ float dibiff::gate::Ducker::process(float sample, float reference) {
  * @details Processes a block of audio data
  */
 void dibiff::gate::Ducker::process() {
+    _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
+    _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
+    _thresholdLevel = std::pow(10.0f, _threshold / 20.0f);
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
         std::vector<float> inData = *input->getData();
@@ -94,7 +97,7 @@ void dibiff::gate::Ducker::process() {
  * @details Resets the envelope to zero
  */
 void dibiff::gate::Ducker::reset() {
-    envelope = 0.0f;
+    _envelope = 0.0f;
 }
 /**
  * @brief Get the input connection point.
@@ -138,7 +141,7 @@ bool dibiff::gate::Ducker::isReadyToProcess() const {
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::Ducker> dibiff::gate::Ducker::create(float threshold, float ratio, float attackTime, float releaseTime, float sampleRate) {
+std::shared_ptr<dibiff::gate::Ducker> dibiff::gate::Ducker::create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate) {
     auto instance = std::make_shared<dibiff::gate::Ducker>(threshold, ratio, attackTime, releaseTime, sampleRate);
     instance->initialize();
     return instance;

@@ -11,7 +11,7 @@
  * @param modulationRate The modulation rate of the chorus in Hz
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::effect::Chorus::Chorus(float modulationDepth, float modulationRate, float sampleRate, float wetLevel) 
+dibiff::effect::Chorus::Chorus(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel) 
 : dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate), wetLevel(wetLevel) {
     name = "Chorus";
 };
@@ -133,7 +133,7 @@ bool dibiff::effect::Chorus::isReadyToProcess() const {
  * @param modulationRate The modulation rate of the chorus in Hz
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::effect::Chorus> dibiff::effect::Chorus::create(float modulationDepth, float modulationRate, float sampleRate, float wetLevel) {
+std::shared_ptr<dibiff::effect::Chorus> dibiff::effect::Chorus::create(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel) {
     auto instance = std::make_shared<dibiff::effect::Chorus>(modulationDepth, modulationRate, sampleRate, wetLevel);
     instance->initialize();
     return instance;

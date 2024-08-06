@@ -6,12 +6,14 @@
  * @brief Constructor
  * @details Initializes the filter with default values
  */
-dibiff::filter::BandPassFilterConstantSkirtGain::BandPassFilterConstantSkirtGain(float cutoff, float sampleRate, float qFactor)
-: dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
-    return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+dibiff::filter::BandPassFilterConstantSkirtGain::BandPassFilterConstantSkirtGain(float& cutoff, float& sampleRate, float& qFactor)
+: _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
+  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
+    calculateCoefficients();
+    return _coeffs;
+}()) {
     name = "BandPassFilterConstantSkirtGain";
-};
+}
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -19,38 +21,38 @@ dibiff::filter::BandPassFilterConstantSkirtGain::BandPassFilterConstantSkirtGain
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-dibiff::filter::Coefficients dibiff::filter::BandPassFilterConstantSkirtGain::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
-    float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sin(w0) / (2.0f * qFactor);
-    float b0 = qFactor * alpha;
+void dibiff::filter::BandPassFilterConstantSkirtGain::calculateCoefficients() {
+    float w0 = 2.0f * M_PI * _cutoff / _sampleRate;
+    float alpha = std::sin(w0) / (2.0f * _qFactor);
+    float b0 = _qFactor * alpha;
     float a0 = 1 + alpha;
     float a1 = -2.0f * std::cos(w0);
     float a2 = 1 - alpha;
-    return {b0, 0.0f, -b0, a0, a1, a0};
+    _coeffs = dibiff::filter::Coefficients{b0, 0.0f, -b0, a0, a1, a0};
 }
 /**
  * @brief Set the cutoff frequency of the filter
  * @param cutoff The cutoff frequency of the filter
  */
 void dibiff::filter::BandPassFilterConstantSkirtGain::setCutoff(float cutoff) {
-    this->cutoff = cutoff;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _cutoff = cutoff;
+    calculateCoefficients();
 }
 /**
  * @brief Set the sample rate of the input signal
  * @param sampleRate The sample rate of the input signal
  */
 void dibiff::filter::BandPassFilterConstantSkirtGain::setSampleRate(float sampleRate) {
-    this->sampleRate = sampleRate;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _sampleRate = sampleRate;
+    calculateCoefficients();
 }
 /**
  * @brief Set the quality factor of the filter
  * @param qFactor The quality factor of the filter
  */
 void dibiff::filter::BandPassFilterConstantSkirtGain::setQFactor(float qFactor) {
-    this->qFactor = qFactor;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _qFactor = qFactor;
+    calculateCoefficients();
 }
 /**
  * @brief Set the bandwidth of the filter
@@ -67,7 +69,7 @@ void dibiff::filter::BandPassFilterConstantSkirtGain::setBandwidth(float bandwid
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter::BandPassFilterConstantSkirtGain::create(float cutoff, float sampleRate, float qFactor) {
+std::shared_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter::BandPassFilterConstantSkirtGain::create(float& cutoff, float& sampleRate, float& qFactor) {
     auto instance = std::make_shared<dibiff::filter::BandPassFilterConstantSkirtGain>(cutoff, sampleRate, qFactor);
     instance->initialize();
     return instance;
@@ -77,12 +79,14 @@ std::shared_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter:
  * @brief Constructor
  * @details Initializes the filter with default values
  */
-dibiff::filter::BandPassFilterConstantPeakGain::BandPassFilterConstantPeakGain(float cutoff, float sampleRate, float qFactor)
-: dibiff::filter::DigitalBiquadFilter([&, cutoff, sampleRate, qFactor]() -> dibiff::filter::Coefficients {
-    return calculateCoefficients(cutoff, sampleRate, qFactor);
-}()), cutoff(cutoff), sampleRate(sampleRate), qFactor(qFactor) {
+dibiff::filter::BandPassFilterConstantPeakGain::BandPassFilterConstantPeakGain(float& cutoff, float& sampleRate, float& qFactor)
+: _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
+  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
+    calculateCoefficients();
+    return _coeffs;
+}()) {
     name = "BandPassFilterConstantPeakGain";
-};
+}
 /**
  * @brief Calculate the filter coefficients
  * @details Calculates the filter coefficients based on the cutoff frequency, sample rate, and quality factor
@@ -90,38 +94,38 @@ dibiff::filter::BandPassFilterConstantPeakGain::BandPassFilterConstantPeakGain(f
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-dibiff::filter::Coefficients dibiff::filter::BandPassFilterConstantPeakGain::calculateCoefficients(float cutoff, float sampleRate, float qFactor) {
-    float w0 = 2.0f * M_PI * cutoff / sampleRate;
-    float alpha = std::sin(w0) / (2.0f * qFactor);
+void dibiff::filter::BandPassFilterConstantPeakGain::calculateCoefficients() {
+    float w0 = 2.0f * M_PI * _cutoff / _sampleRate;
+    float alpha = std::sin(w0) / (2.0f * _qFactor);
     float b0 = alpha;
     float a0 = 1 + alpha;
     float a1 = -2.0f * std::cos(w0);
     float a2 = 1 - alpha;
-    return {b0, 0.0f, -b0, a0, a1, a0};
+    _coeffs = dibiff::filter::Coefficients{b0, 0.0f, -b0, a0, a1, a2};
 }
 /**
  * @brief Set the cutoff frequency of the filter
  * @param cutoff The cutoff frequency of the filter
  */
 void dibiff::filter::BandPassFilterConstantPeakGain::setCutoff(float cutoff) {
-    this->cutoff = cutoff;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _cutoff = cutoff;
+    calculateCoefficients();
 }
 /**
  * @brief Set the sample rate of the input signal
  * @param sampleRate The sample rate of the input signal
  */
 void dibiff::filter::BandPassFilterConstantPeakGain::setSampleRate(float sampleRate) {
-    this->sampleRate = sampleRate;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _sampleRate = sampleRate;
+    calculateCoefficients();
 }
 /**
  * @brief Set the quality factor of the filter
  * @param qFactor The quality factor of the filter
  */
 void dibiff::filter::BandPassFilterConstantPeakGain::setQFactor(float qFactor) {
-    this->qFactor = qFactor;
-    setCoefficients(calculateCoefficients(cutoff, sampleRate, qFactor));
+    _qFactor = qFactor;
+    calculateCoefficients();
 }
 /**
  * @brief Set the bandwidth of the filter
@@ -138,7 +142,7 @@ void dibiff::filter::BandPassFilterConstantPeakGain::setBandwidth(float bandwidt
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::BandPassFilterConstantPeakGain> dibiff::filter::BandPassFilterConstantPeakGain::create(float cutoff, float sampleRate, float qFactor) {
+std::shared_ptr<dibiff::filter::BandPassFilterConstantPeakGain> dibiff::filter::BandPassFilterConstantPeakGain::create(float& cutoff, float& sampleRate, float& qFactor) {
     auto instance = std::make_shared<dibiff::filter::BandPassFilterConstantPeakGain>(cutoff, sampleRate, qFactor);
     instance->initialize();
     return instance;

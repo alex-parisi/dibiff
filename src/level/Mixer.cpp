@@ -27,32 +27,28 @@ void dibiff::level::Mixer::initialize() {
  * @details Processes a block of audio data
  */
 void dibiff::level::Mixer::process() {
-    bool allConnected = true;
+    std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        if (!inputs[i]->isConnected()) {
-            allConnected = false;
+        connected[i] = inputs[i]->isConnected();
+    }
+    bool isReady = true;
+    for (int i = 0; i < numInputs; ++i) {
+        if (connected[i] && !inputs[i]->isReady()) {
+            isReady = false;
             break;
         }
     }
-    /// Check if each input in inputs is ready:
-    bool allReady = true;
-    for (int i = 0; i < numInputs; ++i) {
-        if (!inputs[i]->isReady()) {
-            allReady = false;
-            break;
-        }
-    }
-    if (!allConnected) {
-        /// If an input is not connected, just dump zeros into the output
-        std::vector<float> out(inputs[0]->getBlockSize(), 0.0f);
-        output->setData(out, inputs[0]->getBlockSize());
-        markProcessed();
-    } else if (allReady) {
+    if (isReady) {
         int blockSize = inputs[0]->getBlockSize();
         Eigen::VectorXf y(blockSize);
         y.setZero();
         for (int i = 0; i < numInputs; ++i) {
-            std::vector<float> data = *inputs[i]->getData();
+            std::vector<float> data;
+            if (connected[i]) {
+                data = *inputs[i]->getData();
+            } else {
+                data = std::vector<float>(blockSize, 0.0f);
+            }
             for (int j = 0; j < blockSize; ++j) {
                 y(j) += data[j] / numInputs;
             }
@@ -99,24 +95,18 @@ bool dibiff::level::Mixer::isFinished() const {
  * @return True if the filter is ready to process, false otherwise
  */
 bool dibiff::level::Mixer::isReadyToProcess() const {
-    bool allConnected = true;
+    std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        if (!inputs[i]->isConnected()) {
-            allConnected = false;
+        connected[i] = inputs[i]->isConnected();
+    }
+    bool isReady = true;
+    for (int i = 0; i < numInputs; ++i) {
+        if (connected[i] && !inputs[i]->isReady()) {
+            isReady = false;
             break;
         }
     }
-    if (!allConnected) {
-        return true;
-    }
-    bool allReady = true;
-    for (int i = 0; i < numInputs; ++i) {
-        if (!inputs[i]->isConnected() || !inputs[i]->isReady()) {
-            allReady = false;
-            break;
-        }
-    }
-    return allReady && !processed;
+    return isReady && !processed;
 }
 /**
  * Create a new mixer object

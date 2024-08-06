@@ -29,7 +29,7 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
          * @param feedback The feedback amount of the flanger effect
          * @param wetLevel The wet level of the flanger
          */
-        Flanger(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f, float wetLevel = 0.5f);
+        Flanger(float& modulationDepth, float& modulationRate, float& sampleRate, float& feedback, float& wetLevel);
         /**
          * @brief Initialize
          * @details Initializes the flanger connection points and buffer
@@ -89,13 +89,13 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
          * @param feedback The feedback amount of the flanger effect
          * @param wetLevel The wet level of the flanger
          */
-        static std::shared_ptr<Flanger> create(float modulationDepth, float modulationRate, float sampleRate, float feedback = 0.7f, float wetLevel = 0.5f);
+        static std::shared_ptr<Flanger> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& feedback, float& wetLevel);
     private:
-        float modulationDepth;
-        float modulationRate;
-        float sampleRate;
-        float feedback;
-        float wetLevel;
+        float& modulationDepth;
+        float& modulationRate;
+        float& sampleRate;
+        float& feedback;
+        float& wetLevel;
         std::vector<float> buffer;
         int bufferIndex = 0;
         int maxDelaySamples;

@@ -8,8 +8,8 @@
  * @details Initializes the gain object with a certain value
  * @param value The gain of the object in dB
  */
-dibiff::level::Gain::Gain(float value)
-: dibiff::graph::AudioObject(), value(std::pow(10.0f, value / 20.0f)), valuedB(value) {
+dibiff::level::Gain::Gain(float& value)
+: dibiff::graph::AudioObject(), _valuedB(value), _value(0.0f) {
     name = "Gain";
 };
 /**
@@ -26,7 +26,7 @@ void dibiff::level::Gain::initialize() {
  * @param sample The input sample
  */
 float dibiff::level::Gain::process(float sample) {
-    return sample * value;
+    return sample * _value;
 }
 /**
  * @brief Process a block of samples
@@ -34,7 +34,7 @@ float dibiff::level::Gain::process(float sample) {
  */
 void dibiff::level::Gain::process() {
     /// Update value
-    value = std::pow(10.0f, valuedB / 20.0f);
+    _value = std::pow(10.0f, _valuedB / 20.0f);
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
         std::vector<float> out(input->getBlockSize(), 0.0f);
@@ -94,7 +94,7 @@ bool dibiff::level::Gain::isReadyToProcess() const {
  * Create a new gain object
  * @param value The gain of the object in dB
  */
-std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float value) {
+std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float& value) {
     auto instance = std::make_shared<dibiff::level::Gain>(value);
     instance->initialize();
     return instance;

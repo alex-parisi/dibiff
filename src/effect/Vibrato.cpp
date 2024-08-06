@@ -11,7 +11,7 @@
  * @param modulationRate The modulation rate of the vibrato in Hz
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::effect::Vibrato::Vibrato(float modulationDepth, float modulationRate, float sampleRate)
+dibiff::effect::Vibrato::Vibrato(float& modulationDepth, float& modulationRate, float& sampleRate)
 : dibiff::graph::AudioObject(), modulationDepth(modulationDepth), modulationRate(modulationRate), sampleRate(sampleRate) {
     name = "Vibrato";
 };
@@ -128,7 +128,7 @@ bool dibiff::effect::Vibrato::isReadyToProcess() const {
  * @param modulationRate The modulation rate of the vibrato in Hz
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::effect::Vibrato> dibiff::effect::Vibrato::create(float modulationDepth, float modulationRate, float sampleRate) {
+std::shared_ptr<dibiff::effect::Vibrato> dibiff::effect::Vibrato::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
     auto instance = std::make_shared<dibiff::effect::Vibrato>(modulationDepth, modulationRate, sampleRate);
     instance->initialize();
     return instance;

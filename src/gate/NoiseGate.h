@@ -28,7 +28,7 @@ class dibiff::gate::NoiseGate : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        NoiseGate(float threshold, float attackTime, float releaseTime, float sampleRate);
+        NoiseGate(float& threshold, float& attackTime, float& releaseTime, float& sampleRate);
         /**
          * @brief Initialize
          * @details Initializes the noise gate connection points and envelope
@@ -87,14 +87,14 @@ class dibiff::gate::NoiseGate : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<NoiseGate> create(float threshold, float attackTime, float releaseTime, float sampleRate);
+        static std::shared_ptr<NoiseGate> create(float& threshold, float& attackTime, float& releaseTime, float& sampleRate);
     private:
-        float threshold;
-        float attackTime;
-        float releaseTime;
-        float sampleRate;
-        float envelope = 0.0f;
-        float attackCoefficient;
-        float releaseCoefficient;
-        float thresholdLevel = pow(10.0f, threshold / 20.0f);
+        float& _threshold;
+        float& _attackTime;
+        float& _releaseTime;
+        float& _sampleRate;
+        float _envelope = 0.0f;
+        float _attackCoefficient;
+        float _releaseCoefficient;
+        float _thresholdLevel = pow(10.0f, _threshold / 20.0f);
 };

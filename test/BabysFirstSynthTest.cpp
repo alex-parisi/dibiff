@@ -23,7 +23,12 @@ int main() {
     auto babysFirstSynth = graph.add(dibiff::synth::BabysFirstSynth::create(params));
 
     /// Create Reverb
-    auto reverb = graph.add(dibiff::effect::Reverb::create(2, 10, sampleRate));
+    float decayTime = 2.0f;
+    float roomSize = 10.0f;
+    int numDelays = 4;
+    float wetLevel = 0.5f;
+    float _sampleRate = sampleRate;
+    auto reverb = graph.add(dibiff::effect::Reverb::create(decayTime, roomSize, _sampleRate, numDelays, wetLevel));
     reverb->setName("reverb");
 
     /// Create the WavWriter
@@ -34,7 +39,7 @@ int main() {
 
     /// Create AudioPlayer
     /// TODO: AudioPlayer must be added to the graph last - WHY?!
-    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(1, sampleRate, blockSize));
     audioPlayer->setName("audio-player");
 
     /// Connect everything

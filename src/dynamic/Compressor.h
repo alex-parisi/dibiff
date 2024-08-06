@@ -35,7 +35,7 @@ class dibiff::dynamic::Compressor : public dibiff::graph::AudioObject {
          * @param kneeWidth The knee width of the compressor in dB, default value is calculated
          * 
          */
-        Compressor(float threshold, float sampleRate, float attack, float release, float ratio, std::optional<float> makeupGain, std::optional<float> kneeWidth);
+        Compressor(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
         /**
          * @brief Initialize
          * @details Initializes the compressor connection points and makeup gain
@@ -111,14 +111,15 @@ class dibiff::dynamic::Compressor : public dibiff::graph::AudioObject {
          * @param makeupGain The makeup gain of the compressor in dB, default value is calculated
          * @param kneeWidth The knee width of the compressor in dB, default value is calculated
          */
-        static std::shared_ptr<Compressor> create(float threshold, float sampleRate, float attack, float release, float ratio, std::optional<float> makeupGain, std::optional<float> kneeWidth);
+        static std::shared_ptr<Compressor> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
     private:
-        float release;
-        float attack;
-        float threshold;
-        float sampleRate;
-        float ratio;
-        std::optional<float> makeupGain;
-        std::optional<float> knee;
+        float& release;
+        float& attack;
+        float& threshold;
+        float& sampleRate;
+        float& ratio;
+        std::optional<std::reference_wrapper<float>> makeupGain;
+        std::optional<std::reference_wrapper<float>> knee;
         float gS = 0.0f;
+        float _makeupGain = 0.0f;
 };

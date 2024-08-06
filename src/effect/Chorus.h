@@ -28,7 +28,7 @@ class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
          * @param sampleRate The sample rate of the input signal
          * @param wetLevel The wet level of the chorus
          */
-        Chorus(float modulationDepth, float modulationRate, float sampleRate, float wetLevel = 0.5f);
+        Chorus(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel);
         /**
          * @brief Initialize
          * @details Initializes the chorus connection points and buffer
@@ -87,12 +87,12 @@ class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
          * @param sampleRate The sample rate of the input signal
          * @param wetLevel The wet level of the chorus
          */
-        static std::shared_ptr<Chorus> create(float modulationDepth, float modulationRate, float sampleRate, float wetLevel = 0.5f);
+        static std::shared_ptr<Chorus> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel);
     private:
-        float modulationDepth;
-        float modulationRate;
-        float sampleRate;
-        float wetLevel;
+        float& modulationDepth;
+        float& modulationRate;
+        float& sampleRate;
+        float& wetLevel;
         std::vector<float> buffer;
         int bufferIndex = 0;
         int maxDelaySamples;

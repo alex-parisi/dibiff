@@ -8,33 +8,36 @@
 #include <mutex>
 #include <condition_variable>
 
-dibiff::sink::GraphSink::GraphSink(int rate, int blockSize)
-: dibiff::graph::AudioObject(), sampleRate(rate), blockSize(blockSize) {
+dibiff::sink::GraphSink::GraphSink(int channels, int rate, int blockSize)
+: dibiff::graph::AudioObject(), channels(channels), sampleRate(rate), blockSize(blockSize) {
     name = "GraphSink";
 }
 
 void dibiff::sink::GraphSink::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "GraphSinkInput");
-    ringBuffer = std::make_shared<RingBuffer<float>>(blockSize * 10);
-}
-
-void dibiff::sink::GraphSink::process() {
-    if (!input->isConnected()) {
-        /// Fill ring buffer with zeros
-        std::vector<float> zeros(blockSize, 0.0f);
-        ringBuffer->write(zeros.data(), blockSize);
-        markProcessed();
-    } else if (input->isReady()) {
-        auto audioData = input->getData();
-        int blockSize = input->getBlockSize();
-        /// Add the audioData to the ring buffer
-        ringBuffer->write(audioData->data(), blockSize);
-        markProcessed();
+    for (int i = 0; i < channels; i++) {
+        inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "GraphSinkInput" + std::to_string(i)));
+        ringBuffers.push_back(std::make_shared<RingBuffer<float>>(blockSize * 10));
     }
 }
 
+void dibiff::sink::GraphSink::process() {
+    for (int i = 0; i < channels; i++) {
+        if (!inputs[i]->isConnected()) {
+            /// Fill ring buffers with zeros
+            std::vector<float> zeros(blockSize, 0.0f);
+            ringBuffers[i]->write(zeros.data(), blockSize);
+        } else if (inputs[i]->isReady()) {
+            auto audioData = inputs[i]->getData();
+            int blockSize = inputs[i]->getBlockSize();
+            /// Add the audioData to the ring buffers
+            ringBuffers[i]->write(audioData->data(), blockSize);
+        }
+    }
+    markProcessed();
+}
+
 std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getInput(int i) {
-    return input;
+    return inputs[i];
 }
 
 std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getOutput(int i) {
@@ -46,18 +49,33 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getR
 }
 
 bool dibiff::sink::GraphSink::isFinished() const {
-    return input->isConnected() && input->isReady() && input->isFinished() && processed;
+    bool allFinished = true;
+    for (int i = 0; i < channels; ++i) {
+        if (!inputs[i]->isConnected() || !inputs[i]->isReady() || !inputs[i]->isFinished()) {
+            allFinished = false;
+            break;
+        }
+    }
+    return allFinished && processed;
 }
 
 bool dibiff::sink::GraphSink::isReadyToProcess() const {
-    if (!input->isConnected()) {
-        return true;
+    std::vector<bool> connected(channels, false);
+    for (int i = 0; i < channels; ++i) {
+        connected[i] = inputs[i]->isConnected();
     }
-    return input->isReady() && !processed;
+    bool isReady = true;
+    for (int i = 0; i < channels; ++i) {
+        if (connected[i] && !inputs[i]->isReady()) {
+            isReady = false;
+            break;
+        }
+    }
+    return isReady && !processed;
 }
 
-std::shared_ptr<dibiff::sink::GraphSink> dibiff::sink::GraphSink::create(int rate, int blockSize) {
-    auto instance = std::make_shared<GraphSink>(rate, blockSize);
+std::shared_ptr<dibiff::sink::GraphSink> dibiff::sink::GraphSink::create(int channels, int rate, int blockSize) {
+    auto instance = std::make_shared<GraphSink>(channels, rate, blockSize);
     instance->initialize();
     return instance;
 }

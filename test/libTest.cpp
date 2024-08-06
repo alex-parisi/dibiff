@@ -22,7 +22,7 @@ int main() {
     sineGenerator->setName("sine-generator");
 
     // Create AudioPlayer
-    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(1, sampleRate, blockSize));
     audioPlayer->setName("audio-player");
 
     // Connect everything
@@ -63,9 +63,9 @@ int main() {
         while (true) {
             auto startTime = std::chrono::steady_clock::now();
 
-            if (ap->ringBuffer->available() > 0) {
+            if (ap->ringBuffers[0]->available() > 0) {
                 // Read audio data from the ring buffer
-                size_t samplesRead = ap->ringBuffer->read(buffer.data(), buffer.size());
+                size_t samplesRead = ap->ringBuffers[0]->read(buffer.data(), buffer.size());
                 if (samplesRead > 0) {
                     // Print the audio data or process it
                 }

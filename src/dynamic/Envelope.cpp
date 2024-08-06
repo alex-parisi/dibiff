@@ -21,7 +21,7 @@ enum EnvelopeStage {
  * @param releaseTime The release time in seconds
  * @param sampleRate The sample rate of the input signal
  */
-dibiff::dynamic::Envelope::Envelope(float attackTime, float decayTime, float sustainLevel, float releaseTime, float sampleRate)
+dibiff::dynamic::Envelope::Envelope(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate)
 : dibiff::graph::AudioObject(), 
   attackTime(attackTime), decayTime(decayTime), sustainLevel(sustainLevel), releaseTime(releaseTime), sampleRate(sampleRate) {
     name = "Envelope";
@@ -82,6 +82,9 @@ float dibiff::dynamic::Envelope::process(float sample) {
  * @param blockSize The size of the block
  */
 void dibiff::dynamic::Envelope::process() {
+    attackIncrement = 1.0f / (attackTime * sampleRate);
+    decayIncrement = (1.0f - sustainLevel) / (decayTime * sampleRate);
+    releaseIncrement = sustainLevel / (releaseTime * sampleRate);
     if (midiInput->isConnected()) {
         auto midiData = *midiInput->getData();
         int noteOnOff = 0;
@@ -184,7 +187,7 @@ bool dibiff::dynamic::Envelope::isReadyToProcess() const {
  * @param releaseTime The release time in seconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::dynamic::Envelope> dibiff::dynamic::Envelope::create(float attackTime, float decayTime, float sustainLevel, float releaseTime, float sampleRate) {
+std::shared_ptr<dibiff::dynamic::Envelope> dibiff::dynamic::Envelope::create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate) {
     auto instance = std::make_shared<dibiff::dynamic::Envelope>(attackTime, decayTime, sustainLevel, releaseTime, sampleRate);
     instance->initialize();
     return instance;

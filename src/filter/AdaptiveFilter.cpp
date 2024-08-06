@@ -10,7 +10,7 @@
  * @param filterLength The length of the filter
  * @param stepSize The step size of the filter
  */
-dibiff::filter::AdaptiveFilter::AdaptiveFilter(int filterLength, float stepSize)
+dibiff::filter::AdaptiveFilter::AdaptiveFilter(int& filterLength, float& stepSize)
 : filterLength(filterLength), stepSize(stepSize), filterCoefficients(filterLength, 0.0f), buffer(filterLength, 0.0f) {
     name = "AdaptiveFilter";
 };
@@ -140,7 +140,7 @@ bool dibiff::filter::AdaptiveFilter::isReadyToProcess() const {
  * @param filterLength The length of the filter
  * @param stepSize The step size of the filter
  */
-std::shared_ptr<dibiff::filter::AdaptiveFilter> dibiff::filter::AdaptiveFilter::create(int filterLength, float stepSize) {
+std::shared_ptr<dibiff::filter::AdaptiveFilter> dibiff::filter::AdaptiveFilter::create(int& filterLength, float& stepSize) {
     auto instance = std::make_shared<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
     instance->initialize();
     return instance;

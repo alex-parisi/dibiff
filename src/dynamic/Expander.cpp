@@ -13,7 +13,7 @@
  * @param ratio The ratio of the expander, default value is 2.0
  * @param kneeWidth The knee width of the expander in dB, default value is calculated
  */
-dibiff::dynamic::Expander::Expander(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> kneeWidth = std::nullopt)
+dibiff::dynamic::Expander::Expander(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth)
 : dibiff::graph::AudioObject(), 
   threshold(threshold), sampleRate(sampleRate), attack(attack), release(release), ratio(ratio), knee(kneeWidth) {
     name = "Expander";
@@ -163,7 +163,7 @@ bool dibiff::dynamic::Expander::isReadyToProcess() const {
  * @param ratio The ratio of the expander, default value is 2.0
  * @param kneeWidth The knee width of the expander in dB, default value is calculated
  */
-std::shared_ptr<dibiff::dynamic::Expander> dibiff::dynamic::Expander::create(float threshold, float sampleRate, float attack = 0.01f, float release = 0.1f, float ratio = 2.0f, std::optional<float> kneeWidth = std::nullopt) {
+std::shared_ptr<dibiff::dynamic::Expander> dibiff::dynamic::Expander::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth) {
     auto instance = std::make_shared<dibiff::dynamic::Expander>(threshold, sampleRate, attack, release, ratio, kneeWidth);
     instance->initialize();
     return instance;

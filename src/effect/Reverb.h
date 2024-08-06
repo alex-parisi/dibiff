@@ -29,7 +29,7 @@ class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
          * @param numDelays The number of delay lines
          * @param wetLevel The wet level of the reverb
          */
-        Reverb(float decayTime, float roomSize, float sampleRate, int numDelays = 4, float wetLevel = 0.5f);
+        Reverb(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel);
         /**
          * @brief Initialize
          * @details Initializes the reverb connection points and delay buffers
@@ -89,14 +89,14 @@ class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
          * @param numDelays The number of delay lines
          * @param wetLevel The wet level of the reverb
          */
-        static std::shared_ptr<Reverb> create(float decayTime, float roomSize, float sampleRate, int numDelays = 4, float wetLevel = 0.5f);
+        static std::shared_ptr<Reverb> create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel);
     private:
-        float decayTime;
-        float roomSize;
-        float sampleRate;
-        float wetLevel;
+        float& decayTime;
+        float& roomSize;
+        float& sampleRate;
+        float& wetLevel;
         float feedback;
-        int numDelays;
+        int& numDelays;
         const float speedOfSound = 343.0f;
         std::vector<std::vector<float>> buffers;
         std::vector<int> bufferIndices;

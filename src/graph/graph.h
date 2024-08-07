@@ -94,6 +94,7 @@ class dibiff::graph::AudioInput : public dibiff::graph::AudioConnectionPoint, pu
         : dibiff::graph::AudioConnectionPoint(name), 
           parent(parent) {};
         void connect(std::weak_ptr<dibiff::graph::AudioOutput> output);
+        void disconnect();
         bool isConnected() const;
         bool isReady() const;
         bool isFinished() const;
@@ -112,6 +113,7 @@ class dibiff::graph::MidiInput : public dibiff::graph::AudioConnectionPoint, pub
         : dibiff::graph::AudioConnectionPoint(name), 
           parent(parent) {};
         void connect(std::weak_ptr<dibiff::graph::MidiOutput> output);
+        void disconnect();
         bool isConnected() const;
         bool isReady() const;
         bool isFinished() const;
@@ -130,6 +132,7 @@ class dibiff::graph::AudioReference : public dibiff::graph::AudioConnectionPoint
         : dibiff::graph::AudioConnectionPoint(name), 
           parent(parent) {};
         void connect(std::weak_ptr<dibiff::graph::AudioOutput> output);
+        void disconnect();
         bool isConnected() const;
         bool isReady() const;
         bool isFinished() const;
@@ -155,6 +158,8 @@ class dibiff::graph::AudioOutput : public dibiff::graph::AudioConnectionPoint, p
         int getBlockSize() const;
         void connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel);
         void connect(std::weak_ptr<dibiff::graph::AudioReference> refChannel);
+        void disconnect(std::weak_ptr<dibiff::graph::AudioInput> inChannel);
+        void disconnect(std::weak_ptr<dibiff::graph::AudioReference> refChannel);
 };
 /**
  * @brief MIDI Output Connection Point
@@ -174,6 +179,7 @@ class dibiff::graph::MidiOutput : public dibiff::graph::AudioConnectionPoint, pu
         std::vector<std::vector<unsigned char>> getData() const;
         int getBlockSize() const;
         void connect(std::weak_ptr<dibiff::graph::MidiInput> inChannel);
+        void disconnect(std::weak_ptr<dibiff::graph::MidiInput> inChannel);
 };
 /**
  * @brief Audio Graph
@@ -194,6 +200,11 @@ class dibiff::graph::AudioGraph {
         static void connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioReference> refChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
         static void connect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2);
+        static void disconnect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioInput> inChannel);
+        static void disconnect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioReference> refChannel);
+        static void disconnect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
+        static void disconnect(std::weak_ptr<dibiff::graph::AudioReference> refChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel);
+        static void disconnect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2);
     private:
         std::vector<std::shared_ptr<dibiff::graph::AudioObject>> objects;
 };

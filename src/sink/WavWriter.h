@@ -12,12 +12,12 @@
  * WAV file. The WAV sink object has a certain filename and sample rate.
  */
 class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
-    std::shared_ptr<dibiff::graph::AudioInput> input;
     std::ofstream file;
     int sampleRate;
     size_t writtenSamples;
     std::string filename;
     public:
+        std::shared_ptr<dibiff::graph::AudioInput> input;
         /**
          * @brief Constructor
          * @details Initializes the WAV sink with a certain filename, sample rate,
@@ -51,21 +51,6 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
          * @details Not used.
          */
         void clear() override {}
-        /**
-         * @brief Get the input connection point.
-         * @return A shared pointer to the input connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-        /**
-         * @brief Get the output connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
         /**
          * @brief Check if the WavSink is finished processing
          * @return True if the WavSink is finished processing, false otherwise

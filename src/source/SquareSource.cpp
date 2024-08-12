@@ -46,7 +46,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource:
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::SquareSource::getReference() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * Create a new square wave source object
  * @param freq The frequency of the square wave

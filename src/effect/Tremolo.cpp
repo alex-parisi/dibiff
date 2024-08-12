@@ -21,7 +21,9 @@ dibiff::effect::Tremolo::Tremolo(float& modulationDepth, float& modulationRate, 
  */
 void dibiff::effect::Tremolo::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "TremoloInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "TremoloOutput"));
+    _outputs.push_back(output);
 }
 /**
  * @brief Process a sample
@@ -76,21 +78,6 @@ void dibiff::effect::Tremolo::process() {
 void dibiff::effect::Tremolo::reset() {
     phase = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Tremolo::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Tremolo::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Tremolo::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the tremolo is finished processing
  * @return True if the tremolo is finished processing, false otherwise

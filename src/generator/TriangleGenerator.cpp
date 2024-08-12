@@ -23,7 +23,9 @@ dibiff::generator::TriangleGenerator::TriangleGenerator(int blockSize, int sampl
  */
 void dibiff::generator::TriangleGenerator::initialize() {
     input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SquareGeneratorMidiInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "TriangleGeneratorOutput"));
+    _outputs.push_back(output);
 }
 /**
  * @brief Generate a block of samples
@@ -78,21 +80,6 @@ void dibiff::generator::TriangleGenerator::reset() {
     currentSample = 0;
     processed = false;
 }
-/**
- * @brief Get the input connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::TriangleGenerator::getInput(int i) { return input; };
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::TriangleGenerator::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::TriangleGenerator::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the filter is ready to process
  * @return True if the filter is ready to process, false otherwise

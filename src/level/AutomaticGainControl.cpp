@@ -23,7 +23,9 @@ dibiff::level::AutomaticGainControl::AutomaticGainControl(float& targetLevel, fl
  */
 void dibiff::level::AutomaticGainControl::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AutomaticGainControlInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AutomaticGainControlOutput"));
+    _outputs.push_back(output);
     attackCoefficient = std::exp(-1.0f / (attack * sampleRate));
     releaseCoefficient = std::exp(-1.0f / (release * sampleRate));
     targetLevelLinear = std::pow(10.0f, targetLevel / 20.0f);
@@ -84,21 +86,6 @@ void dibiff::level::AutomaticGainControl::reset() {
     currentGain = 1.0f;
     rmsLevel = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::AutomaticGainControl::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::AutomaticGainControl::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::AutomaticGainControl::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the AGC is finished processing
  * @return True if the AGC is finished processing, false otherwise

@@ -18,9 +18,10 @@ dibiff::level::Mixer::Mixer(int numInputs)
  */
 void dibiff::level::Mixer::initialize() {
     for (int i = 0; i < numInputs; ++i) {
-        inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "MixerInput" + std::to_string(i))));
+        _inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "MixerInput" + std::to_string(i))));
     }
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "MixerOutput"));
+    _outputs.push_back(output);
 }
 /**
  * @brief Process a block of samples
@@ -29,23 +30,27 @@ void dibiff::level::Mixer::initialize() {
 void dibiff::level::Mixer::process() {
     std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        connected[i] = inputs[i]->isConnected();
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        connected[i] = in->isConnected();
     }
     bool isReady = true;
     for (int i = 0; i < numInputs; ++i) {
-        if (connected[i] && !inputs[i]->isReady()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (connected[i] && !in->isReady()) {
             isReady = false;
             break;
         }
     }
     if (isReady) {
-        int blockSize = inputs[0]->getBlockSize();
+        auto in0 = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[0]);
+        int blockSize = in0->getBlockSize();
         Eigen::VectorXf y(blockSize);
         y.setZero();
         for (int i = 0; i < numInputs; ++i) {
+            auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
             std::vector<float> data;
             if (connected[i]) {
-                data = *inputs[i]->getData();
+                data = *in->getData();
             } else {
                 data = std::vector<float>(blockSize, 0.0f);
             }
@@ -62,28 +67,14 @@ void dibiff::level::Mixer::process() {
     }
 }
 /**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getInput(int i) { return inputs[i]; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::level::Mixer::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
-/**
  * @brief Check if the mixer is finished processing
  * @return True if the mixer is finished processing, false otherwise
  */
 bool dibiff::level::Mixer::isFinished() const {
     bool allFinished = true;
     for (int i = 0; i < numInputs; ++i) {
-        if (!inputs[i]->isConnected() || !inputs[i]->isReady() || !inputs[i]->isFinished()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (!in->isConnected() || !in->isReady() || !in->isFinished()) {
             allFinished = false;
             break;
         }
@@ -97,11 +88,13 @@ bool dibiff::level::Mixer::isFinished() const {
 bool dibiff::level::Mixer::isReadyToProcess() const {
     std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        connected[i] = inputs[i]->isConnected();
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        connected[i] = in->isConnected();
     }
     bool isReady = true;
     for (int i = 0; i < numInputs; ++i) {
-        if (connected[i] && !inputs[i]->isReady()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (connected[i] && !in->isReady()) {
             isReady = false;
             break;
         }

@@ -23,7 +23,9 @@ dibiff::gate::NoiseGate::NoiseGate(float& threshold, float& attackTime, float& r
  */
 void dibiff::gate::NoiseGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "NoiseGateInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "NoiseGateOutput"));
+    _outputs.push_back(output);
     _attackCoefficient = std::exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
     _releaseCoefficient = std::exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
 }
@@ -81,21 +83,6 @@ void dibiff::gate::NoiseGate::process() {
 void dibiff::gate::NoiseGate::reset() {
     _envelope = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::NoiseGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the noise gate is finished processing
  * @return True if the noise gate is finished processing, false otherwise

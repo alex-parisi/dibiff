@@ -14,9 +14,9 @@
  * y[n] = b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2]
  */
 class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
-    std::shared_ptr<dibiff::graph::AudioInput> input;
-    std::shared_ptr<dibiff::graph::AudioOutput> output;
     public: 
+        std::shared_ptr<dibiff::graph::AudioInput> input;
+        std::shared_ptr<dibiff::graph::AudioOutput> output;
         /**
          * @brief Constructor
          * @details Initializes the filter with custom coefficients
@@ -60,21 +60,6 @@ class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
          * @details Not implemented.
          */
         void clear() override {};
-        /**
-         * @brief Get the input connection point.
-         * @return A shared pointer to the input connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-        /**
-         * @brief Get the output connection point.
-         * @return A shared pointer to the output connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
         /**
          * @brief Check if the filter is finished processing
          * @return True if the filter is finished processing, false otherwise

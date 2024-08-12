@@ -18,10 +18,10 @@
  * @param sampleRate The sample rate of the input signal
  */
 class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
-    std::shared_ptr<dibiff::graph::AudioInput> input;
-    std::shared_ptr<dibiff::graph::AudioReference> reference;
-    std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
+        std::shared_ptr<dibiff::graph::AudioInput> input;
+        std::shared_ptr<dibiff::graph::AudioInput> reference;
+        std::shared_ptr<dibiff::graph::AudioOutput> output;
         /**
          * @brief Constructor
          * @details Initializes the ducker object with a certain threshold,
@@ -60,21 +60,6 @@ class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
          * @details Not used.
          */
         void clear() override {}
-        /**
-         * @brief Get the input connection point.
-         * @return A shared pointer to the input connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-        /**
-         * @brief Get the output connection point.
-         * @return A shared pointer to the output connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
         /**
          * @brief Check if the ducker is finished processing
          * @return True if the ducker is finished processing, false otherwise

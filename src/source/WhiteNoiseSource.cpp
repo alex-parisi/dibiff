@@ -44,7 +44,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSou
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::WhiteNoiseSource::getReference() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * Create a new white noise source object
  * @param rate The sample rate of the white noise

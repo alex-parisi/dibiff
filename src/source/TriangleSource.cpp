@@ -45,7 +45,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSourc
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSource::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::source::TriangleSource::getReference() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * Create a new triangle wave source object
  * @param freq The frequency of the triangle wave

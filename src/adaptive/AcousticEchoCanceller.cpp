@@ -22,8 +22,11 @@ dibiff::adaptive::AcousticEchoCanceller::AcousticEchoCanceller(int& filterLength
  */
 void dibiff::adaptive::AcousticEchoCanceller::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AcousticEchoCancellerInput"));
-    reference = std::make_shared<dibiff::graph::AudioReference>(dibiff::graph::AudioReference(shared_from_this(), "AcousticEchoCancellerReference"));
+    _inputs.push_back(input);
+    reference = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AcousticEchoCancellerReference"));
+    _inputs.push_back(reference);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AcousticEchoCancellerOutput"));
+    _outputs.push_back(output);
     adaptiveFilter = std::make_shared<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
     adaptiveFilter->initialize();
 }
@@ -85,21 +88,6 @@ void dibiff::adaptive::AcousticEchoCanceller::reset() {
 void dibiff::adaptive::AcousticEchoCanceller::clear() {
     adaptiveFilter->clear();
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEchoCanceller::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEchoCanceller::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::adaptive::AcousticEchoCanceller::getReference() { return reference; };
 /**
  * @brief Check if the AEC is finished processing
  * @return True if the AEC is finished processing, false otherwise

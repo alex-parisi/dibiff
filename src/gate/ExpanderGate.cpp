@@ -24,7 +24,9 @@ dibiff::gate::ExpanderGate::ExpanderGate(float& threshold, float& ratio, float& 
  */
 void dibiff::gate::ExpanderGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "ExpanderGateInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "ExpanderGateOutput")); 
+    _outputs.push_back(output);
     _attackCoefficient = exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
     _releaseCoefficient = exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
     _thresholdLevel = pow(10.0f, _threshold / 20.0f); // Convert dB to linear
@@ -88,21 +90,6 @@ void dibiff::gate::ExpanderGate::process() {
 void dibiff::gate::ExpanderGate::reset() {
     _envelope = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::ExpanderGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the expander gate is finished processing
  * @return True if the expander gate is finished processing, false otherwise

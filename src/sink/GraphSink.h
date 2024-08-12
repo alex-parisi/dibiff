@@ -19,7 +19,6 @@ class dibiff::sink::GraphSink : public dibiff::graph::AudioObject {
     public:
         std::condition_variable cv;
         std::mutex cv_mtx;
-        std::vector<std::shared_ptr<dibiff::graph::AudioInput>> inputs;
         int sampleRate;
         int blockSize;
         int channels;
@@ -57,24 +56,6 @@ class dibiff::sink::GraphSink : public dibiff::graph::AudioObject {
          * @details Not used.
          */
         void clear() override {}
-
-        /**
-         * @brief Get the input connection point.
-         * @return A shared pointer to the input connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-
-        /**
-         * @brief Get the output connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
 
         /**
          * @brief Check if the GraphSink is finished processing

@@ -24,7 +24,9 @@ dibiff::gate::LookaheadGate::LookaheadGate(float& threshold, float& attackTime, 
  */
 void dibiff::gate::LookaheadGate::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "LookaheadGateInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "LookaheadGateOutput"));
+    _outputs.push_back(output);
     _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
     _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
     _thresholdLevel = std::pow(10.0f, _threshold / 20.0f);
@@ -104,21 +106,6 @@ void dibiff::gate::LookaheadGate::reset() {
 void dibiff::gate::LookaheadGate::clear() {
     reset();
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::LookaheadGate::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::LookaheadGate::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::gate::LookaheadGate::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the lookahead gate is finished processing
  * @return True if the lookahead gate is finished processing, false otherwise

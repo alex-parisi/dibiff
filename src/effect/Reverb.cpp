@@ -23,7 +23,9 @@ dibiff::effect::Reverb::Reverb(float& decayTime, float& roomSize, float& sampleR
  */
 void dibiff::effect::Reverb::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "ReverbInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "ReverbOutput"));
+    _outputs.push_back(output);
     // Initialize delay buffers
     int delayLength;
     for (int i = 0; i < numDelays; ++i) {
@@ -103,21 +105,6 @@ void dibiff::effect::Reverb::clear() {
         std::fill(buffers[i].begin(), buffers[i].end(), 0.0f);
     }
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Reverb::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the reverb is finished processing
  * @return True if the reverb is finished processing, false otherwise

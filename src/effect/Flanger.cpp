@@ -22,7 +22,9 @@ dibiff::effect::Flanger::Flanger(float& modulationDepth, float& modulationRate, 
  */
 void dibiff::effect::Flanger::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "FlangerInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "FlangerOutput"));
+    _outputs.push_back(output);
     maxDelaySamples = static_cast<int>(modulationDepth * sampleRate / 1000.0f);
     buffer.resize(maxDelaySamples, 0.0f);
 }
@@ -91,21 +93,6 @@ void dibiff::effect::Flanger::reset() {
 void dibiff::effect::Flanger::clear() {
     reset();
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Flanger::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the flanger is finished processing
  * @return True if the flanger is finished processing, false otherwise

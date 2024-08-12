@@ -20,8 +20,11 @@ dibiff::filter::AdaptiveFilter::AdaptiveFilter(int& filterLength, float& stepSiz
  */
 void dibiff::filter::AdaptiveFilter::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AdaptiveFilterInput"));
-    reference = std::make_shared<dibiff::graph::AudioReference>(dibiff::graph::AudioReference(shared_from_this(), "AdaptiveFilterReference"));
+    _inputs.push_back(input);
+    reference = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AdaptiveFilterReference"));
+    _inputs.push_back(reference);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AdaptiveFilterOutput"));
+    _outputs.push_back(output);
 }
 /**
  * @brief Process a sample
@@ -101,21 +104,6 @@ void dibiff::filter::AdaptiveFilter::reset() {
 void dibiff::filter::AdaptiveFilter::clear() {
     buffer = std::vector<float>(filterLength, 0.0f);
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::AdaptiveFilter::getReference() { return reference; };
 /**
  * @brief Check if the filter is finished processing
  * @return True if the filter is finished processing, false otherwise

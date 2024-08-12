@@ -31,9 +31,12 @@ dibiff::dynamic::Envelope::Envelope(float& attackTime, float& decayTime, float& 
  * @details Initializes the envelope connection points and parameters
  */
 void dibiff::dynamic::Envelope::initialize() {
-    midiInput = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "EnvelopeMidiInput"));
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "EnvelopeInput"));
+    _inputs.push_back(input);
+    midiInput = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "EnvelopeMidiInput"));
+    _inputs.push_back(midiInput);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "EnvelopeOutput"));
+    _outputs.push_back(output);
     attackIncrement = 1.0f / (attackTime * sampleRate);
     decayIncrement = (1.0f - sustainLevel) / (decayTime * sampleRate);
     releaseIncrement = sustainLevel / (releaseTime * sampleRate);
@@ -144,24 +147,6 @@ void dibiff::dynamic::Envelope::reset() {
     currentStage = Idle;
     currentLevel = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getInput(int i) {
-    if (i == 0) return input; 
-    return midiInput;
-}
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Envelope::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the envelope is finished processing
  * @return True if the envelope is finished processing, false otherwise

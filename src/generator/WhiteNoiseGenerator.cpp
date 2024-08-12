@@ -22,6 +22,7 @@ dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(int blockSize, int s
  */
 void dibiff::generator::WhiteNoiseGenerator::initialize() {
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "WhiteNoiseGeneratorOutput"));
+    _outputs.push_back(output);
 }
 /**
  * @brief Generate a block of samples
@@ -52,21 +53,6 @@ void dibiff::generator::WhiteNoiseGenerator::reset() {
     currentSample = 0;
     processed = false;
 }
-/**
- * @brief Get the input connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>();; };
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::WhiteNoiseGenerator::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the filter is ready to process
  * @return True if the filter is ready to process, false otherwise

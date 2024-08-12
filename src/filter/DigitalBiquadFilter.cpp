@@ -22,7 +22,9 @@ dibiff::filter::DigitalBiquadFilter::DigitalBiquadFilter(dibiff::filter::Coeffic
  */
 void dibiff::filter::DigitalBiquadFilter::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "DigitalBiquadFilterInput");
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(shared_from_this(), "DigitalBiquadFilterOutput");
+    _outputs.push_back(output);
     /// Check for divide by zero
     if (_coeffs.a0 == 0) {
         throw std::invalid_argument("a0 cannot be zero");
@@ -94,21 +96,6 @@ void dibiff::filter::DigitalBiquadFilter::reset() {
     y2 = 0;
     iter = 0;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::DigitalBiquadFilter::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::DigitalBiquadFilter::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::filter::DigitalBiquadFilter::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the filter is finished processing
  * @return True if the filter is finished processing, false otherwise

@@ -17,9 +17,9 @@
  * @param dutyCycle The duty cycle of the square wave (default is 0.5)
  */
 class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
-    std::shared_ptr<dibiff::graph::MidiInput> input;
-    std::shared_ptr<dibiff::graph::AudioOutput> output;
     public:
+        std::shared_ptr<dibiff::graph::MidiInput> input;
+        std::shared_ptr<dibiff::graph::AudioOutput> output;
         /**
          * @brief Constructor
          * @details Initializes the square wave source with a certain frequency,
@@ -51,21 +51,6 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @details Not used.
          */
         void clear() override {}
-        /**
-         * @brief Get the input connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-        /**
-         * @brief Get the output connection point.
-         * @return A shared pointer to the output connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
         /**
          * @brief Check if the filter is ready to process
          * @return True if the filter is ready to process, false otherwise

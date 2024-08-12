@@ -24,7 +24,9 @@ dibiff::effect::Phaser::Phaser(float& modulationDepth, float& modulationRate, fl
  */
 void dibiff::effect::Phaser::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "PhaserInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "PhaserOutput"));
+    _outputs.push_back(output);
     // Initialize all-pass filter
     for (int i = 0; i < numStages; ++i) {
         float initialCutoff = baseCutoff + (i * modulationDepth / numStages);
@@ -106,21 +108,6 @@ void dibiff::effect::Phaser::clear() {
         filter.clear();
     }
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Phaser::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Phaser::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Phaser::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the phaser is finished processing
  * @return True if the phaser is finished processing, false otherwise

@@ -21,7 +21,9 @@ dibiff::effect::Vibrato::Vibrato(float& modulationDepth, float& modulationRate, 
  */
 void dibiff::effect::Vibrato::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "VibratoInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "VibratoOutput"));
+    _outputs.push_back(output);
     maxDelaySamples = static_cast<int>(modulationDepth * sampleRate / 1000.0f);
     buffer.resize(maxDelaySamples, 0.0f);
 }
@@ -90,21 +92,6 @@ void dibiff::effect::Vibrato::reset() {
 void dibiff::effect::Vibrato::clear() {
     reset();
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::effect::Vibrato::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the vibrato is finished processing
  * @return True if the vibrato is finished processing, false otherwise

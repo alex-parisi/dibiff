@@ -51,21 +51,6 @@ class dibiff::time::Delay : public dibiff::graph::AudioObject {
          */
         void clear() override;
         /**
-         * @brief Get the input connection point.
-         * @return A shared pointer to the input connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
-        /**
-         * @brief Get the output connection point.
-         * @return A shared pointer to the output connection point.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
-        /**
-         * @brief Get the reference connection point.
-         * @return Not used.
-         */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
-        /**
          * @brief Check if the delay is finished processing
          * @return True if the delay is finished processing, false otherwise
          */

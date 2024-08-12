@@ -23,8 +23,9 @@ dibiff::midi::VoiceSelector::VoiceSelector(int blockSize, int numVoices)
  */
 void dibiff::midi::VoiceSelector::initialize() {
     input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "VoiceSelectorMidiInput"));
+    _inputs.push_back(input);
     for (int i = 0; i < voices.size(); ++i) {
-        outputs.push_back(std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "VoiceSelectorMidiOutput" + std::to_string(i))));
+        _outputs.push_back(std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "VoiceSelectorMidiOutput" + std::to_string(i))));
     }
 }
 /**
@@ -39,9 +40,10 @@ void dibiff::midi::VoiceSelector::process() {
     if (!input->isConnected()) {
         /// Assign empty MIDI messages to all voices
         for (int i = 0; i < voices.size(); ++i) {
+            auto o = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(_outputs[i]);
             std::vector<std::vector<unsigned char>> outputData;
             outputData.push_back(voices[i].midiMessage);
-            outputs[i]->setData(outputData, blockSize);
+            o->setData(outputData, blockSize);
         }
         markProcessed();
     } else if (input->isConnected()) {
@@ -53,28 +55,14 @@ void dibiff::midi::VoiceSelector::process() {
         }
         /// Assign Voice outputs
         for (int i = 0; i < voices.size(); ++i) {
+            auto o = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(_outputs[i]);
             std::vector<std::vector<unsigned char>> outputData;
             outputData.push_back(voices[i].midiMessage);
-            outputs[i]->setData(outputData, blockSize);
+            o->setData(outputData, blockSize);
         }
         markProcessed();
     }
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::VoiceSelector::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::VoiceSelector::getOutput(int i) { return outputs[i]; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::VoiceSelector::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the object is finished processing.
  */

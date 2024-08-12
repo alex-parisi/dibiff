@@ -15,20 +15,21 @@ dibiff::sink::GraphSink::GraphSink(int channels, int rate, int blockSize)
 
 void dibiff::sink::GraphSink::initialize() {
     for (int i = 0; i < channels; i++) {
-        inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "GraphSinkInput" + std::to_string(i)));
+        _inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "GraphSinkInput" + std::to_string(i)));
         ringBuffers.push_back(std::make_shared<RingBuffer<float>>(blockSize * 10));
     }
 }
 
 void dibiff::sink::GraphSink::process() {
     for (int i = 0; i < channels; i++) {
-        if (!inputs[i]->isConnected()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (!in->isConnected()) {
             /// Fill ring buffers with zeros
             std::vector<float> zeros(blockSize, 0.0f);
             ringBuffers[i]->write(zeros.data(), blockSize);
-        } else if (inputs[i]->isReady()) {
-            auto audioData = inputs[i]->getData();
-            int blockSize = inputs[i]->getBlockSize();
+        } else if (in->isReady()) {
+            auto audioData = in->getData();
+            int blockSize = in->getBlockSize();
             /// Add the audioData to the ring buffers
             ringBuffers[i]->write(audioData->data(), blockSize);
         }
@@ -36,22 +37,11 @@ void dibiff::sink::GraphSink::process() {
     markProcessed();
 }
 
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getInput(int i) {
-    return inputs[i];
-}
-
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getOutput(int i) {
-    return std::weak_ptr<dibiff::graph::AudioOutput>();
-}
-
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::GraphSink::getReference() {
-    return std::weak_ptr<dibiff::graph::AudioReference>();
-}
-
 bool dibiff::sink::GraphSink::isFinished() const {
     bool allFinished = true;
     for (int i = 0; i < channels; ++i) {
-        if (!inputs[i]->isConnected() || !inputs[i]->isReady() || !inputs[i]->isFinished()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (!in->isConnected() || !in->isReady() || !in->isFinished()) {
             allFinished = false;
             break;
         }
@@ -62,11 +52,13 @@ bool dibiff::sink::GraphSink::isFinished() const {
 bool dibiff::sink::GraphSink::isReadyToProcess() const {
     std::vector<bool> connected(channels, false);
     for (int i = 0; i < channels; ++i) {
-        connected[i] = inputs[i]->isConnected();
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        connected[i] = in->isConnected();
     }
     bool isReady = true;
     for (int i = 0; i < channels; ++i) {
-        if (connected[i] && !inputs[i]->isReady()) {
+        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        if (connected[i] && !in->isReady()) {
             isReady = false;
             break;
         }

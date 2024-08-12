@@ -19,6 +19,7 @@ dibiff::midi::MidiInput::MidiInput(int blockSize)
  */
 void dibiff::midi::MidiInput::initialize() {
     output = std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "MidiInputOutput"));
+    _outputs.push_back(output);
     midiRingBuffer = std::make_shared<RingBuffer<std::vector<unsigned char>>>(1024);
 }
 /**
@@ -39,18 +40,6 @@ void dibiff::midi::MidiInput::process() {
     output->setData(messages, blockSize);
     markProcessed();
 }
-/**
- * @brief Get the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); }
-/**
- * @brief Get the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::midi::MidiInput::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); }
 /**
  * @brief Check if the object is ready to process
  */

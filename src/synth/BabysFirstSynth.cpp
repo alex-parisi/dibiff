@@ -74,7 +74,7 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynt
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynth::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
+std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynth::getReference() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
 /**
  * Create a new sine wave source object
  * @param freq The frequency of the sine wave

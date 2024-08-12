@@ -25,7 +25,9 @@ dibiff::dynamic::Limiter::Limiter(float& threshold, float& sampleRate, float& at
  */
 void dibiff::dynamic::Limiter::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "LimiterInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "LimiterOutput"));
+    _outputs.push_back(output);
     /// If makeupGain is not specified, calculate it:
     if (!makeupGain) {
         _makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
@@ -130,21 +132,6 @@ void dibiff::dynamic::Limiter::updateGainSmoothing(float xSc, float inputdB) {
 void dibiff::dynamic::Limiter::reset() {
     gS = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Limiter::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Limiter::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Limiter::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the limiter is finished processing
  * @return True if the limiter is finished processing, false otherwise

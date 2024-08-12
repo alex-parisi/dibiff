@@ -19,6 +19,7 @@ dibiff::sink::WavWriter::WavWriter(const std::string& filename, int rate)
  */
 void dibiff::sink::WavWriter::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "WavWriterInput");
+    _inputs.push_back(input);
     file.open(filename, std::ios::binary);
     if (file.is_open()) {
         writeHeader();
@@ -54,21 +55,6 @@ void dibiff::sink::WavWriter::process() {
         markProcessed();
     }
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getOutput(int i) { return std::weak_ptr<dibiff::graph::AudioOutput>(); }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::sink::WavWriter::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); }
 /**
  * @brief Check if the WavSink is finished processing
  * @return True if the WavSink is finished processing, false otherwise

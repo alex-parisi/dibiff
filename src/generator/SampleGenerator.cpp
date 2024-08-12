@@ -9,6 +9,7 @@ dibiff::generator::SampleGenerator::SampleGenerator(std::string filename, int bl
 
 void dibiff::generator::SampleGenerator::initialize() {
     input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SampleGeneratorMidiInput"));
+    _inputs.push_back(input);
     /// Load the samples from the file
     loadSamples(filename);
     /// Create the audio output connection points
@@ -160,12 +161,6 @@ void dibiff::generator::SampleGenerator::reset() {
     currentSample = 0;
     processed = false;
 }
-
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SampleGenerator::getInput(int i) { return input; };
-
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SampleGenerator::getOutput(int i) { return outputs[i]; }
-
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::generator::SampleGenerator::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 
 bool dibiff::generator::SampleGenerator::isReadyToProcess() const {
     return !processed;

@@ -26,7 +26,9 @@ dibiff::dynamic::Compressor::Compressor(float& threshold, float& sampleRate, flo
  */
 void dibiff::dynamic::Compressor::initialize() {
     input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "CompressorInput"));
+    _inputs.push_back(input);
     output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "CompressorOutput"));
+    _outputs.push_back(output);
     /// If makeupGain is not specified, calculate it:
     if (!makeupGain) {
         _makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
@@ -134,21 +136,6 @@ void dibiff::dynamic::Compressor::updateGainSmoothing(float xSc, float inputdB) 
 void dibiff::dynamic::Compressor::reset() {
     gS = 0.0f;
 }
-/**
- * @brief Get the input connection point.
- * @return A shared pointer to the input connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Compressor::getInput(int i) { return input; }
-/**
- * @brief Get the output connection point.
- * @return A shared pointer to the output connection point.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Compressor::getOutput(int i) { return output; }
-/**
- * @brief Get the reference connection point.
- * @return Not used.
- */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::dynamic::Compressor::getReference() { return std::weak_ptr<dibiff::graph::AudioReference>(); };
 /**
  * @brief Check if the compressor is finished processing
  * @return True if the compressor is finished processing, false otherwise

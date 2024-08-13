@@ -31,8 +31,7 @@ void dibiff::effect::Phaser::initialize() {
     for (int i = 0; i < numStages; ++i) {
         float initialCutoff = baseCutoff + (i * modulationDepth / numStages);
         float qFactor = 0.7071067811865476f;
-        dibiff::filter::AllPassFilter apf(initialCutoff, sampleRate, qFactor);
-        apf.initialize();
+        auto apf = dibiff::filter::AllPassFilter::create(initialCutoff, sampleRate, qFactor);
         allPassFilters.emplace_back(apf);
     }
 }
@@ -47,12 +46,12 @@ float dibiff::effect::Phaser::process(float sample) {
     float currentModulation = baseCutoff + lfo * modulationDepth;
     // Apply modulation to each all-pass filter
     for (auto& filter : allPassFilters) {
-        filter.setCutoff(currentModulation);
+        filter->setCutoff(currentModulation);
     }
     // Process the input sample through each all-pass filter
     float out = sample;
     for (auto& filter : allPassFilters) {
-        out = filter.process(out);
+        out = filter->process(out);
     }
     // Increment the phase for the LFO
     phase += 1.0f / sampleRate;
@@ -105,7 +104,7 @@ void dibiff::effect::Phaser::reset() {
  */
 void dibiff::effect::Phaser::clear() {
     for (auto& filter : allPassFilters) {
-        filter.clear();
+        filter->clear();
     }
 }
 /**

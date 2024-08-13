@@ -8,11 +8,10 @@
  */
 dibiff::filter::PeakingEQFilter::PeakingEQFilter(float& gain, float& cutoff, float& sampleRate, float& qFactor)
 : _gain(gain), _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
-  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
-    calculateCoefficients();
-    return _coeffs;
-}()) {
+  dibiff::filter::DigitalBiquadFilter(nullptr) {
     name = "PeakingEQFilter";
+    calculateCoefficients();
+    setCoefficients(&coeffs);
 }
 /**
  * @brief Calculate the filter coefficients
@@ -31,7 +30,7 @@ void dibiff::filter::PeakingEQFilter::calculateCoefficients() {
     float b2 = 1.0f - (alpha * A);
     float a0 = 1.0f + (alpha / A);
     float a2 = 1.0f - (alpha / A);
-    _coeffs = dibiff::filter::Coefficients{b0, b1, b2, a0, b1, a2};
+    coeffs = dibiff::filter::Coefficients{b0, b1, b2, a0, b1, a2};
 }
 /**
  * @brief Set the gain of the filter

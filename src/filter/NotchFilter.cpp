@@ -8,11 +8,10 @@
  */
 dibiff::filter::NotchFilter::NotchFilter(float& cutoff, float& sampleRate, float& qFactor)
 : _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
-  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
-    calculateCoefficients();
-    return _coeffs;
-}()) {
+  dibiff::filter::DigitalBiquadFilter(nullptr) {
     name = "NotchFilter";
+    calculateCoefficients();
+    setCoefficients(&coeffs);
 }
 /**
  * @brief Calculate the filter coefficients
@@ -27,7 +26,7 @@ void dibiff::filter::NotchFilter::calculateCoefficients() {
     float b1 = -2.0f * std::cos(w0);
     float a0 = 1.0f + alpha;
     float a2 = 1.0f - alpha;
-    _coeffs = dibiff::filter::Coefficients{1.0f, b1, 1.0f, a0, b1, a2};
+    coeffs = dibiff::filter::Coefficients{1.0f, b1, 1.0f, a0, b1, a2};
 }
 /**
  * @brief Set the cutoff frequency of the filter

@@ -8,11 +8,10 @@
  */
 dibiff::filter::LowShelfFilter::LowShelfFilter(float& gain, float& cutoff, float& sampleRate, float& qFactor)
 : _gain(gain), _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
-  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
-    calculateCoefficients();
-    return _coeffs;
-}()) {
+  dibiff::filter::DigitalBiquadFilter(nullptr) {
     name = "LowShelfFilter";
+    calculateCoefficients();
+    setCoefficients(&coeffs);
 }
 /**
  * @brief Calculate the filter coefficients
@@ -34,7 +33,7 @@ void dibiff::filter::LowShelfFilter::calculateCoefficients() {
     float a0 = (A + 1.0f) + (A - 1.0f) * cosw0 + 2.0f * sqrtA * alpha;
     float a1 = -2.0f * ((A - 1.0f) + (A + 1.0f) * cosw0);
     float a2 = (A + 1.0f) + (A - 1.0f) * cosw0 - 2.0f * sqrtA * alpha;
-    _coeffs = dibiff::filter::Coefficients{b0, b1, b2, a0, a1, a2};
+    coeffs = dibiff::filter::Coefficients{b0, b1, b2, a0, a1, a2};
 }
 /**
  * @brief Set the gain of the filter

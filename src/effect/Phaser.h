@@ -87,5 +87,5 @@ class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
         float& baseCutoff;
         float& mix;
         int& numStages;
-        std::vector<dibiff::filter::AllPassFilter> allPassFilters;
+        std::vector<std::shared_ptr<dibiff::filter::AllPassFilter>> allPassFilters;
 };

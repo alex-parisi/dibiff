@@ -63,5 +63,5 @@ class dibiff::filter::LowPassFilter : public dibiff::filter::DigitalBiquadFilter
         float& _cutoff;
         float& _sampleRate;
         float& _qFactor;
-        dibiff::filter::Coefficients _coeffs;
+        dibiff::filter::Coefficients coeffs;
 };

@@ -63,7 +63,7 @@ class dibiff::filter::BandPassFilterConstantSkirtGain : public dibiff::filter::D
         float& _cutoff;
         float& _sampleRate;
         float& _qFactor;
-        dibiff::filter::Coefficients _coeffs;
+        dibiff::filter::Coefficients coeffs;
 };
 /**
  * @brief Band Pass Filter
@@ -123,5 +123,5 @@ class dibiff::filter::BandPassFilterConstantPeakGain : public dibiff::filter::Di
         float& _cutoff;
         float& _sampleRate;
         float& _qFactor;
-        dibiff::filter::Coefficients _coeffs;
+        dibiff::filter::Coefficients coeffs;
 };

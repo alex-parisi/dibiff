@@ -11,7 +11,7 @@
  * @see reset
  * @see dibiff::Coefficients
  */
-dibiff::filter::DigitalBiquadFilter::DigitalBiquadFilter(dibiff::filter::Coefficients& coeffs) 
+dibiff::filter::DigitalBiquadFilter::DigitalBiquadFilter(dibiff::filter::Coefficients* coeffs) 
 : dibiff::graph::AudioObject(), _coeffs(coeffs) {
     name = "DigitalBiquadFilter";
     reset();
@@ -26,7 +26,7 @@ void dibiff::filter::DigitalBiquadFilter::initialize() {
     output = std::make_shared<dibiff::graph::AudioOutput>(shared_from_this(), "DigitalBiquadFilterOutput");
     _outputs.push_back(output);
     /// Check for divide by zero
-    if (_coeffs.a0 == 0) {
+    if (_coeffs->a0 == 0) {
         throw std::invalid_argument("a0 cannot be zero");
     }
     /// Initialize state variables
@@ -38,7 +38,7 @@ void dibiff::filter::DigitalBiquadFilter::initialize() {
  * @param sample The input sample
  */
 float dibiff::filter::DigitalBiquadFilter::process(float sample) {
-    float output = ((_coeffs.b0 / _coeffs.a0) * sample) + ((_coeffs.b1 / _coeffs.a0) * x1) + ((_coeffs.b2 / _coeffs.a0) * x2) - ((_coeffs.a1 / _coeffs.a0) * y1) - ((_coeffs.a2 / _coeffs.a0) * y2);
+    float output = ((_coeffs->b0 / _coeffs->a0) * sample) + ((_coeffs->b1 / _coeffs->a0) * x1) + ((_coeffs->b2 / _coeffs->a0) * x2) - ((_coeffs->a1 / _coeffs->a0) * y1) - ((_coeffs->a2 / _coeffs->a0) * y2);
     x2 = x1;
     x1 = sample;
     y2 = y1;
@@ -81,7 +81,7 @@ void dibiff::filter::DigitalBiquadFilter::process() {
  * b0, b1 b2, a0, a1, a2
  * @see dibiff::Coefficients 
  */
-void dibiff::filter::DigitalBiquadFilter::setCoefficients(dibiff::filter::Coefficients& coeffs) {
+void dibiff::filter::DigitalBiquadFilter::setCoefficients(dibiff::filter::Coefficients* coeffs) {
     _coeffs = coeffs;
     reset();
 }
@@ -119,7 +119,7 @@ bool dibiff::filter::DigitalBiquadFilter::isReadyToProcess() const {
  * @param coeffs A dibiff::Coefficients struct containing the filter coefficients:
  * b0, b1 b2, a0, a1, a2
  */
-std::shared_ptr<dibiff::filter::DigitalBiquadFilter> dibiff::filter::DigitalBiquadFilter::create(dibiff::filter::Coefficients& coeffs) {
+std::shared_ptr<dibiff::filter::DigitalBiquadFilter> dibiff::filter::DigitalBiquadFilter::create(dibiff::filter::Coefficients* coeffs) {
     auto instance = std::make_shared<DigitalBiquadFilter>(coeffs);
     instance->initialize();
     return instance;

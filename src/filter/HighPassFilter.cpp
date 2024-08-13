@@ -8,11 +8,10 @@
  */
 dibiff::filter::HighPassFilter::HighPassFilter(float& cutoff, float& sampleRate, float& qFactor)
 : _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
-  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
-    calculateCoefficients();
-    return _coeffs;
-}()) {
+  dibiff::filter::DigitalBiquadFilter(nullptr) {
     name = "HighPassFilter";
+    calculateCoefficients();
+    setCoefficients(&coeffs);
 }
 /**
  * @brief Calculate the filter coefficients
@@ -30,7 +29,7 @@ void dibiff::filter::HighPassFilter::calculateCoefficients() {
     float a0 = 1.0f + alpha;
     float a1 = -2.0f * cosw0;
     float a2 = 1.0f - alpha;
-    _coeffs = dibiff::filter::Coefficients{b0, b1, b0, a0, a1, a2};
+    coeffs = dibiff::filter::Coefficients{b0, b1, b0, a0, a1, a2};
 }
 /**
  * @brief Set the cutoff frequency of the filter

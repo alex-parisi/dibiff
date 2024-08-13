@@ -8,11 +8,10 @@
  */
 dibiff::filter::AllPassFilter::AllPassFilter(float& cutoff, float& sampleRate, float& qFactor) 
 : _cutoff(cutoff), _sampleRate(sampleRate), _qFactor(qFactor), 
-  dibiff::filter::DigitalBiquadFilter([&]() -> dibiff::filter::Coefficients& {
-    calculateCoefficients();
-    return _coeffs;
-}()) {
+  dibiff::filter::DigitalBiquadFilter(nullptr) {
     name = "AllPassFilter";
+    calculateCoefficients();
+    setCoefficients(&coeffs);
 }
 
 /**
@@ -28,7 +27,7 @@ void dibiff::filter::AllPassFilter::calculateCoefficients() {
     float b0 = 1.0f - alpha;
     float b1 = -2.0f * std::cos(w0);
     float b2 = 1.0f + alpha;
-    _coeffs = dibiff::filter::Coefficients{b0, b1, b2, b2, b1, b0};
+    coeffs = dibiff::filter::Coefficients{b0, b1, b2, b2, b1, b0};
 }
 /**
  * @brief Set the cutoff frequency of the filter

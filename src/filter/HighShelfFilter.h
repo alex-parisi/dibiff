@@ -71,5 +71,5 @@ class dibiff::filter::HighShelfFilter : public dibiff::filter::DigitalBiquadFilt
         float& _cutoff;
         float& _sampleRate;
         float& _qFactor;
-        dibiff::filter::Coefficients _coeffs;
+        dibiff::filter::Coefficients coeffs;
 };

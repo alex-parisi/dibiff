@@ -25,7 +25,7 @@ class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
          * @see reset
          * @see dibiff::Coefficients
          */
-        DigitalBiquadFilter(dibiff::filter::Coefficients& coeffs);
+        DigitalBiquadFilter(dibiff::filter::Coefficients* coeffs);
         /**
          * @brief Initialize
          * @details Initializes the filter state variables and connection points
@@ -49,7 +49,7 @@ class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
          * b0, b1 b2, a0, a1, a2
          * @see dibiff::Coefficients 
          */
-        void setCoefficients(dibiff::filter::Coefficients& coeffs);
+        void setCoefficients(dibiff::filter::Coefficients* coeffs);
         /**
          * @brief Reset the filter
          * @details Resets the filter state variables
@@ -76,14 +76,14 @@ class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
          * @param coeffs A dibiff::Coefficients struct containing the filter coefficients:
          * b0, b1 b2, a0, a1, a2
          */
-        static std::shared_ptr<DigitalBiquadFilter> create(dibiff::filter::Coefficients& coeffs);
+        static std::shared_ptr<DigitalBiquadFilter> create(dibiff::filter::Coefficients* coeffs);
         /**
          * @brief Destructor
          * @details Destroys the filter object
          */
         ~DigitalBiquadFilter() {};
-    private:
-        dibiff::filter::Coefficients& _coeffs;
+    protected:
+        dibiff::filter::Coefficients* _coeffs;
         float x1, x2, y1, y2;
         long int iter;
 };

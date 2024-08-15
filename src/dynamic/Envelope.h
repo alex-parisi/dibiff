@@ -53,7 +53,11 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
          * @details Processes a single sample of audio data
          * @param sample The input sample
          */
-        float process(float sample);
+        float processAttack(float sample);
+        float processDecay(float sample);
+        float processSustain(float sample);
+        float processRelease(float sample);
+        float processIdle(float sample);
         /**
          * @brief Process a block of samples
          * @details Processes a block of audio data

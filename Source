@@ -1,5 +1,2 @@
 #include "src/source/source.h"
-#include "src/source/SineSource.h"
-#include "src/source/SquareSource.h"
-#include "src/source/TriangleSource.h"
-#include "src/source/WhiteNoiseSource.h"
+#include "src/source/GraphSource.h"

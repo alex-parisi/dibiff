@@ -4,3 +4,4 @@
 #include "src/generator/TriangleGenerator.h"
 #include "src/generator/WhiteNoiseGenerator.h"
 #include "src/generator/SampleGenerator.h"
+#include "src/generator/VariableGenerator.h"

@@ -10,10 +10,6 @@ namespace dibiff {
      * DEPRECATED: This namespace is deprecated and will be removed in future versions.
      */
     namespace source {
-        class SineSource;
-        class TriangleSource;
-        class SquareSource;
-        class WhiteNoiseSource;
-        class PinkNoiseSource;
+        class GraphSource;
     }
 }

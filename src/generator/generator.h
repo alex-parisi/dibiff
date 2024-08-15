@@ -20,6 +20,7 @@ namespace dibiff {
         class SquareGenerator;
         class WhiteNoiseGenerator;
         class SampleGenerator;
+        class VariableGenerator;
     }
 }
 

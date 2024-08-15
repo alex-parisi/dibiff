@@ -46,37 +46,36 @@ void dibiff::dynamic::Envelope::initialize() {
  * @details Processes a single sample of audio data
  * @param sample The input sample
  */
-float dibiff::dynamic::Envelope::process(float sample) {
-    switch (currentStage) {
-        case Attack:
-            currentLevel += attackIncrement;
-            if (currentLevel >= 1.0f) {
-                currentLevel = 1.0f;
-                currentStage = Decay;
-            }
-            break;
-        case Decay:
-            currentLevel -= decayIncrement;
-            if (currentLevel <= sustainLevel) {
-                currentLevel = sustainLevel;
-                currentStage = Sustain;
-            }
-            break;
-        case Sustain:
-            // Sustain level is maintained until note off
-            break;
-        case Release:
-            currentLevel -= releaseIncrement;
-            if (currentLevel <= 0.0f) {
-                currentLevel = 0.0f;
-                currentStage = Idle;
-            }
-            break;
-        case Idle:
-            // Do nothing
-            break;
+float dibiff::dynamic::Envelope::processAttack(float sample) {
+    currentLevel += attackIncrement;
+    if (currentLevel >= 1.0f) {
+        currentLevel = 1.0f;
+        currentStage = Decay;
     }
     return sample * currentLevel;
+}
+float dibiff::dynamic::Envelope::processDecay(float sample) {
+    currentLevel -= decayIncrement;
+    if (currentLevel <= sustainLevel) {
+        currentLevel = sustainLevel;
+        currentStage = Sustain;
+    }
+    return sample * currentLevel;
+}
+float dibiff::dynamic::Envelope::processSustain(float sample) {
+    return sample * currentLevel;
+}
+float dibiff::dynamic::Envelope::processRelease(float sample) {
+    currentLevel -= releaseIncrement;
+    if (currentLevel <= 0.0f) {
+        currentLevel = 0.0f;
+        currentStage = Idle;
+    }
+    return sample * currentLevel;
+}
+float dibiff::dynamic::Envelope::processIdle(float sample) {
+    // return sample * currentLevel;
+    return 0.0f;
 }
 /**
  * @brief Process a block of samples
@@ -114,7 +113,26 @@ void dibiff::dynamic::Envelope::process() {
             x(i) = data[i];
         }
         for (int i = 0; i < blockSize; ++i) {
-            y(i) = process(x(i));
+            switch (currentStage) {
+                case Attack:
+                    y(i) = processAttack(x(i));
+                    break;
+                case Decay:
+                    y(i) = processDecay(x(i));
+                    break;
+                case Sustain:
+                    y(i) = processSustain(x(i));
+                    break;
+                case Release:
+                    y(i) = processRelease(x(i));
+                    break;
+                case Idle:
+                    y(i) = processIdle(x(i));
+                    break;
+                default:
+                    y(i) = processIdle(x(i));
+                    break;
+            }
         }
         std::vector<float> out(blockSize);
         for (int i = 0; i < blockSize; ++i) {
@@ -188,7 +206,7 @@ int dibiff::dynamic::Envelope::hasNoteOnNoteOff(std::vector<unsigned char> messa
     if (type == 0x90 && velocity > 0) { // Note on
         return 1;
     } else if (type == 0x80 || (type == 0x90 && velocity == 0)) { // Note off
-        return -1;
+        return -2;
     }
     return 0;
 }

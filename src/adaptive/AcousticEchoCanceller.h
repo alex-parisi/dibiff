@@ -26,9 +26,8 @@ class dibiff::adaptive::AcousticEchoCanceller : public dibiff::graph::AudioObjec
          * step size, buffer size, and sample rate
          * @param filterLength The length of the adaptive filter
          * @param stepSize The step size of the adaptive filter
-         * @param sampleRate The sample rate of the input signal
          */
-        AcousticEchoCanceller(int& filterLength, float& stepSize, float& sampleRate);
+        AcousticEchoCanceller(int& filterLength, float& stepSize);
         /**
          * @brief Initialize
          * @details Initializes the acoustic echo canceller connection points and adaptive filter
@@ -66,12 +65,10 @@ class dibiff::adaptive::AcousticEchoCanceller : public dibiff::graph::AudioObjec
          * Create a new acoustic echo canceller object
          * @param filterLength The length of the adaptive filter
          * @param stepSize The step size of the adaptive filter
-         * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<AcousticEchoCanceller> create(int& filterLength, float& stepSize, float& sampleRate);
+        static std::shared_ptr<AcousticEchoCanceller> create(int& filterLength, float& stepSize);
     private:
         std::shared_ptr<dibiff::filter::AdaptiveFilter> adaptiveFilter;
         int& filterLength;
         float& stepSize;
-        float& sampleRate;
 };

@@ -2,6 +2,7 @@
 
 #include "AdaptiveFilter.h"
 #include "../inc/Eigen/Dense"
+#include <numeric>
 
 /**
  * @brief Constructor
@@ -43,9 +44,23 @@ float dibiff::filter::AdaptiveFilter::process(float sample, float reference) {
     }
     // Compute the error signal
     float error = sample - output;
-    // Update the filter coefficients using the LMS algorithm
+    // Normalize the buffer to prevent large updates due to high signal power
+    float bufferNorm = std::inner_product(buffer.begin(), buffer.end(), buffer.begin(), 0.0f);
+    if (bufferNorm > 0.0f) {
+        bufferNorm = std::sqrt(bufferNorm);
+    } else {
+        bufferNorm = 1.0f;  // Prevent division by zero
+    }
+    // Update the filter coefficients using the LMS algorithm with gradient clipping
+    float maxUpdate = 0.1f;  // Maximum update to prevent large coefficient changes
     for (int i = 0; i < filterLength; ++i) {
-        filterCoefficients[i] += stepSize * error * buffer[i];
+        float update = stepSize * error * buffer[i] / bufferNorm;
+        update = std::min(std::max(update, -maxUpdate), maxUpdate);  // Clip the update
+        filterCoefficients[i] += update;
+        // Check for NaN and handle it
+        if (std::isnan(filterCoefficients[i])) {
+            filterCoefficients[i] = 0.0f;  // Reset the coefficient to zero if NaN is detected
+        }
     }
     return error;
 }

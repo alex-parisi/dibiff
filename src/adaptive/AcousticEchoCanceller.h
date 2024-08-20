@@ -17,9 +17,9 @@
  */
 class dibiff::adaptive::AcousticEchoCanceller : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioInput> reference;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioInput* reference;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the acoustic echo canceller with a certain filter length,
@@ -66,9 +66,9 @@ class dibiff::adaptive::AcousticEchoCanceller : public dibiff::graph::AudioObjec
          * @param filterLength The length of the adaptive filter
          * @param stepSize The step size of the adaptive filter
          */
-        static std::shared_ptr<AcousticEchoCanceller> create(int& filterLength, float& stepSize);
+        static std::unique_ptr<AcousticEchoCanceller> create(int& filterLength, float& stepSize);
     private:
-        std::shared_ptr<dibiff::filter::AdaptiveFilter> adaptiveFilter;
+        std::unique_ptr<dibiff::filter::AdaptiveFilter> adaptiveFilter;
         int& filterLength;
         float& stepSize;
 };

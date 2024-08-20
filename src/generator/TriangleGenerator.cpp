@@ -22,10 +22,12 @@ dibiff::generator::TriangleGenerator::TriangleGenerator(int blockSize, int sampl
  * @details Initializes the triangle wave source connection points
  */
 void dibiff::generator::TriangleGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SquareGeneratorMidiInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "TriangleGeneratorOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "TriangleGeneratorMidiInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "TriangleGeneratorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Generate a block of samples
@@ -41,7 +43,7 @@ void dibiff::generator::TriangleGenerator::process() {
     // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
-        auto midiData = *input->getData();
+        const auto& midiData = input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
@@ -107,10 +109,10 @@ bool dibiff::generator::TriangleGenerator::isFinished() const {
  * @param frequency The frequency of the triangle wave
  * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, int totalSamples) {
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
+std::unique_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, int totalSamples) {
+    auto instance = std::make_unique<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 /**
  * Create a new triangle wave source object
@@ -119,9 +121,9 @@ std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::Triangl
  * @param frequency The frequency of the triangle wave
  * @param duration The total duration of samples to generate
  */
-std::shared_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration) {
+std::unique_ptr<dibiff::generator::TriangleGenerator> dibiff::generator::TriangleGenerator::create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration) {
     int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
+    auto instance = std::make_unique<dibiff::generator::TriangleGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

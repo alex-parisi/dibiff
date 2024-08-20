@@ -21,8 +21,8 @@
  */
 class dibiff::dynamic::Compressor : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the compressor with default values
@@ -96,7 +96,7 @@ class dibiff::dynamic::Compressor : public dibiff::graph::AudioObject {
          * @param makeupGain The makeup gain of the compressor in dB, default value is calculated
          * @param kneeWidth The knee width of the compressor in dB, default value is calculated
          */
-        static std::shared_ptr<Compressor> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
+        static std::unique_ptr<Compressor> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain = std::nullopt, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
     private:
         float& release;
         float& attack;

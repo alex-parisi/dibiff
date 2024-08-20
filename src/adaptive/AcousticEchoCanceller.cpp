@@ -21,13 +21,17 @@ dibiff::adaptive::AcousticEchoCanceller::AcousticEchoCanceller(int& filterLength
  * @details Initializes the acoustic echo canceller connection points and adaptive filter
  */
 void dibiff::adaptive::AcousticEchoCanceller::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AcousticEchoCancellerInput"));
-    _inputs.push_back(input);
-    reference = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AcousticEchoCancellerReference"));
-    _inputs.push_back(reference);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AcousticEchoCancellerOutput"));
-    _outputs.push_back(output);
-    adaptiveFilter = std::make_shared<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "AcouticEchoCancellerInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto r = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "AcousticEchoCancellerReference"));
+    _inputs.emplace_back(std::move(r));
+    reference = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "AcousticEchoCancellerOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
+
+    adaptiveFilter = std::make_unique<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
     adaptiveFilter->initialize();
 }
 /**
@@ -40,19 +44,19 @@ void dibiff::adaptive::AcousticEchoCanceller::initialize() {
 void dibiff::adaptive::AcousticEchoCanceller::process() {
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         std::vector<float> out(inBlockSize, 0.0f);
         output->setData(out, inBlockSize);
     } else if (!reference->isConnected()) {
         /// If no reference is connected, just pass the input through
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         output->setData(inData, inBlockSize);
     } else if (input->isReady() && reference->isReady()) {
         /// If both are connected and ready, process the data
-        std::vector<float> inData = *input->getData();
-        std::vector<float> refData = *reference->getData();
+        const std::vector<float>& inData = input->getData();
+        const std::vector<float>& refData = reference->getData();
         int inBlockSize = input->getBlockSize();
         int refBlockSize = reference->getBlockSize();
         if (inBlockSize != refBlockSize) {
@@ -113,8 +117,8 @@ bool dibiff::adaptive::AcousticEchoCanceller::isReadyToProcess() const {
  * @param stepSize The step size of the adaptive filter
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::adaptive::AcousticEchoCanceller> dibiff::adaptive::AcousticEchoCanceller::create(int& filterLength, float& stepSize) {
-    auto instance = std::make_shared<dibiff::adaptive::AcousticEchoCanceller>(filterLength, stepSize);
+std::unique_ptr<dibiff::adaptive::AcousticEchoCanceller> dibiff::adaptive::AcousticEchoCanceller::create(int& filterLength, float& stepSize) {
+    auto instance = std::make_unique<dibiff::adaptive::AcousticEchoCanceller>(filterLength, stepSize);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

@@ -16,8 +16,8 @@
  */
 class dibiff::effect::Vibrato : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the vibrato object with a certain modulation depth
@@ -69,7 +69,7 @@ class dibiff::effect::Vibrato : public dibiff::graph::AudioObject {
          * @param modulationRate The modulation rate of the vibrato in Hz
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Vibrato> create(float& modulationDepth, float& modulationRate, float& sampleRate);
+        static std::unique_ptr<Vibrato> create(float& modulationDepth, float& modulationRate, float& sampleRate);
     private:
         float& modulationDepth;
         float& modulationRate;

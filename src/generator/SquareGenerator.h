@@ -18,8 +18,8 @@
  */
 class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
     public:
-        std::shared_ptr<dibiff::graph::MidiInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::MidiInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the square wave source with a certain frequency,
@@ -69,7 +69,7 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @param frequency The frequency of the square wave, used if the MIDI input is not connected
          * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
+        static std::unique_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * Create a new square wave source object
          * @param blockSize The block size of the square wave
@@ -78,7 +78,7 @@ class dibiff::generator::SquareGenerator : public dibiff::generator::Generator {
          * @param frequency The frequency of the square wave, used if the MIDI input is not connected
          * @param duration The length of time to generate samples
          */
-        static std::shared_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration);
+        static std::unique_ptr<SquareGenerator> create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration);
     private:
         int blockSize;
         int sampleRate;

@@ -22,10 +22,12 @@ dibiff::gate::NoiseGate::NoiseGate(float& threshold, float& attackTime, float& r
  * @details Initializes the noise gate connection points and envelope
  */
 void dibiff::gate::NoiseGate::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "NoiseGateInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "NoiseGateOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "NoiseGateInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "NoiseGateOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     _attackCoefficient = std::exp(-1.0 / (_attackTime * _sampleRate / 1000.0f));
     _releaseCoefficient = std::exp(-1.0 / (_releaseTime * _sampleRate / 1000.0f));
 }
@@ -59,8 +61,8 @@ void dibiff::gate::NoiseGate::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -107,8 +109,8 @@ bool dibiff::gate::NoiseGate::isReadyToProcess() const {
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::NoiseGate> dibiff::gate::NoiseGate::create(float& threshold, float& attackTime, float& releaseTime, float& sampleRate) {
-    auto instance = std::make_shared<dibiff::gate::NoiseGate>(threshold, attackTime, releaseTime, sampleRate);
+std::unique_ptr<dibiff::gate::NoiseGate> dibiff::gate::NoiseGate::create(float& threshold, float& attackTime, float& releaseTime, float& sampleRate) {
+    auto instance = std::make_unique<dibiff::gate::NoiseGate>(threshold, attackTime, releaseTime, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

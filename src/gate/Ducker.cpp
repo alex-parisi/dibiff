@@ -23,12 +23,15 @@ dibiff::gate::Ducker::Ducker(float& threshold, float& ratio, float& attackTime, 
  * @details Initializes the ducker connection points and envelope
  */
 void dibiff::gate::Ducker::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "DuckerInput"));
-    _inputs.push_back(input);
-    reference = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "DuckerReference"));
-    _inputs.push_back(reference);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "DuckerOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "DuckerInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto r = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "DuckerReference"));
+    _inputs.emplace_back(std::move(r));
+    reference = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "DuckerOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     _attackCoefficient = std::exp(-1.0f / (_attackTime * _sampleRate / 1000.0f));
     _releaseCoefficient = std::exp(-1.0f / (_releaseTime * _sampleRate / 1000.0f));
     _thresholdLevel = std::pow(10.0f, _threshold / 20.0f); // Convert dB to linear
@@ -62,20 +65,20 @@ void dibiff::gate::Ducker::process() {
     _thresholdLevel = std::pow(10.0f, _threshold / 20.0f);
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         std::vector<float> out(inBlockSize, 0.0f);
         output->setData(out, inBlockSize);
     } else if (!reference->isConnected()) {
         /// If no reference is connected, just pass the input through
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         output->setData(inData, inBlockSize);
     } else if (input->isReady() && reference->isReady()) {
-        std::vector<float> inData = *input->getData();
-        std::vector<float> refData = *reference->getData();
-        int inBlockSize = input->getBlockSize();
-        int refBlockSize = reference->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const std::vector<float>& refData = reference->getData();
+        const int inBlockSize = input->getBlockSize();
+        const int refBlockSize = reference->getBlockSize();
         if (inBlockSize != refBlockSize) {
             throw std::runtime_error("Block sizes do not match");
         }
@@ -129,8 +132,8 @@ bool dibiff::gate::Ducker::isReadyToProcess() const {
  * @param releaseTime The release time in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::gate::Ducker> dibiff::gate::Ducker::create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate) {
-    auto instance = std::make_shared<dibiff::gate::Ducker>(threshold, ratio, attackTime, releaseTime, sampleRate);
+std::unique_ptr<dibiff::gate::Ducker> dibiff::gate::Ducker::create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate) {
+    auto instance = std::make_unique<dibiff::gate::Ducker>(threshold, ratio, attackTime, releaseTime, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

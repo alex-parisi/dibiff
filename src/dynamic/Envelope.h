@@ -19,9 +19,9 @@
  */
 class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::MidiInput> midiInput;
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::MidiInput* midiInput;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * Envelope Stages
          */
@@ -103,7 +103,7 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in seconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Envelope> create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate);
+        static std::unique_ptr<Envelope> create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate);
     private:
         float& attackTime;
         float& decayTime;
@@ -114,5 +114,5 @@ class dibiff::dynamic::Envelope : public dibiff::graph::AudioObject {
         float decayIncrement;
         float releaseIncrement;
         float currentLevel = 0.0f;
-        int hasNoteOnNoteOff(std::vector<unsigned char> message);
+        int hasNoteOnNoteOff(const std::vector<unsigned char>& message);
 };

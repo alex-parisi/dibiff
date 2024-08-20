@@ -19,9 +19,9 @@
  */
 class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioInput> reference;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioInput* reference;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the ducker object with a certain threshold,
@@ -78,7 +78,7 @@ class dibiff::gate::Ducker : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Ducker> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
+        static std::unique_ptr<Ducker> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
     private:
         float& _threshold;
         float& _ratio;

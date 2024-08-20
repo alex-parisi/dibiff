@@ -11,75 +11,78 @@
 #include "../generator/generator.h"
 #include "../sink/GraphSink.h"
 
+std::vector<float> dibiff::graph::AudioInput::empty = {};
+std::vector<std::vector<unsigned char>> dibiff::graph::MidiInput::empty = {};
+
 /**
  * Audio Input implementation
  */
-void dibiff::graph::AudioInput::connect(std::weak_ptr<dibiff::graph::AudioOutput> output) {
+void dibiff::graph::AudioInput::connect(dibiff::graph::AudioOutput* output) {
     connectedOutput = output;
 }
 void dibiff::graph::AudioInput::disconnect() {
-    connectedOutput.reset();
+    connectedOutput = nullptr;
 }
 bool dibiff::graph::AudioInput::isConnected() {
-    return !connectedOutput.expired();
+    return (connectedOutput != nullptr);
 }
 bool dibiff::graph::AudioInput::isReady() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->isProcessed();
+    if (connectedOutput != nullptr) {
+        return connectedOutput->isProcessed();
     }
     return false;
 }
 bool dibiff::graph::AudioInput::isFinished() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->isFinished();
+    if (connectedOutput != nullptr) {
+        return connectedOutput->isFinished();
     }
     return false;
 }
-std::optional<std::vector<float>> dibiff::graph::AudioInput::getData() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->getData();
+const std::vector<float>& dibiff::graph::AudioInput::getData() const {
+    if (connectedOutput != nullptr) {
+        return connectedOutput->getData();
     }
-    return std::nullopt;
+    return empty;
 }
-int dibiff::graph::AudioInput::getBlockSize() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->getBlockSize();
+const int dibiff::graph::AudioInput::getBlockSize() const {
+    if (connectedOutput != nullptr) {
+        return connectedOutput->getBlockSize();
     }
     return 0;
 }
 /**
  * MIDI Input implementation
  */
-void dibiff::graph::MidiInput::connect(std::weak_ptr<dibiff::graph::MidiOutput> output) {
+void dibiff::graph::MidiInput::connect(dibiff::graph::MidiOutput* output) {
     connectedOutput = output;
 }
 void dibiff::graph::MidiInput::disconnect() {
-    connectedOutput.reset();
+    connectedOutput = nullptr;
 }
 bool dibiff::graph::MidiInput::isConnected() {
-    return !connectedOutput.expired();
+    return (connectedOutput != nullptr);
 }
 bool dibiff::graph::MidiInput::isReady() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->isProcessed();
+    if (connectedOutput != nullptr) {
+        return connectedOutput->isProcessed();
     }
     return false;
 }
 bool dibiff::graph::MidiInput::isFinished() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->isFinished();
+    if (connectedOutput != nullptr) {
+        return connectedOutput->isFinished();
     }
     return false;
 }
-std::optional<std::vector<std::vector<unsigned char>>> dibiff::graph::MidiInput::getData() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->getData();
+const std::vector<std::vector<unsigned char>>& dibiff::graph::MidiInput::getData() const {
+    if (connectedOutput != nullptr) {
+        return connectedOutput->getData();
     }
-    return std::nullopt;
+    return empty;
 }
-int dibiff::graph::MidiInput::getBlockSize() const {
-    if (auto output = connectedOutput.lock()) {
-        return output->getBlockSize();
+const int dibiff::graph::MidiInput::getBlockSize() const {
+    if (connectedOutput != nullptr) {
+        return connectedOutput->getBlockSize();
     }
     return 0;
 }
@@ -87,54 +90,42 @@ int dibiff::graph::MidiInput::getBlockSize() const {
  * Audio Output implementation
  */
 bool dibiff::graph::AudioOutput::isProcessed() const {
-    if (auto p = parent.lock()) {
-        return p->isProcessed();
-    }
-    return false;
+    return parent->isProcessed();
 }
 bool dibiff::graph::AudioOutput::isFinished() const {
-    if (auto p = parent.lock()) {
-        return p->isFinished();
-    }
-    return false;
+    return parent->isFinished();
 }
-void dibiff::graph::AudioOutput::setData(std::vector<float>& audioData, int N) {
+void dibiff::graph::AudioOutput::setData(std::vector<float> audioData, int N) {
     data = audioData;
     blockSize = N;
 }
-std::vector<float> dibiff::graph::AudioOutput::getData() const {
+const std::vector<float>& dibiff::graph::AudioOutput::getData() const {
     return data;
 }
-int dibiff::graph::AudioOutput::getBlockSize() const {
+const int dibiff::graph::AudioOutput::getBlockSize() const {
     return blockSize;
 }
-void dibiff::graph::AudioOutput::connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (!iC->isConnected()) {
-            iC->connect(shared_from_this());
-        } else {
-            throw std::runtime_error("Input already connected.");
-        }
+void dibiff::graph::AudioOutput::connect(dibiff::graph::AudioInput* inChannel) {
+    if (!inChannel->isConnected()) {
+        inChannel->connect(this);
         connectedInputs.push_back(inChannel);
+    } else {
+        throw std::runtime_error("Input already connected.");
     }
 }
-void dibiff::graph::AudioOutput::disconnect(std::weak_ptr<dibiff::graph::AudioInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (iC->isConnected()) {
-            iC->disconnect();
-        }
+void dibiff::graph::AudioOutput::disconnect(dibiff::graph::AudioInput* inChannel) {
+    if (inChannel->isConnected()) {
+        inChannel->disconnect();
     }
-    /// Also remove this from the vector of connectedInputs
-    connectedInputs.erase(std::remove_if(connectedInputs.begin(), connectedInputs.end(), [inChannel](const std::weak_ptr<dibiff::graph::AudioInput>& i) {
-        return i.expired() || i.lock() == inChannel.lock();
-    }), connectedInputs.end());
+    auto it = std::remove(connectedInputs.begin(), connectedInputs.end(), inChannel);
+    if (it != connectedInputs.end()) {
+        connectedInputs.erase(it, connectedInputs.end());
+    }
 }
 void dibiff::graph::AudioOutput::disconnect() {
     for (auto& inChannel : connectedInputs) {
-        if (auto iC = inChannel.lock()) {
-            if (iC->isConnected()) {
-                iC->disconnect();
-            }
+        if (inChannel->isConnected()) {
+            inChannel->disconnect();
         }
     }
     connectedInputs.clear();
@@ -148,54 +139,43 @@ bool dibiff::graph::AudioOutput::isConnected() {
  * MIDI Output implementation
  */
 bool dibiff::graph::MidiOutput::isProcessed() const {
-    if (auto p = parent.lock()) {
-        return p->isProcessed();
-    }
-    return false;
+    return parent->isProcessed();
 }
 bool dibiff::graph::MidiOutput::isFinished() const {
-    if (auto p = parent.lock()) {
-        return p->isFinished();
-    }
-    return false;
+    return parent->isFinished();
 }
-void dibiff::graph::MidiOutput::setData(std::vector<std::vector<unsigned char>>& audioData, int N) {
+void dibiff::graph::MidiOutput::setData(std::vector<std::vector<unsigned char>> audioData, int N) {
     data = audioData;
     blockSize = N;
 }
-std::vector<std::vector<unsigned char>> dibiff::graph::MidiOutput::getData() const {
+const std::vector<std::vector<unsigned char>>& dibiff::graph::MidiOutput::getData() const {
     return data;
 }
-int dibiff::graph::MidiOutput::getBlockSize() const {
+const int dibiff::graph::MidiOutput::getBlockSize() const {
     return blockSize;
 }
-void dibiff::graph::MidiOutput::connect(std::weak_ptr<dibiff::graph::MidiInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (!iC->isConnected()) {
-            iC->connect(shared_from_this());
-        } else {
-            throw std::runtime_error("Input already connected.");
-        }
+void dibiff::graph::MidiOutput::connect(dibiff::graph::MidiInput* inChannel) {
+    if (!inChannel->isConnected()) {
+        inChannel->connect(this);
+        connectedInputs.push_back(inChannel);
+    } else {
+        throw std::runtime_error("Input already connected.");
     }
-    connectedInputs.push_back(inChannel);
 }
-void dibiff::graph::MidiOutput::disconnect(std::weak_ptr<dibiff::graph::MidiInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (iC->isConnected()) {
-            iC->connectedOutput.reset();
-        }
+void dibiff::graph::MidiOutput::disconnect(dibiff::graph::MidiInput* inChannel) {
+    if (inChannel->isConnected()) {
+        inChannel->disconnect();
     }
     /// Also remove this from the vector of connectedInputs
-    connectedInputs.erase(std::remove_if(connectedInputs.begin(), connectedInputs.end(), [inChannel](const std::weak_ptr<dibiff::graph::MidiInput>& i) {
-        return i.expired() || i.lock() == inChannel.lock();
-    }), connectedInputs.end());
+    auto it = std::remove(connectedInputs.begin(), connectedInputs.end(), inChannel);
+    if (it != connectedInputs.end()) {
+        connectedInputs.erase(it, connectedInputs.end());
+    }
 }
 void dibiff::graph::MidiOutput::disconnect() {
     for (auto& inChannel : connectedInputs) {
-        if (auto iC = inChannel.lock()) {
-            if (iC->isConnected()) {
-                iC->connectedOutput.reset();
-            }
+        if (inChannel->isConnected()) {
+            inChannel->disconnect();
         }
     }
     connectedInputs.clear();
@@ -209,27 +189,25 @@ bool dibiff::graph::MidiOutput::isConnected() {
  * together to form a processing graph. The audio graph processes the audio
  * objects in the correct order to generate the final output.
  */
-std::shared_ptr<dibiff::graph::AudioObject> dibiff::graph::AudioGraph::add(std::shared_ptr<dibiff::graph::AudioObject> obj) {
+dibiff::graph::AudioObject* dibiff::graph::AudioGraph::add(dibiff::graph::AudioObject* obj) {
     objects.push_back(obj);
     return obj;
 }
-std::shared_ptr<dibiff::graph::AudioCompositeObject> dibiff::graph::AudioGraph::add(std::shared_ptr<dibiff::graph::AudioCompositeObject> obj) {
+dibiff::graph::AudioCompositeObject* dibiff::graph::AudioGraph::add(dibiff::graph::AudioCompositeObject* obj) {
     for (auto& o : obj->objects) {
-        objects.push_back(o);
+        objects.push_back(o.get());
     }
     return obj;
 }
-void dibiff::graph::AudioGraph::remove(std::shared_ptr<dibiff::graph::AudioObject> obj) {
+void dibiff::graph::AudioGraph::remove(dibiff::graph::AudioObject* obj) {
     /// Remove this object from the vector of objects
-    objects.erase(std::remove_if(objects.begin(), objects.end(), [obj](const std::shared_ptr<dibiff::graph::AudioObject>& o) {
+    objects.erase(std::remove_if(objects.begin(), objects.end(), [&](const dibiff::graph::AudioObject* o) {
         return o == obj;
     }), objects.end());
 }
-void dibiff::graph::AudioGraph::remove(std::shared_ptr<dibiff::graph::AudioCompositeObject> obj) {
+void dibiff::graph::AudioGraph::remove(dibiff::graph::AudioCompositeObject* obj) {
     for (auto& o : obj->objects) {
-        objects.erase(std::remove_if(objects.begin(), objects.end(), [o](const std::shared_ptr<dibiff::graph::AudioObject>& obj) {
-            return obj == o;
-        }), objects.end());
+        remove(o.get());
     }
 }
 /**
@@ -240,102 +218,10 @@ void dibiff::graph::AudioGraph::remove(std::shared_ptr<dibiff::graph::AudioCompo
  * This is a multi-threaded implementation where each audio object is processed in a separate
  * thread.
  */
-void dibiff::graph::AudioGraph::run(bool realTime, int sampleRate, int blockSize) {
-    const double blockDuration = static_cast<double>(blockSize) / sampleRate;
-    int iter = 0;
-    while (true) {
-        auto startTime = std::chrono::high_resolution_clock::now();
-        std::queue<std::shared_ptr<dibiff::graph::AudioObject>> readyQueue;
-        std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> processed;
-        std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> inQueueOrProcessed;
-        std::mutex queueMutex;
-        std::mutex processedMutex;
-        // Initialize the queue with objects that are ready to process
-        for (auto& obj : objects) {
-            // Mark all objects as not processed at the start of each block
-            obj->markProcessed(false);
-            if (obj->isReadyToProcess()) {
-                readyQueue.push(obj);
-                inQueueOrProcessed.insert(obj);
-            }
-        }
-        if (readyQueue.empty()) {
-            break; // No more objects to process
-        }
-        while (!readyQueue.empty()) {
-            std::vector<std::thread> threads;
-            while (!readyQueue.empty()) {
-                auto obj = readyQueue.front();
-                readyQueue.pop();
-                // Create a thread to process the object
-                threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
-                    obj->process();
-                    std::lock_guard<std::mutex> lock(processedMutex);
-                    processed.insert(obj);
-                    inQueueOrProcessed.insert(obj);
-                }));
-            }
-            // Join all threads
-            for (auto& thread : threads) {
-                thread.join();
-            }
-            // Check connected objects to see if they are now ready to process
-            for (auto& connectedObj : objects) {
-                std::lock_guard<std::mutex> lock(processedMutex);
-                if (processed.find(connectedObj) == processed.end() &&
-                    connectedObj->isReadyToProcess() &&
-                    inQueueOrProcessed.find(connectedObj) == inQueueOrProcessed.end()) {
-                    readyQueue.push(connectedObj);
-                    inQueueOrProcessed.insert(connectedObj);
-                }
-            }
-        }
-        // Check if all generators are finished
-        bool allSourcesFinished = true;
-        for (auto& obj : objects) {
-            if (auto o = std::dynamic_pointer_cast<dibiff::generator::Generator>(obj)) {
-                if (!o->isFinished()) {
-                    allSourcesFinished = false;
-                    break;
-                }
-            }
-        }
-        if (allSourcesFinished) {
-            std::cout << "All sources finished.\n";
-            break;
-        }
-        iter++;
-        if (realTime) {
-            /// First, pull out the audio player object
-            std::shared_ptr<dibiff::sink::GraphSink> graphSink = nullptr;
-            for (auto& obj : objects) {
-                if (auto o = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj)) {
-                    graphSink = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(obj);
-                    break;
-                }
-            }
-            if (graphSink == nullptr) {
-                std::cerr << "Warning: Audio player not found in real-time mode.\n";
-                auto endTime = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> elapsed = endTime - startTime;
-                double sleepTime = blockDuration - elapsed.count();
-                if (sleepTime > 0) {
-                    std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
-                }
-            } else {
-                std::cout << "Waiting for audio player to finish processing...\n";
-                /// Wait for the audio player to finish processing
-                std::unique_lock<std::mutex> lock(graphSink->cv_mtx);
-                graphSink->cv.wait(lock);
-            }
-        }
-    }
-}
-
 void dibiff::graph::AudioGraph::tick() {
-    std::queue<std::shared_ptr<dibiff::graph::AudioObject>> readyQueue;
-    std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> processed;
-    std::unordered_set<std::shared_ptr<dibiff::graph::AudioObject>> inQueueOrProcessed;
+    std::queue<dibiff::graph::AudioObject*> readyQueue;
+    std::unordered_set<dibiff::graph::AudioObject*> processed;
+    std::unordered_set<dibiff::graph::AudioObject*> inQueueOrProcessed;
     std::mutex queueMutex;
     std::mutex processedMutex;
     // Initialize the queue with objects that are ready to process
@@ -360,7 +246,7 @@ void dibiff::graph::AudioGraph::tick() {
             auto obj = readyQueue.front();
             readyQueue.pop();
             // Create a thread to process the object
-            threads.push_back(std::thread([obj, &processed, &inQueueOrProcessed, &processedMutex]() {
+            threads.push_back(std::thread([obj, &processedMutex, &processed, &inQueueOrProcessed]() {
                 obj->process();
                 std::lock_guard<std::mutex> lock(processedMutex);
                 processed.insert(obj);
@@ -384,20 +270,17 @@ void dibiff::graph::AudioGraph::tick() {
     }
 }
 
-
 /**
  * @brief Connect two audio objects
  * @details Connects two audio objects together
  * @param outChannel The output channel
  * @param inChannel The input channel
  */
-void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (!iC->isConnected()) {
-            iC->connect(outChannel);
-        } else {
-            throw std::runtime_error("Input already connected.");
-        }
+void dibiff::graph::AudioGraph::connect(dibiff::graph::AudioOutput* outChannel, dibiff::graph::AudioInput* inChannel) {
+    if (!inChannel->isConnected()) {
+        outChannel->connect(inChannel);
+    } else {
+        throw std::runtime_error("Input already connected.");
     }
 }
 /**
@@ -406,7 +289,7 @@ void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioOutput
  * @param inChannel The input channel
  * @param outChannel The output channel
  */
-void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel) {
+void dibiff::graph::AudioGraph::connect(dibiff::graph::AudioInput* inChannel, dibiff::graph::AudioOutput* outChannel) {
     connect(outChannel, inChannel);
 }
 /**
@@ -415,31 +298,31 @@ void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioInput>
  * @param refChannel The reference channel
  * @param outChannel The output channel
  */
-void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2) {
+void dibiff::graph::AudioGraph::connect(dibiff::graph::AudioConnectionPoint* pt1, dibiff::graph::AudioConnectionPoint* pt2) {
     /// MIDI Out -> MIDI In?
-    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt1.lock())) {
-        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt2.lock())) {
-            pt2Midi->connect(pt1Midi);
+    if (auto pt1Midi = dynamic_cast<dibiff::graph::MidiOutput*>(pt1)) {
+        if (auto pt2Midi = dynamic_cast<dibiff::graph::MidiInput*>(pt2)) {
+            pt1Midi->connect(pt2Midi);
             return;
         }
     }
     /// MIDI In -> MIDI Out?
-    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt1.lock())) {
-        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt2.lock())) {
+    if (auto pt1Midi = dynamic_cast<dibiff::graph::MidiInput*>(pt1)) {
+        if (auto pt2Midi = dynamic_cast<dibiff::graph::MidiOutput*>(pt2)) {
             pt2Midi->connect(pt1Midi);
             return;
         }
     }
     /// Audio In -> Audio Out?
-    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt1.lock())) {
-        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt2.lock())) {
+    if (auto pt1Audio = dynamic_cast<dibiff::graph::AudioInput*>(pt1)) {
+        if (auto pt2Audio = dynamic_cast<dibiff::graph::AudioOutput*>(pt2)) {
             pt2Audio->connect(pt1Audio);
             return;
         }
     }
     /// Audio Out -> Audio In?
-    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt1.lock())) {
-        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt2.lock())) {
+    if (auto pt1Audio = dynamic_cast<dibiff::graph::AudioOutput*>(pt1)) {
+        if (auto pt2Audio = dynamic_cast<dibiff::graph::AudioInput*>(pt2)) {
             pt1Audio->connect(pt2Audio);
             return;
         }
@@ -448,43 +331,41 @@ void dibiff::graph::AudioGraph::connect(std::weak_ptr<dibiff::graph::AudioConnec
     throw std::runtime_error("Invalid connection.");
 }
 
-void dibiff::graph::AudioGraph::disconnect(std::weak_ptr<dibiff::graph::AudioOutput> outChannel, std::weak_ptr<dibiff::graph::AudioInput> inChannel) {
-    if (auto iC = inChannel.lock()) {
-        if (iC->isConnected()) {
-            iC->connectedOutput.reset();
-        }
+void dibiff::graph::AudioGraph::disconnect(dibiff::graph::AudioOutput* outChannel, dibiff::graph::AudioInput* inChannel) {
+    if (inChannel->isConnected()) {
+        outChannel->disconnect(inChannel);
     }
 }
 
-void dibiff::graph::AudioGraph::disconnect(std::weak_ptr<dibiff::graph::AudioInput> inChannel, std::weak_ptr<dibiff::graph::AudioOutput> outChannel) {
+void dibiff::graph::AudioGraph::disconnect(dibiff::graph::AudioInput* inChannel, dibiff::graph::AudioOutput* outChannel) {
     disconnect(outChannel, inChannel);
 }
 
-void dibiff::graph::AudioGraph::disconnect(std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt1, std::weak_ptr<dibiff::graph::AudioConnectionPoint> pt2) {
+void dibiff::graph::AudioGraph::disconnect(dibiff::graph::AudioConnectionPoint* pt1, dibiff::graph::AudioConnectionPoint* pt2) {
     /// MIDI Out -> MIDI In?
-    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt1.lock())) {
-        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt2.lock())) {
+    if (auto pt1Midi = dynamic_cast<dibiff::graph::MidiOutput*>(pt1)) {
+        if (auto pt2Midi = dynamic_cast<dibiff::graph::MidiInput*>(pt2)) {
             pt1Midi->disconnect(pt2Midi);
             return;
         }
     }
     /// MIDI In -> MIDI Out?
-    if (auto pt1Midi = std::dynamic_pointer_cast<dibiff::graph::MidiInput>(pt1.lock())) {
-        if (auto pt2Midi = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(pt2.lock())) {
+    if (auto pt1Midi = dynamic_cast<dibiff::graph::MidiInput*>(pt1)) {
+        if (auto pt2Midi = dynamic_cast<dibiff::graph::MidiOutput*>(pt2)) {
             pt2Midi->disconnect(pt1Midi);
             return;
         }
     }
     /// Audio In -> Audio Out?
-    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt1.lock())) {
-        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt2.lock())) {
+    if (auto pt1Audio = dynamic_cast<dibiff::graph::AudioInput*>(pt1)) {
+        if (auto pt2Audio = dynamic_cast<dibiff::graph::AudioOutput*>(pt2)) {
             pt2Audio->disconnect(pt1Audio);
             return;
         }
     }
     /// Audio Out -> Audio In?
-    if (auto pt1Audio = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(pt1.lock())) {
-        if (auto pt2Audio = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(pt2.lock())) {
+    if (auto pt1Audio = dynamic_cast<dibiff::graph::AudioOutput*>(pt1)) {
+        if (auto pt2Audio = dynamic_cast<dibiff::graph::AudioInput*>(pt2)) {
             pt1Audio->disconnect(pt2Audio);
             return;
         }

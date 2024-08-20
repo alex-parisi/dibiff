@@ -17,10 +17,12 @@ dibiff::level::Gain::Gain(float& value)
  * @details Initializes the gain connection points
  */
 void dibiff::level::Gain::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "GainInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "GainOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "GainInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "GainOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Process a sample
@@ -43,8 +45,8 @@ void dibiff::level::Gain::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> audioData = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& audioData = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = audioData[i];
@@ -81,8 +83,8 @@ bool dibiff::level::Gain::isReadyToProcess() const {
  * Create a new gain object
  * @param value The gain of the object in dB
  */
-std::shared_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float& value) {
-    auto instance = std::make_shared<dibiff::level::Gain>(value);
+std::unique_ptr<dibiff::level::Gain> dibiff::level::Gain::create(float& value) {
+    auto instance = std::make_unique<dibiff::level::Gain>(value);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

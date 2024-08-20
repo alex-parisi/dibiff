@@ -72,8 +72,8 @@ void dibiff::filter::LowPassFilter::setBandwidth(float bandwidth) {
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::LowPassFilter> dibiff::filter::LowPassFilter::create(float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::LowPassFilter>(cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::LowPassFilter> dibiff::filter::LowPassFilter::create(float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::LowPassFilter>(cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

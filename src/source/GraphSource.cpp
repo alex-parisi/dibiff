@@ -15,18 +15,18 @@ dibiff::source::GraphSource::GraphSource(int channels, int rate, int blockSize)
 
 void dibiff::source::GraphSource::initialize() {
     for (int i = 0; i < channels; i++) {
-        _outputs.push_back(std::make_shared<dibiff::graph::AudioOutput>(shared_from_this(), "GraphSourceOutput" + std::to_string(i)));
-        ringBuffers.push_back(std::make_shared<RingBuffer<float>>(blockSize * 10));
+        auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "GraphSourceOutput" + std::to_string(i)));
+        _outputs.emplace_back(std::move(o));
+        ringBuffers.push_back(std::make_unique<RingBuffer<float>>(blockSize * 10));
     }
 }
 
 void dibiff::source::GraphSource::process() {
     for (int i = 0; i < channels; i++) {
-        auto out = std::dynamic_pointer_cast<dibiff::graph::AudioOutput>(_outputs[i]);
+        auto out = static_cast<dibiff::graph::AudioOutput*>(_outputs[i].get());
         /// Read the data from the ring buffer
         if (ringBuffers[i]->available() > 0) {
-            std::vector<float> ringData(blockSize);
-            ringBuffers[i]->read(ringData.data(), blockSize);
+            std::vector<float> ringData = ringBuffers[i]->read(blockSize);
             out->setData(ringData, blockSize);
         } else {
             std::vector<float> ringData(blockSize, 0.0f);
@@ -44,8 +44,8 @@ bool dibiff::source::GraphSource::isReadyToProcess() const {
     return !processed;
 }
 
-std::shared_ptr<dibiff::source::GraphSource> dibiff::source::GraphSource::create(int channels, int rate, int blockSize) {
-    auto instance = std::make_shared<GraphSource>(channels, rate, blockSize);
+std::unique_ptr<dibiff::source::GraphSource> dibiff::source::GraphSource::create(int channels, int rate, int blockSize) {
+    auto instance = std::make_unique<GraphSource>(channels, rate, blockSize);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

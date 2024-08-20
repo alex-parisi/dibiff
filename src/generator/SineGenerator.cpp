@@ -22,10 +22,12 @@ dibiff::generator::SineGenerator::SineGenerator(int blockSize, int sampleRate, f
  * @details Initializes the sine wave source connection points
  */
 void dibiff::generator::SineGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SineGeneratorMidiInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "SineGeneratorOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "SineGeneratorMidiInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "SineGeneratorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Generate a block of samples
@@ -39,7 +41,7 @@ void dibiff::generator::SineGenerator::process() {
     // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
-        auto midiData = *input->getData();
+        const auto& midiData = input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
@@ -102,10 +104,10 @@ bool dibiff::generator::SineGenerator::isFinished() const {
  * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
  * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, int totalSamples) {
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
+std::unique_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, int totalSamples) {
+    auto instance = std::make_unique<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 /**
  * Create a new sine wave source object
@@ -114,9 +116,9 @@ std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerat
  * @param frequency The frequency of the sine wave, used if the MIDI input is not connected
  * @param duration The duration of the sine wave
  */
-std::shared_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, std::chrono::duration<int> duration) {
+std::unique_ptr<dibiff::generator::SineGenerator> dibiff::generator::SineGenerator::create(int blockSize, float sampleRate, float frequency, std::chrono::duration<int> duration) {
     int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
+    auto instance = std::make_unique<dibiff::generator::SineGenerator>(blockSize, sampleRate, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

@@ -65,7 +65,7 @@ class dibiff::filter::LowShelfFilter : public dibiff::filter::DigitalBiquadFilte
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<LowShelfFilter> create(float& gain, float& cutoff, float& sampleRate, float& qFactor);
+        static std::unique_ptr<LowShelfFilter> create(float& gain, float& cutoff, float& sampleRate, float& qFactor);
     private:
         float& _gain;
         float& _cutoff;

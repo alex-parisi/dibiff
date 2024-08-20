@@ -8,13 +8,16 @@ dibiff::generator::SampleGenerator::SampleGenerator(std::string filename, int bl
 }
 
 void dibiff::generator::SampleGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SampleGeneratorMidiInput"));
-    _inputs.push_back(input);
+    auto mi = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "SampleGeneratorMidiInput"));
+    _inputs.emplace_back(std::move(mi));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
     /// Load the samples from the file
     loadSamples(filename);
     /// Create the audio output connection points
     for (int i = 0; i < samples.size(); ++i) {
-        outputs.push_back(std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "SampleGeneratorOutput" + std::to_string(i))));
+        auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "SampleGeneratorOutput" + std::to_string(i)));
+        _outputs.emplace_back(std::move(o));
+        outputs.push_back(static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get()));
     }
 }
 
@@ -118,7 +121,7 @@ int dibiff::generator::SampleGenerator::hasNoteOnNoteOff(std::vector<unsigned ch
 
 void dibiff::generator::SampleGenerator::process() {
     if (input->isConnected()) {
-        auto midiData = *input->getData();
+        const auto& midiData = input->getData();
         int noteOnOff = 0;
         for (const auto& message : midiData) {
             noteOnOff += hasNoteOnNoteOff(message);
@@ -170,8 +173,8 @@ bool dibiff::generator::SampleGenerator::isFinished() const {
     return false;
 }
 
-std::shared_ptr<dibiff::generator::SampleGenerator> dibiff::generator::SampleGenerator::create(std::string filename, int blockSize, int sampleRate) {
-    auto instance = std::make_shared<dibiff::generator::SampleGenerator>(filename, blockSize, sampleRate);
+std::unique_ptr<dibiff::generator::SampleGenerator> dibiff::generator::SampleGenerator::create(std::string filename, int blockSize, int sampleRate) {
+    auto instance = std::make_unique<dibiff::generator::SampleGenerator>(filename, blockSize, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

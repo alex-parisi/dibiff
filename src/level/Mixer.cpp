@@ -18,10 +18,12 @@ dibiff::level::Mixer::Mixer(int numInputs)
  */
 void dibiff::level::Mixer::initialize() {
     for (int i = 0; i < numInputs; ++i) {
-        _inputs.push_back(std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "MixerInput" + std::to_string(i))));
+        auto in = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "MixerInput" + std::to_string(i)));
+        _inputs.emplace_back(std::move(in));
     }
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "MixerOutput"));
-    _outputs.push_back(output);
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "MixerOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Process a block of samples
@@ -30,32 +32,33 @@ void dibiff::level::Mixer::initialize() {
 void dibiff::level::Mixer::process() {
     std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
         connected[i] = in->isConnected();
     }
     bool isReady = true;
     for (int i = 0; i < numInputs; ++i) {
-        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
         if (connected[i] && !in->isReady()) {
             isReady = false;
             break;
         }
     }
     if (isReady) {
-        auto in0 = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[0]);
-        int blockSize = in0->getBlockSize();
+        auto in0 = static_cast<dibiff::graph::AudioInput*>(_inputs[0].get());
+        const int blockSize = in0->getBlockSize();
         Eigen::VectorXf y(blockSize);
         y.setZero();
         for (int i = 0; i < numInputs; ++i) {
-            auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
-            std::vector<float> data;
+            auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
             if (connected[i]) {
-                data = *in->getData();
+                const std::vector<float>& data = in->getData();
+                for (int j = 0; j < blockSize; ++j) {
+                    y(j) += data[j] / numInputs;
+                }
             } else {
-                data = std::vector<float>(blockSize, 0.0f);
-            }
-            for (int j = 0; j < blockSize; ++j) {
-                y(j) += data[j] / numInputs;
+                for (int j = 0; j < blockSize; ++j) {
+                    y(j) += 0;
+                }
             }
         }
         std::vector<float> out(blockSize);
@@ -73,7 +76,7 @@ void dibiff::level::Mixer::process() {
 bool dibiff::level::Mixer::isFinished() const {
     bool allFinished = true;
     for (int i = 0; i < numInputs; ++i) {
-        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
         if (!in->isConnected() || !in->isReady() || !in->isFinished()) {
             allFinished = false;
             break;
@@ -88,12 +91,12 @@ bool dibiff::level::Mixer::isFinished() const {
 bool dibiff::level::Mixer::isReadyToProcess() const {
     std::vector<bool> connected(numInputs, false);
     for (int i = 0; i < numInputs; ++i) {
-        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
         connected[i] = in->isConnected();
     }
     bool isReady = true;
     for (int i = 0; i < numInputs; ++i) {
-        auto in = std::dynamic_pointer_cast<dibiff::graph::AudioInput>(_inputs[i]);
+        auto in = static_cast<dibiff::graph::AudioInput*>(_inputs[i].get());
         if (connected[i] && !in->isReady()) {
             isReady = false;
             break;
@@ -105,8 +108,8 @@ bool dibiff::level::Mixer::isReadyToProcess() const {
  * Create a new mixer object
  * @param value The mixer of the object in dB
  */
-std::shared_ptr<dibiff::level::Mixer> dibiff::level::Mixer::create(int numInputs) {
-    auto instance = std::make_shared<dibiff::level::Mixer>(numInputs);
+std::unique_ptr<dibiff::level::Mixer> dibiff::level::Mixer::create(int numInputs) {
+    auto instance = std::make_unique<dibiff::level::Mixer>(numInputs);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

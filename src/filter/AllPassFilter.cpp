@@ -68,8 +68,8 @@ void dibiff::filter::AllPassFilter::setBandwidth(float bandwidth) {
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::AllPassFilter> dibiff::filter::AllPassFilter::create(float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::AllPassFilter>(cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::AllPassFilter> dibiff::filter::AllPassFilter::create(float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::AllPassFilter>(cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

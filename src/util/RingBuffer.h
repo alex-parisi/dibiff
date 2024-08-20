@@ -26,7 +26,7 @@ public:
      * @param data The data to write
      * @param samples The number of samples to write
      */
-    void write(const T* data, std::size_t samples);
+    void write(const std::vector<T> data, std::size_t samples);
 
     /**
      * @brief Read data from the ring buffer
@@ -34,7 +34,7 @@ public:
      * @param samples The number of samples to read
      * @return The actual number of samples read
      */
-    std::size_t read(T* data, std::size_t samples);
+    std::vector<T> read(std::size_t samples);
 
     /**
      * @brief Get the number of samples available in the buffer
@@ -70,7 +70,7 @@ RingBuffer<T>::RingBuffer(std::size_t capacity)
  * @param samples The number of samples to write
  */
 template<typename T>
-void RingBuffer<T>::write(const T* data, std::size_t samples) {
+void RingBuffer<T>::write(const std::vector<T> data, std::size_t samples) {
     std::unique_lock<std::mutex> lock(mtx);
     for (std::size_t i = 0; i < samples; ++i) {
         if (currentSize < maxCapacity) {
@@ -86,21 +86,21 @@ void RingBuffer<T>::write(const T* data, std::size_t samples) {
 }
 /**
  * @brief Read data from the ring buffer
- * @param data The buffer to read into
  * @param samples The number of samples to read
  * @return The actual number of samples read
  */
 template<typename T>
-std::size_t RingBuffer<T>::read(T* data, std::size_t samples) {
+std::vector<T> RingBuffer<T>::read(std::size_t samples) {
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [this]{ return currentSize > 0; });
     std::size_t readCount = 0;
+    std::vector<T> data(samples);
     for (; readCount < samples && currentSize > 0; ++readCount) {
-        data[readCount] = buffer[head];
+        data[readCount] = (buffer[head]);
         head = (head + 1) % maxCapacity;
         --currentSize;
     }
-    return readCount;
+    return data;
 }
 /**
  * @brief Get the number of samples available in the buffer

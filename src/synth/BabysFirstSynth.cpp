@@ -40,41 +40,43 @@ void dibiff::synth::BabysFirstSynth::initialize() {
         envelopes[i]->setName("babys-first-synth-envelope");
     }
     /// Add the objects to the graph
-    objects.push_back(midiInput);
-    objects.push_back(voiceSelector);
+    objects.emplace_back(std::move(midiInput)); // 0
+    objects.emplace_back(std::move(voiceSelector)); // 1
+    objects.emplace_back(std::move(mixer)); // 2
+    objects.emplace_back(std::move(gain)); // 3
+    objects.emplace_back(std::move(tremolo)); // 4
     for (int i = 0; i < params.numVoices; i++) {
-        objects.push_back(sineGenerators[i]);
-        objects.push_back(envelopes[i]);
+        objects.emplace_back(std::move(sineGenerators[i]));
+        objects.emplace_back(std::move(envelopes[i]));
     }
-    objects.push_back(mixer);
-    objects.push_back(gain);
-    objects.push_back(tremolo);
     /// Connect everything
-    dibiff::graph::AudioGraph::connect(midiInput->getOutput(), voiceSelector->getInput());
+    dibiff::graph::AudioGraph::connect(objects[0]->getOutput(), objects[1]->getInput());
+    int j = 0;
     for (int i = 0; i < params.numVoices; i++) {
-        dibiff::graph::AudioGraph::connect(voiceSelector->getOutput(i), sineGenerators[i]->getInput());
-        dibiff::graph::AudioGraph::connect(voiceSelector->getOutput(i), envelopes[i]->getInput(1));
-        dibiff::graph::AudioGraph::connect(sineGenerators[i]->getOutput(), envelopes[i]->getInput());
-        dibiff::graph::AudioGraph::connect(envelopes[i]->getOutput(), mixer->getInput(i));
+        dibiff::graph::AudioGraph::connect(objects[1]->getOutput(i), objects[5 + j]->getInput());
+        dibiff::graph::AudioGraph::connect(objects[1]->getOutput(i), objects[6 + j]->getInput(1));
+        dibiff::graph::AudioGraph::connect(objects[5 + j]->getOutput(), objects[6 + j]->getInput());
+        dibiff::graph::AudioGraph::connect(objects[6 + j]->getOutput(), objects[2]->getInput(i));
+        ++++j;
     }
-    dibiff::graph::AudioGraph::connect(mixer->getOutput(), gain->getInput());
-    dibiff::graph::AudioGraph::connect(gain->getOutput(), tremolo->getInput());
+    dibiff::graph::AudioGraph::connect(objects[2]->getOutput(), objects[3]->getInput());
+    dibiff::graph::AudioGraph::connect(objects[3]->getOutput(), objects[4]->getInput());
 }
 /**
  * @brief Get the input connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynth::getInput(int i) { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+dibiff::graph::AudioConnectionPoint* dibiff::synth::BabysFirstSynth::getInput(int i) { return nullptr; };
 /**
  * @brief Get the output connection point.
  * @return A shared pointer to the output connection point.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynth::getOutput(int i) { return tremolo->getOutput(); }
+dibiff::graph::AudioConnectionPoint* dibiff::synth::BabysFirstSynth::getOutput(int i) { return objects[4]->getOutput(); }
 /**
  * @brief Get the reference connection point.
  * @return Not used.
  */
-std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynth::getReference() { return std::weak_ptr<dibiff::graph::AudioInput>(); };
+dibiff::graph::AudioConnectionPoint* dibiff::synth::BabysFirstSynth::getReference() { return nullptr; };
 /**
  * Create a new sine wave source object
  * @param freq The frequency of the sine wave
@@ -82,8 +84,8 @@ std::weak_ptr<dibiff::graph::AudioConnectionPoint> dibiff::synth::BabysFirstSynt
  * @param samples The total number of samples to generate
  * @param blockSize The block size of the sine wave
  */
-std::shared_ptr<dibiff::synth::BabysFirstSynth> dibiff::synth::BabysFirstSynth::create(dibiff::synth::BabysFirstSynthParameters params) {
-    auto instance = std::make_shared<BabysFirstSynth>(params);
+std::unique_ptr<dibiff::synth::BabysFirstSynth> dibiff::synth::BabysFirstSynth::create(dibiff::synth::BabysFirstSynthParameters params) {
+    auto instance = std::make_unique<BabysFirstSynth>(params);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

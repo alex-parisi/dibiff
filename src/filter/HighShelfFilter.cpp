@@ -83,8 +83,8 @@ void dibiff::filter::HighShelfFilter::setBandwidth(float bandwidth) {
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::HighShelfFilter> dibiff::filter::HighShelfFilter::create(float& gain, float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::HighShelfFilter>(gain, cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::HighShelfFilter> dibiff::filter::HighShelfFilter::create(float& gain, float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::HighShelfFilter>(gain, cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

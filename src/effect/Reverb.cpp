@@ -22,10 +22,12 @@ dibiff::effect::Reverb::Reverb(float& decayTime, float& roomSize, float& sampleR
  * @details Initializes the reverb connection points and delay buffers
  */
 void dibiff::effect::Reverb::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "ReverbInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "ReverbOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "ReverbInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "ReverbOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     // Initialize delay buffers
     int delayLength;
     for (int i = 0; i < numDelays; ++i) {
@@ -69,8 +71,8 @@ void dibiff::effect::Reverb::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> audioData = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& audioData = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = audioData[i];
@@ -129,8 +131,8 @@ bool dibiff::effect::Reverb::isReadyToProcess() const {
  * @param sampleRate The sample rate of the input signal
  * @param numDelays The number of delay lines
  */
-std::shared_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel) {
-    auto instance = std::make_shared<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays, wetLevel);
+std::unique_ptr<dibiff::effect::Reverb> dibiff::effect::Reverb::create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel) {
+    auto instance = std::make_unique<dibiff::effect::Reverb>(decayTime, roomSize, sampleRate, numDelays, wetLevel);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

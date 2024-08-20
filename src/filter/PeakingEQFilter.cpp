@@ -80,8 +80,8 @@ void dibiff::filter::PeakingEQFilter::setBandwidth(float bandwidth) {
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::PeakingEQFilter> dibiff::filter::PeakingEQFilter::create(float& gain, float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::PeakingEQFilter>(gain, cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::PeakingEQFilter> dibiff::filter::PeakingEQFilter::create(float& gain, float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::PeakingEQFilter>(gain, cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

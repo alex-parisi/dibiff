@@ -17,8 +17,8 @@
  */
 class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the chorus object with a certain modulation depth
@@ -72,7 +72,7 @@ class dibiff::effect::Chorus : public dibiff::graph::AudioObject {
          * @param sampleRate The sample rate of the input signal
          * @param wetLevel The wet level of the chorus
          */
-        static std::shared_ptr<Chorus> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel);
+        static std::unique_ptr<Chorus> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& wetLevel);
     private:
         float& modulationDepth;
         float& modulationRate;

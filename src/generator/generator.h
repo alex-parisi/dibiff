@@ -43,7 +43,7 @@ class dibiff::generator::Generator : public dibiff::graph::AudioObject {
          * @brief Processes a MIDI message
          * @param message The MIDI message to process
          */
-        void processMidiMessage(std::vector<unsigned char> message) {
+        void processMidiMessage(const std::vector<unsigned char>& message) {
             if (message.empty()) return;
 
             unsigned char status = message[0];

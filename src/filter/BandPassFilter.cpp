@@ -68,10 +68,10 @@ void dibiff::filter::BandPassFilterConstantSkirtGain::setBandwidth(float bandwid
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter::BandPassFilterConstantSkirtGain::create(float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::BandPassFilterConstantSkirtGain>(cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::BandPassFilterConstantSkirtGain> dibiff::filter::BandPassFilterConstantSkirtGain::create(float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::BandPassFilterConstantSkirtGain>(cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 
 /**
@@ -140,8 +140,8 @@ void dibiff::filter::BandPassFilterConstantPeakGain::setBandwidth(float bandwidt
  * @param sampleRate The sample rate of the input signal
  * @param qFactor The quality factor of the filter
  */
-std::shared_ptr<dibiff::filter::BandPassFilterConstantPeakGain> dibiff::filter::BandPassFilterConstantPeakGain::create(float& cutoff, float& sampleRate, float& qFactor) {
-    auto instance = std::make_shared<dibiff::filter::BandPassFilterConstantPeakGain>(cutoff, sampleRate, qFactor);
+std::unique_ptr<dibiff::filter::BandPassFilterConstantPeakGain> dibiff::filter::BandPassFilterConstantPeakGain::create(float& cutoff, float& sampleRate, float& qFactor) {
+    auto instance = std::make_unique<dibiff::filter::BandPassFilterConstantPeakGain>(cutoff, sampleRate, qFactor);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

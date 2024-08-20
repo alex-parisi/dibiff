@@ -14,15 +14,15 @@ int main() {
     dibiff::graph::AudioGraph graph;
 
     // Create MIDI Input
-    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize));
+    auto midiInput = graph.add(dibiff::midi::MidiInput::create(blockSize).get());
     midiInput->setName("midi-input");
 
     // Create Sine Generator
-    auto sineGenerator = graph.add(dibiff::generator::SineGenerator::create(blockSize, sampleRate));
+    auto sineGenerator = graph.add(dibiff::generator::SineGenerator::create(blockSize, sampleRate).get());
     sineGenerator->setName("sine-generator");
 
     // Create AudioPlayer
-    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(1, sampleRate, blockSize));
+    auto audioPlayer = graph.add(dibiff::sink::GraphSink::create(1, sampleRate, blockSize).get());
     audioPlayer->setName("audio-player");
 
     // Connect everything
@@ -40,7 +40,7 @@ int main() {
 
     // Start MIDI event generation in a separate thread
     std::thread midiThread([&midiInput, blockSize]() {
-        auto mi = std::dynamic_pointer_cast<dibiff::midi::MidiInput>(midiInput);
+        auto mi = dynamic_cast<dibiff::midi::MidiInput*>(midiInput);
         while (true) {
             // Simulate generating a MIDI message (example: Note On)
             std::vector<unsigned char> midiMessage = {0x90, 0x40, 0x7F}; // Note On, middle C, velocity 127
@@ -54,7 +54,7 @@ int main() {
 
     // Start the audio data reading thread
     std::thread readThread([&audioPlayer]() {
-        auto ap = std::dynamic_pointer_cast<dibiff::sink::GraphSink>(audioPlayer);
+        auto ap = dynamic_cast<dibiff::sink::GraphSink*>(audioPlayer);
         std::vector<float> buffer(ap->blockSize);
 
         // Duration of each frame in microseconds

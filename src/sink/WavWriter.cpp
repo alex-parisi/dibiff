@@ -18,8 +18,9 @@ dibiff::sink::WavWriter::WavWriter(const std::string& filename, int rate)
  * @details Initializes the WAV sink connection points and opens the WAV file
  */
 void dibiff::sink::WavWriter::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(shared_from_this(), "WavWriterInput");
-    _inputs.push_back(input);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "WavWriterInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
     file.open(filename, std::ios::binary);
     if (file.is_open()) {
         writeHeader();
@@ -44,11 +45,11 @@ void dibiff::sink::WavWriter::process() {
         /// Don't do anything if the input is not connected
         markProcessed();
     } else if (input->isReady()) {
-        auto audioData = input->getData();
-        int blockSize = input->getBlockSize();
+        const auto& audioData = input->getData();
+        const int blockSize = input->getBlockSize();
         /// Also write the audioData to the .wav file
         for (int i = 0; i < blockSize; ++i) {
-            int16_t intSample = static_cast<int16_t>((*audioData)[i] * 32767);
+            int16_t intSample = static_cast<int16_t>((audioData)[i] * 32767);
             file.write(reinterpret_cast<const char*>(&intSample), sizeof(int16_t));
             writtenSamples++;
         }
@@ -88,10 +89,10 @@ void dibiff::sink::WavWriter::finalizeHeader() {
  * @param filename The filename of the WAV file
  * @param rate The sample rate of the WAV file
  */
-std::shared_ptr<dibiff::sink::WavWriter> dibiff::sink::WavWriter::create(const std::string& filename, int rate) {
-    auto instance = std::make_shared<dibiff::sink::WavWriter>(filename, rate);
+std::unique_ptr<dibiff::sink::WavWriter> dibiff::sink::WavWriter::create(const std::string& filename, int rate) {
+    auto instance = std::make_unique<dibiff::sink::WavWriter>(filename, rate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 /**
  * @brief Write the WAV header

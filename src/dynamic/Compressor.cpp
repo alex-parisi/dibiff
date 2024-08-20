@@ -25,10 +25,12 @@ dibiff::dynamic::Compressor::Compressor(float& threshold, float& sampleRate, flo
  * @details Initializes the compressor connection points and makeup gain
  */
 void dibiff::dynamic::Compressor::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "CompressorInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "CompressorOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "CompressorInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "CompressorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     /// If makeupGain is not specified, calculate it:
     if (!makeupGain) {
         _makeupGain = 0.0f - calculateStaticCharacteristic(0.0f);
@@ -62,14 +64,14 @@ float dibiff::dynamic::Compressor::process(float sample) {
 void dibiff::dynamic::Compressor::process() {
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         std::vector<float> out(inBlockSize, 0.0f);
         output->setData(out, inBlockSize);
     } else if (input->isReady()) {
         /// If connected and ready, process the data
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -163,8 +165,8 @@ bool dibiff::dynamic::Compressor::isReadyToProcess() const {
  * @param makeupGain The makeup gain of the compressor in dB, default value is calculated
  * @param kneeWidth The knee width of the compressor in dB, default value is calculated
  */
-std::shared_ptr<dibiff::dynamic::Compressor> dibiff::dynamic::Compressor::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth) {
-    auto instance = std::make_shared<dibiff::dynamic::Compressor>(threshold, sampleRate, attack, release, ratio, makeupGain, kneeWidth);
+std::unique_ptr<dibiff::dynamic::Compressor> dibiff::dynamic::Compressor::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> makeupGain, std::optional<std::reference_wrapper<float>> kneeWidth) {
+    auto instance = std::make_unique<dibiff::dynamic::Compressor>(threshold, sampleRate, attack, release, ratio, makeupGain, kneeWidth);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

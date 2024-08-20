@@ -34,13 +34,13 @@ struct dibiff::synth::BabysFirstSynthParameters {
  * @brief Baby's First Synth
  */
 class dibiff::synth::BabysFirstSynth : public dibiff::graph::AudioCompositeObject {
-    std::shared_ptr<dibiff::graph::AudioObject> midiInput;
-    std::shared_ptr<dibiff::midi::VoiceSelector> voiceSelector;
-    std::vector<std::shared_ptr<dibiff::generator::SineGenerator>> sineGenerators;
-    std::vector<std::shared_ptr<dibiff::dynamic::Envelope>> envelopes;
-    std::shared_ptr<dibiff::level::Mixer> mixer;
-    std::shared_ptr<dibiff::level::Gain> gain;
-    std::shared_ptr<dibiff::effect::Tremolo> tremolo;
+    std::unique_ptr<dibiff::graph::AudioObject> midiInput;
+    std::unique_ptr<dibiff::midi::VoiceSelector> voiceSelector;
+    std::vector<std::unique_ptr<dibiff::generator::SineGenerator>> sineGenerators;
+    std::vector<std::unique_ptr<dibiff::dynamic::Envelope>> envelopes;
+    std::unique_ptr<dibiff::level::Mixer> mixer;
+    std::unique_ptr<dibiff::level::Gain> gain;
+    std::unique_ptr<dibiff::effect::Tremolo> tremolo;
     public:
         /**
          * @brief Get the name of the object
@@ -61,22 +61,22 @@ class dibiff::synth::BabysFirstSynth : public dibiff::graph::AudioCompositeObjec
          * @brief Get the input connection point.
          * @return Not used.
          */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getInput(int i = 0) override;
+        dibiff::graph::AudioConnectionPoint* getInput(int i = 0) override;
         /**
          * @brief Get the output connection point.
          * @return A shared pointer to the output connection point.
          */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getOutput(int i = 0) override;
+        dibiff::graph::AudioConnectionPoint* getOutput(int i = 0) override;
         /**
          * @brief Get the reference connection point.
          * @return Not used.
          */
-        std::weak_ptr<dibiff::graph::AudioConnectionPoint> getReference() override;
+        dibiff::graph::AudioConnectionPoint* getReference() override;
         /**
          * Create a new Baby's First Synth object
          * @param params The parameters for Baby's First Synth
          */
-        static std::shared_ptr<BabysFirstSynth> create(dibiff::synth::BabysFirstSynthParameters params);
+        static std::unique_ptr<BabysFirstSynth> create(dibiff::synth::BabysFirstSynthParameters params);
     private:
         dibiff::synth::BabysFirstSynthParameters params;
 };

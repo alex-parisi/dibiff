@@ -20,10 +20,12 @@ dibiff::effect::Vibrato::Vibrato(float& modulationDepth, float& modulationRate, 
  * @details Initializes the vibrato connection points and buffer
  */
 void dibiff::effect::Vibrato::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "VibratoInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "VibratoOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "VibratoInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "VibratoOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     maxDelaySamples = static_cast<int>(modulationDepth * sampleRate / 1000.0f);
     buffer.resize(maxDelaySamples, 0.0f);
 }
@@ -61,8 +63,8 @@ void dibiff::effect::Vibrato::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -115,8 +117,8 @@ bool dibiff::effect::Vibrato::isReadyToProcess() const {
  * @param modulationRate The modulation rate of the vibrato in Hz
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::effect::Vibrato> dibiff::effect::Vibrato::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
-    auto instance = std::make_shared<dibiff::effect::Vibrato>(modulationDepth, modulationRate, sampleRate);
+std::unique_ptr<dibiff::effect::Vibrato> dibiff::effect::Vibrato::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
+    auto instance = std::make_unique<dibiff::effect::Vibrato>(modulationDepth, modulationRate, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

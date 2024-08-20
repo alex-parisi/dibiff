@@ -23,10 +23,12 @@ dibiff::generator::SquareGenerator::SquareGenerator(int blockSize, int sampleRat
  * @details Initializes the square wave source connection points
  */
 void dibiff::generator::SquareGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "SquareGeneratorMidiInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "SquareGeneratorOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "SquareGeneratorMidiInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "SquareGeneratorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Generate a block of samples
@@ -40,7 +42,7 @@ void dibiff::generator::SquareGenerator::process() {
     // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
-        auto midiData = *input->getData();
+        const auto& midiData = input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
@@ -106,10 +108,10 @@ bool dibiff::generator::SquareGenerator::isFinished() const {
  * @param frequency The frequency of the square wave, used if the MIDI input is not connected
  * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples) {
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, totalSamples);
+std::unique_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, int totalSamples) {
+    auto instance = std::make_unique<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 /**
  * Create a new square wave source object
@@ -119,9 +121,9 @@ std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGen
  * @param frequency The frequency of the square wave, used if the MIDI input is not connected
  * @param duration The length of time to generate samples
  */
-std::shared_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration) {
+std::unique_ptr<dibiff::generator::SquareGenerator> dibiff::generator::SquareGenerator::create(int blockSize, int sampleRate, float dutyCycle, float frequency, std::chrono::duration<int> duration) {
     int samples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, samples);
+    auto instance = std::make_unique<dibiff::generator::SquareGenerator>(blockSize, sampleRate, dutyCycle, frequency, samples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

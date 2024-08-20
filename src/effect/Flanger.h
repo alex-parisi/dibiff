@@ -17,8 +17,8 @@
  */
 class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the flanger object with a certain modulation depth
@@ -74,7 +74,7 @@ class dibiff::effect::Flanger : public dibiff::graph::AudioObject {
          * @param feedback The feedback amount of the flanger effect
          * @param wetLevel The wet level of the flanger
          */
-        static std::shared_ptr<Flanger> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& feedback, float& wetLevel);
+        static std::unique_ptr<Flanger> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& feedback, float& wetLevel);
     private:
         float& modulationDepth;
         float& modulationRate;

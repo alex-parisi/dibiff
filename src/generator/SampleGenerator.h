@@ -8,8 +8,8 @@
 
 class dibiff::generator::SampleGenerator : public dibiff::generator::Generator {
     public:
-        std::shared_ptr<dibiff::graph::MidiInput> input;
-        std::vector<std::shared_ptr<dibiff::graph::AudioOutput>> outputs;
+        dibiff::graph::MidiInput* input;
+        std::vector<dibiff::graph::AudioOutput*> outputs;
         SampleGenerator(std::string filename, int blockSize, int sampleRate);
         void initialize() override;
         void process() override;
@@ -17,7 +17,7 @@ class dibiff::generator::SampleGenerator : public dibiff::generator::Generator {
         void clear() override {}
         bool isReadyToProcess() const override;
         bool isFinished() const override;
-        static std::shared_ptr<SampleGenerator> create(std::string filename, int blockSize, int sampleRate);
+        static std::unique_ptr<SampleGenerator> create(std::string filename, int blockSize, int sampleRate);
     private:
         std::string filename;
         int blockSize;

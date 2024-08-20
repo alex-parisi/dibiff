@@ -17,7 +17,7 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
     size_t writtenSamples;
     std::string filename;
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
+        dibiff::graph::AudioInput* input;
         /**
          * @brief Constructor
          * @details Initializes the WAV sink with a certain filename, sample rate,
@@ -71,7 +71,7 @@ class dibiff::sink::WavWriter : public dibiff::graph::AudioObject {
          * @param filename The filename of the WAV file
          * @param rate The sample rate of the WAV file
          */
-        static std::shared_ptr<WavWriter> create(const std::string& filename, int rate);
+        static std::unique_ptr<WavWriter> create(const std::string& filename, int rate);
     private:
         /**
          * @brief Write the WAV header

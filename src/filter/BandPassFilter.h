@@ -58,7 +58,7 @@ class dibiff::filter::BandPassFilterConstantSkirtGain : public dibiff::filter::D
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<BandPassFilterConstantSkirtGain> create(float& cutoff, float& sampleRate, float& qFactor);
+        static std::unique_ptr<BandPassFilterConstantSkirtGain> create(float& cutoff, float& sampleRate, float& qFactor);
     private:
         float& _cutoff;
         float& _sampleRate;
@@ -118,7 +118,7 @@ class dibiff::filter::BandPassFilterConstantPeakGain : public dibiff::filter::Di
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<BandPassFilterConstantPeakGain> create(float& cutoff, float& sampleRate, float& qFactor);
+        static std::unique_ptr<BandPassFilterConstantPeakGain> create(float& cutoff, float& sampleRate, float& qFactor);
     private:
         float& _cutoff;
         float& _sampleRate;

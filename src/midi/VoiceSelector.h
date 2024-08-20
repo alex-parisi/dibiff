@@ -20,7 +20,7 @@ class dibiff::midi::Voice {
 
 class dibiff::midi::VoiceSelector : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::MidiInput> input;
+        dibiff::graph::MidiInput* input;
         std::vector<dibiff::midi::Voice> voices;
         VoiceSelector(int blockSize, int numVoices = 3);
         void initialize() override;
@@ -29,7 +29,7 @@ class dibiff::midi::VoiceSelector : public dibiff::graph::AudioObject {
         void clear() override {}
         bool isReadyToProcess() const override;
         bool isFinished() const override;
-        static std::shared_ptr<VoiceSelector> create(int blockSize, int numVoices = 3);
+        static std::unique_ptr<VoiceSelector> create(int blockSize, int numVoices = 3);
     private:
         int blockSize;
         int numVoices;

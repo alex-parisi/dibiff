@@ -20,8 +20,8 @@
  */
 class dibiff::gate::ExpanderGate : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the expander gate object with a certain threshold,
@@ -80,7 +80,7 @@ class dibiff::gate::ExpanderGate : public dibiff::graph::AudioObject {
          * @param releaseTime The release time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<ExpanderGate> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
+        static std::unique_ptr<ExpanderGate> create(float& threshold, float& ratio, float& attackTime, float& releaseTime, float& sampleRate);
     private:
         float& _threshold;
         float& _ratio;

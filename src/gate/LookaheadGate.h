@@ -18,8 +18,8 @@
  */
 class dibiff::gate::LookaheadGate : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the lookahead gate object with a certain threshold,
@@ -77,7 +77,7 @@ class dibiff::gate::LookaheadGate : public dibiff::graph::AudioObject {
          * @param lookaheadTime The lookahead time in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<LookaheadGate> create(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate);
+        static std::unique_ptr<LookaheadGate> create(float& threshold, float& attackTime, float& releaseTime, float& lookaheadTime, float& sampleRate);
     private:
         float& _threshold;
         float& _attackTime;

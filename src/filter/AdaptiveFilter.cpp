@@ -20,12 +20,15 @@ dibiff::filter::AdaptiveFilter::AdaptiveFilter(int& filterLength, float& stepSiz
  * @details Initializes the adaptive filter connection points
  */
 void dibiff::filter::AdaptiveFilter::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AdaptiveFilterInput"));
-    _inputs.push_back(input);
-    reference = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "AdaptiveFilterReference"));
-    _inputs.push_back(reference);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "AdaptiveFilterOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "AdaptiveFilterInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto r = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "AdaptiveFilterReference"));
+    _inputs.emplace_back(std::move(r));
+    reference = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "AdaptiveFilterOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Process a sample
@@ -71,20 +74,20 @@ float dibiff::filter::AdaptiveFilter::process(float sample, float reference) {
 void dibiff::filter::AdaptiveFilter::process() {
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         std::vector<float> out(inBlockSize, 0.0f);
         output->setData(out, inBlockSize);
     } else if (!reference->isConnected()) {
         /// If no reference is connected, just pass the input through
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         output->setData(inData, inBlockSize);
     } else if (input->isReady() && reference->isReady()) {
-        std::vector<float> inData = *input->getData();
-        std::vector<float> refData = *reference->getData();
-        int inBlockSize = input->getBlockSize();
-        int refBlockSize = reference->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const std::vector<float>& refData = reference->getData();
+        const int inBlockSize = input->getBlockSize();
+        const int refBlockSize = reference->getBlockSize();
         if (inBlockSize != refBlockSize) {
             throw std::runtime_error("Block sizes do not match");
         }
@@ -143,8 +146,8 @@ bool dibiff::filter::AdaptiveFilter::isReadyToProcess() const {
  * @param filterLength The length of the filter
  * @param stepSize The step size of the filter
  */
-std::shared_ptr<dibiff::filter::AdaptiveFilter> dibiff::filter::AdaptiveFilter::create(int& filterLength, float& stepSize) {
-    auto instance = std::make_shared<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
+std::unique_ptr<dibiff::filter::AdaptiveFilter> dibiff::filter::AdaptiveFilter::create(int& filterLength, float& stepSize) {
+    auto instance = std::make_unique<dibiff::filter::AdaptiveFilter>(filterLength, stepSize);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

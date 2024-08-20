@@ -17,8 +17,8 @@
  */
 class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator {
     public:
-        std::shared_ptr<dibiff::graph::MidiInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::MidiInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the triangle wave source with a certain frequency,
@@ -66,7 +66,7 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
          * @param frequency The frequency of the triangle wave
          * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency = 1000.0f, int totalSamples = -1);
+        static std::unique_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency = 1000.0f, int totalSamples = -1);
         /**
          * Create a new triangle wave source object
          * @param blockSize The block size of the triangle wave
@@ -74,7 +74,7 @@ class dibiff::generator::TriangleGenerator : public dibiff::generator::Generator
          * @param frequency The frequency of the triangle wave
          * @param duration The total duration of samples to generate
          */
-        static std::shared_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration);
+        static std::unique_ptr<TriangleGenerator> create(int blockSize, int sampleRate, float frequency, std::chrono::duration<int> duration);
     private:
         int blockSize;
         int sampleRate;

@@ -22,7 +22,7 @@ class dibiff::source::GraphSource : public dibiff::graph::AudioObject {
         int sampleRate;
         int blockSize;
         int channels;
-        std::vector<std::shared_ptr<RingBuffer<float>>> ringBuffers;
+        std::vector<std::unique_ptr<RingBuffer<float>>> ringBuffers;
 
         /**
          * @brief Constructor
@@ -75,5 +75,5 @@ class dibiff::source::GraphSource : public dibiff::graph::AudioObject {
          * @param rate The sample rate of the audio data
          * @param blockSize The block size of the audio data
          */
-        static std::shared_ptr<GraphSource> create(int channels, int rate, int blockSize);
+        static std::unique_ptr<GraphSource> create(int channels, int rate, int blockSize);
 };

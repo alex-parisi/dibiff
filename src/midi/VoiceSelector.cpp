@@ -22,10 +22,12 @@ dibiff::midi::VoiceSelector::VoiceSelector(int blockSize, int numVoices)
  * @details Create the input and output connection points
  */
 void dibiff::midi::VoiceSelector::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "VoiceSelectorMidiInput"));
-    _inputs.push_back(input);
+    auto i = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "VoiceSelectorMidiInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
     for (int i = 0; i < voices.size(); ++i) {
-        _outputs.push_back(std::make_shared<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(shared_from_this(), "VoiceSelectorMidiOutput" + std::to_string(i))));
+        auto o = std::make_unique<dibiff::graph::MidiOutput>(dibiff::graph::MidiOutput(this, "VoiceSelectorMidiOutput" + std::to_string(i)));
+        _outputs.emplace_back(std::move(o));
     }
 }
 /**
@@ -40,22 +42,22 @@ void dibiff::midi::VoiceSelector::process() {
     if (!input->isConnected()) {
         /// Assign empty MIDI messages to all voices
         for (int i = 0; i < voices.size(); ++i) {
-            auto o = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(_outputs[i]);
+            auto o = static_cast<dibiff::graph::MidiOutput*>(_outputs[i].get());
             std::vector<std::vector<unsigned char>> outputData;
             outputData.push_back(voices[i].midiMessage);
             o->setData(outputData, blockSize);
         }
         markProcessed();
     } else if (input->isConnected()) {
-        std::vector<std::vector<unsigned char>> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<std::vector<unsigned char>>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         /// Process the MIDI message and assign to voices
         for (auto message : data) {
             processMidiMessage(message);
         }
         /// Assign Voice outputs
         for (int i = 0; i < voices.size(); ++i) {
-            auto o = std::dynamic_pointer_cast<dibiff::graph::MidiOutput>(_outputs[i]);
+            auto o = static_cast<dibiff::graph::MidiOutput*>(_outputs[i].get());
             std::vector<std::vector<unsigned char>> outputData;
             outputData.push_back(voices[i].midiMessage);
             o->setData(outputData, blockSize);
@@ -83,10 +85,10 @@ bool dibiff::midi::VoiceSelector::isReadyToProcess() const {
  * @param blockSize The block size of the object
  * @param numVoices The number of voices to create
  */
-std::shared_ptr<dibiff::midi::VoiceSelector> dibiff::midi::VoiceSelector::create(int blockSize, int numVoices) {
-    auto instance = std::make_shared<dibiff::midi::VoiceSelector>(blockSize, numVoices);
+std::unique_ptr<dibiff::midi::VoiceSelector> dibiff::midi::VoiceSelector::create(int blockSize, int numVoices) {
+    auto instance = std::make_unique<dibiff::midi::VoiceSelector>(blockSize, numVoices);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 
 void dibiff::midi::VoiceSelector::processMidiMessage(std::vector<unsigned char> message) {

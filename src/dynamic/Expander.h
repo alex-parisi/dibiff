@@ -21,8 +21,8 @@
  */
 class dibiff::dynamic::Expander : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the expander with default values
@@ -93,7 +93,7 @@ class dibiff::dynamic::Expander : public dibiff::graph::AudioObject {
          * @param ratio The ratio of the expander, default value is 2.0
          * @param kneeWidth The knee width of the expander in dB, default value is calculated
          */
-        static std::shared_ptr<Expander> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
+        static std::unique_ptr<Expander> create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth = std::nullopt);
     private:
         float& threshold;
         float& sampleRate;

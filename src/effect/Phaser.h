@@ -18,8 +18,8 @@
  */
 class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the phaser object with a certain modulation depth
@@ -78,7 +78,7 @@ class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
          * @param mix The mix of the phaser effect, default value is 0.5
          * @param numStages The number of all-pass filter in the phaser, default value is 4
          */
-        static std::shared_ptr<Phaser> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages);
+        static std::unique_ptr<Phaser> create(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages);
     private:
         float& modulationDepth;
         float& modulationRate;
@@ -87,5 +87,5 @@ class dibiff::effect::Phaser : public dibiff::graph::AudioObject {
         float& baseCutoff;
         float& mix;
         int& numStages;
-        std::vector<std::shared_ptr<dibiff::filter::AllPassFilter>> allPassFilters;
+        std::vector<std::unique_ptr<dibiff::filter::AllPassFilter>> allPassFilters;
 };

@@ -18,10 +18,12 @@ dibiff::time::Delay::Delay(float delayTime, float sampleRate)
  * @details Initializes the delay connection points and buffer
  */
 void dibiff::time::Delay::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "DelayInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "DelayOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "DelayInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "DelayOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     buffer.resize(static_cast<int>(delayTime * sampleRate / 1000.0f));
 }
 /**
@@ -46,8 +48,8 @@ void dibiff::time::Delay::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -99,8 +101,8 @@ bool dibiff::time::Delay::isReadyToProcess() const {
  * @param delayTime The delay time of the object in milliseconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::time::Delay> dibiff::time::Delay::create(float delayTime, float sampleRate) {
-    auto instance = std::make_shared<dibiff::time::Delay>(delayTime, sampleRate);
+std::unique_ptr<dibiff::time::Delay> dibiff::time::Delay::create(float delayTime, float sampleRate) {
+    auto instance = std::make_unique<dibiff::time::Delay>(delayTime, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

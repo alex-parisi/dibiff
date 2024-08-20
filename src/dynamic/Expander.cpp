@@ -23,10 +23,12 @@ dibiff::dynamic::Expander::Expander(float& threshold, float& sampleRate, float& 
  * @details Initializes the expander connection points
  */
 void dibiff::dynamic::Expander::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "ExpanderInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "ExpanderOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "ExpanderInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "ExpanderOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Process a sample
@@ -56,8 +58,8 @@ void dibiff::dynamic::Expander::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -150,8 +152,8 @@ bool dibiff::dynamic::Expander::isReadyToProcess() const {
  * @param ratio The ratio of the expander, default value is 2.0
  * @param kneeWidth The knee width of the expander in dB, default value is calculated
  */
-std::shared_ptr<dibiff::dynamic::Expander> dibiff::dynamic::Expander::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth) {
-    auto instance = std::make_shared<dibiff::dynamic::Expander>(threshold, sampleRate, attack, release, ratio, kneeWidth);
+std::unique_ptr<dibiff::dynamic::Expander> dibiff::dynamic::Expander::create(float& threshold, float& sampleRate, float& attack, float& release, float& ratio, std::optional<std::reference_wrapper<float>> kneeWidth) {
+    auto instance = std::make_unique<dibiff::dynamic::Expander>(threshold, sampleRate, attack, release, ratio, kneeWidth);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

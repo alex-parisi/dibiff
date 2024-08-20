@@ -14,8 +14,8 @@
  */
 class dibiff::level::Gain : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the gain object with a certain value
@@ -62,7 +62,7 @@ class dibiff::level::Gain : public dibiff::graph::AudioObject {
          * Create a new gain object
          * @param value The gain of the object in dB
          */
-        static std::shared_ptr<Gain> create(float& value);
+        static std::unique_ptr<Gain> create(float& value);
     private:
         float& _valuedB;
         float _value;

@@ -23,16 +23,18 @@ dibiff::effect::Phaser::Phaser(float& modulationDepth, float& modulationRate, fl
  * @details Initializes the phaser connection points and all-pass filters
  */
 void dibiff::effect::Phaser::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "PhaserInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "PhaserOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "PhaserInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "PhaserOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
     // Initialize all-pass filter
     for (int i = 0; i < numStages; ++i) {
         float initialCutoff = baseCutoff + (i * modulationDepth / numStages);
         float qFactor = 0.7071067811865476f;
         auto apf = dibiff::filter::AllPassFilter::create(initialCutoff, sampleRate, qFactor);
-        allPassFilters.emplace_back(apf);
+        allPassFilters.emplace_back(std::move(apf));
     }
 }
 /**
@@ -72,8 +74,8 @@ void dibiff::effect::Phaser::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -133,8 +135,8 @@ bool dibiff::effect::Phaser::isReadyToProcess() const {
  * @param mix The mix of the phaser effect, default value is 0.5
  * @param numStages The number of all-pass filter in the phaser, default value is 4
  */
-std::shared_ptr<dibiff::effect::Phaser> dibiff::effect::Phaser::create(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages) {
-    auto instance = std::make_shared<dibiff::effect::Phaser>(modulationDepth, modulationRate, sampleRate, baseCutoff, mix, numStages);
+std::unique_ptr<dibiff::effect::Phaser> dibiff::effect::Phaser::create(float& modulationDepth, float& modulationRate, float& sampleRate, float& baseCutoff, float& mix, int& numStages) {
+    auto instance = std::make_unique<dibiff::effect::Phaser>(modulationDepth, modulationRate, sampleRate, baseCutoff, mix, numStages);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

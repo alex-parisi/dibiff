@@ -15,8 +15,8 @@
  */
 class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
     public: 
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the filter with custom coefficients
@@ -76,7 +76,7 @@ class dibiff::filter::DigitalBiquadFilter : public dibiff::graph::AudioObject {
          * @param coeffs A dibiff::Coefficients struct containing the filter coefficients:
          * b0, b1 b2, a0, a1, a2
          */
-        static std::shared_ptr<DigitalBiquadFilter> create(dibiff::filter::Coefficients* coeffs);
+        static std::unique_ptr<DigitalBiquadFilter> create(dibiff::filter::Coefficients* coeffs);
         /**
          * @brief Destructor
          * @details Destroys the filter object

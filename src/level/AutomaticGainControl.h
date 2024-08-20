@@ -18,8 +18,8 @@
  */
 class dibiff::level::AutomaticGainControl : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the AGC with given parameters
@@ -74,7 +74,7 @@ class dibiff::level::AutomaticGainControl : public dibiff::graph::AudioObject {
          * @param release The release time of the AGC in seconds, default value is 0.1
          * @param rmsCoefficient The coefficient for RMS level calculation, default value is 0.999
          */
-        static std::shared_ptr<AutomaticGainControl> create(float& targetLevel, float& sampleRate, float& attack, float& release, float& rmsCoefficient);
+        static std::unique_ptr<AutomaticGainControl> create(float& targetLevel, float& sampleRate, float& attack, float& release, float& rmsCoefficient);
     private:
         float& targetLevel;
         float& sampleRate;

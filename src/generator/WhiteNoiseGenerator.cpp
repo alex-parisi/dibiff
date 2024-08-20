@@ -21,8 +21,9 @@ dibiff::generator::WhiteNoiseGenerator::WhiteNoiseGenerator(int blockSize, int s
  * @details Initializes the white noise source connection points
  */
 void dibiff::generator::WhiteNoiseGenerator::initialize() {
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "WhiteNoiseGeneratorOutput"));
-    _outputs.push_back(output);
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "WhiteNoiseGeneratorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Generate a block of samples
@@ -79,10 +80,10 @@ bool dibiff::generator::WhiteNoiseGenerator::isFinished() const {
  * @param sampleRate The sample rate of the white noise
  * @param totalSamples The total number of samples to generate
  */
-std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, int totalSamples) {
-    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
+std::unique_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, int totalSamples) {
+    auto instance = std::make_unique<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 /**
  * Create a new white noise source object
@@ -90,9 +91,9 @@ std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::White
  * @param sampleRate The sample rate of the white noise
  * @param duration The total duration of samples to generate
  */
-std::shared_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, std::chrono::duration<int> duration) {
+std::unique_ptr<dibiff::generator::WhiteNoiseGenerator> dibiff::generator::WhiteNoiseGenerator::create(int blockSize, int sampleRate, std::chrono::duration<int> duration) {
     int totalSamples = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() * sampleRate / 1000.0f);
-    auto instance = std::make_shared<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
+    auto instance = std::make_unique<dibiff::generator::WhiteNoiseGenerator>(blockSize, sampleRate, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

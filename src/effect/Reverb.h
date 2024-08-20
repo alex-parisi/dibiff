@@ -17,8 +17,8 @@
  */
 class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the reverb object with a certain decay time
@@ -74,7 +74,7 @@ class dibiff::effect::Reverb : public dibiff::graph::AudioObject {
          * @param numDelays The number of delay lines
          * @param wetLevel The wet level of the reverb
          */
-        static std::shared_ptr<Reverb> create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel);
+        static std::unique_ptr<Reverb> create(float& decayTime, float& roomSize, float& sampleRate, int& numDelays, float& wetLevel);
     private:
         float& decayTime;
         float& roomSize;

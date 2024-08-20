@@ -14,7 +14,7 @@
  */
 class dibiff::level::Mixer : public dibiff::graph::AudioObject {
     public:
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the mixer object with a certain value
@@ -54,7 +54,7 @@ class dibiff::level::Mixer : public dibiff::graph::AudioObject {
          * Create a new mixer object
          * @param value The mixer of the object in dB
          */
-        static std::shared_ptr<Mixer> create(int numInputs = 1);
+        static std::unique_ptr<Mixer> create(int numInputs = 1);
     private:
         int numInputs;
 };

@@ -14,8 +14,8 @@
  * @return A delay object
  */
 class dibiff::time::Delay : public dibiff::graph::AudioObject {
-    std::shared_ptr<dibiff::graph::AudioInput> input;
-    std::shared_ptr<dibiff::graph::AudioOutput> output;
+    dibiff::graph::AudioInput* input;
+    dibiff::graph::AudioOutput* output;
     public:
         /**
          * @brief Constructor
@@ -65,7 +65,7 @@ class dibiff::time::Delay : public dibiff::graph::AudioObject {
          * @param delayTime The delay time of the object in milliseconds
          * @param sampleRate The sample rate of the input signal
          */
-        static std::shared_ptr<Delay> create(float delayTime, float sampleRate);
+        static std::unique_ptr<Delay> create(float delayTime, float sampleRate);
     private:
         float delayTime;
         float sampleRate;

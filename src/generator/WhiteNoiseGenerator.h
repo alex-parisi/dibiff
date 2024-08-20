@@ -13,7 +13,7 @@
  */
 class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generator {
     public:
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the white noise source with a certain frequency,
@@ -59,14 +59,14 @@ class dibiff::generator::WhiteNoiseGenerator : public dibiff::generator::Generat
          * @param sampleRate The sample rate of the white noise
          * @param totalSamples The total number of samples to generate
          */
-        static std::shared_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, int totalSamples = -1);
+        static std::unique_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, int totalSamples = -1);
         /**
          * Create a new white noise source object
          * @param blockSize The block size of the white noise
          * @param sampleRate The sample rate of the white noise
          * @param duration The total duration of samples to generate
          */
-        static std::shared_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, std::chrono::duration<int> duration);
+        static std::unique_ptr<WhiteNoiseGenerator> create(int blockSize, int sampleRate, std::chrono::duration<int> duration);
     private:
         int blockSize;
         int sampleRate;

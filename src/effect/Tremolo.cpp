@@ -20,10 +20,12 @@ dibiff::effect::Tremolo::Tremolo(float& modulationDepth, float& modulationRate, 
  * @details Initializes the tremolo connection points
  */
 void dibiff::effect::Tremolo::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "TremoloInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "TremoloOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "TremoloInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "TremoloOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 /**
  * @brief Process a sample
@@ -54,8 +56,8 @@ void dibiff::effect::Tremolo::process() {
         output->setData(out, input->getBlockSize());
         markProcessed();
     } else if (input->isReady()) {
-        std::vector<float> audioData = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& audioData = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = audioData[i];
@@ -101,8 +103,8 @@ bool dibiff::effect::Tremolo::isReadyToProcess() const {
  * @param modulationRate The modulation rate of the tremolo in Hz
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
-    auto instance = std::make_shared<dibiff::effect::Tremolo>(modulationDepth, modulationRate, sampleRate);
+std::unique_ptr<dibiff::effect::Tremolo> dibiff::effect::Tremolo::create(float& modulationDepth, float& modulationRate, float& sampleRate) {
+    auto instance = std::make_unique<dibiff::effect::Tremolo>(modulationDepth, modulationRate, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

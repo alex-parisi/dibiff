@@ -15,9 +15,9 @@
  */
 class dibiff::filter::AdaptiveFilter : public dibiff::graph::AudioObject {
     public: 
-        std::shared_ptr<dibiff::graph::AudioInput> input;
-        std::shared_ptr<dibiff::graph::AudioInput> reference;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::AudioInput* input;
+        dibiff::graph::AudioInput* reference;
+        dibiff::graph::AudioOutput* output;
         /**
          * @brief Constructor
          * @details Initializes the adaptive filter with the specified length
@@ -68,7 +68,7 @@ class dibiff::filter::AdaptiveFilter : public dibiff::graph::AudioObject {
          * @param filterLength The length of the filter
          * @param stepSize The step size of the filter
          */
-        static std::shared_ptr<AdaptiveFilter> create(int& filterLength, float& stepSize);
+        static std::unique_ptr<AdaptiveFilter> create(int& filterLength, float& stepSize);
     private:
         int& filterLength;
         float& stepSize;

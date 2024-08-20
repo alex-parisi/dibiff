@@ -12,8 +12,8 @@ class dibiff::generator::VariableGenerator : public dibiff::generator::Generator
             Square,
             Triangle,
         };
-        std::shared_ptr<dibiff::graph::MidiInput> input;
-        std::shared_ptr<dibiff::graph::AudioOutput> output;
+        dibiff::graph::MidiInput* input;
+        dibiff::graph::AudioOutput* output;
         VariableGenerator(int blockSize, int sampleRate, float& state, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
         void initialize() override;
         void process() override;
@@ -21,7 +21,7 @@ class dibiff::generator::VariableGenerator : public dibiff::generator::Generator
         void clear() override {}
         bool isReadyToProcess() const override;
         bool isFinished() const override;
-        static std::shared_ptr<VariableGenerator> create(int blockSize, float sampleRate, float& state, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
+        static std::unique_ptr<VariableGenerator> create(int blockSize, float sampleRate, float& state, float dutyCycle = 0.5f, float frequency = 1000.0f, int totalSamples = -1);
         void generateSine(float freq);
         void generateSquare(float freq);
         void generateTriangle(float freq);

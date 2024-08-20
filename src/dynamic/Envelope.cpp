@@ -31,12 +31,16 @@ dibiff::dynamic::Envelope::Envelope(float& attackTime, float& decayTime, float& 
  * @details Initializes the envelope connection points and parameters
  */
 void dibiff::dynamic::Envelope::initialize() {
-    input = std::make_shared<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(shared_from_this(), "EnvelopeInput"));
-    _inputs.push_back(input);
-    midiInput = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "EnvelopeMidiInput"));
-    _inputs.push_back(midiInput);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "EnvelopeOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::AudioInput>(dibiff::graph::AudioInput(this, "EnvelopeInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::AudioInput*>(_inputs.back().get());
+    auto mi = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "EnvelopeMidiInput"));
+    _inputs.emplace_back(std::move(mi));
+    midiInput = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "EnvelopeOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
+
     attackIncrement = 1.0f / (attackTime * sampleRate);
     decayIncrement = (1.0f - sustainLevel) / (decayTime * sampleRate);
     releaseIncrement = sustainLevel / (releaseTime * sampleRate);
@@ -88,7 +92,7 @@ void dibiff::dynamic::Envelope::process() {
     decayIncrement = (1.0f - sustainLevel) / (decayTime * sampleRate);
     releaseIncrement = sustainLevel / (releaseTime * sampleRate);
     if (midiInput->isConnected()) {
-        auto midiData = *midiInput->getData();
+        auto& midiData = midiInput->getData();
         int noteOnOff = 0;
         for (const auto& message : midiData) {
             noteOnOff += hasNoteOnNoteOff(message);
@@ -101,13 +105,13 @@ void dibiff::dynamic::Envelope::process() {
     }
     if (!input->isConnected()) {
         /// If no input is connected, just dump zeros into the output
-        std::vector<float> inData = *input->getData();
-        int inBlockSize = input->getBlockSize();
+        const std::vector<float>& inData = input->getData();
+        const int inBlockSize = input->getBlockSize();
         std::vector<float> out(inBlockSize, 0.0f);
         output->setData(out, inBlockSize);
     } else if (input->isReady()) {
-        std::vector<float> data = *input->getData();
-        int blockSize = input->getBlockSize();
+        const std::vector<float>& data = input->getData();
+        const int blockSize = input->getBlockSize();
         Eigen::VectorXf x(blockSize), y(blockSize);
         for (int i = 0; i < blockSize; ++i) {
             x(i) = data[i];
@@ -190,14 +194,15 @@ bool dibiff::dynamic::Envelope::isReadyToProcess() const {
  * @param releaseTime The release time in seconds
  * @param sampleRate The sample rate of the input signal
  */
-std::shared_ptr<dibiff::dynamic::Envelope> dibiff::dynamic::Envelope::create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate) {
-    auto instance = std::make_shared<dibiff::dynamic::Envelope>(attackTime, decayTime, sustainLevel, releaseTime, sampleRate);
+std::unique_ptr<dibiff::dynamic::Envelope> dibiff::dynamic::Envelope::create(float& attackTime, float& decayTime, float& sustainLevel, float& releaseTime, float& sampleRate) {
+    auto instance = std::make_unique<dibiff::dynamic::Envelope>(attackTime, decayTime, sustainLevel, releaseTime, sampleRate);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }
 
-int dibiff::dynamic::Envelope::hasNoteOnNoteOff(std::vector<unsigned char> message) {
+int dibiff::dynamic::Envelope::hasNoteOnNoteOff(const std::vector<unsigned char> &message) {
     if (message.empty()) return 0;
+    if (message.size() < 3) return 0;
 
     unsigned char status = message[0];
     unsigned char type = status & 0xF0;

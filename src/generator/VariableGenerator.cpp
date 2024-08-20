@@ -10,10 +10,12 @@ dibiff::generator::VariableGenerator::VariableGenerator(int blockSize, int sampl
 }
 
 void dibiff::generator::VariableGenerator::initialize() {
-    input = std::make_shared<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(shared_from_this(), "VariableGeneratorMidiInput"));
-    _inputs.push_back(input);
-    output = std::make_shared<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(shared_from_this(), "VariableGeneratorOutput"));
-    _outputs.push_back(output);
+    auto i = std::make_unique<dibiff::graph::MidiInput>(dibiff::graph::MidiInput(this, "VariableGeneratorMidiInput"));
+    _inputs.emplace_back(std::move(i));
+    input = static_cast<dibiff::graph::MidiInput*>(_inputs.back().get());
+    auto o = std::make_unique<dibiff::graph::AudioOutput>(dibiff::graph::AudioOutput(this, "VariableGeneratorOutput"));
+    _outputs.emplace_back(std::move(o));
+    output = static_cast<dibiff::graph::AudioOutput*>(_outputs.back().get());
 }
 
 void dibiff::generator::VariableGenerator::process() {
@@ -24,7 +26,7 @@ void dibiff::generator::VariableGenerator::process() {
     // If the MIDI input is connected, process the MIDI messages to set the frequency
     float freq = frequency;
     if (input->isConnected()) {
-        auto midiData = *input->getData();
+        const auto& midiData = input->getData();
         for (const auto& message : midiData) {
             processMidiMessage(message);
         }
@@ -143,8 +145,8 @@ bool dibiff::generator::VariableGenerator::isFinished() const {
     return currentSample >= totalSamples;
 }
 
-std::shared_ptr<dibiff::generator::VariableGenerator> dibiff::generator::VariableGenerator::create(int blockSize, float sampleRate, float& state, float dutyCycle, float frequency, int totalSamples) {
-    auto instance = std::make_shared<dibiff::generator::VariableGenerator>(blockSize, sampleRate, state, dutyCycle, frequency, totalSamples);
+std::unique_ptr<dibiff::generator::VariableGenerator> dibiff::generator::VariableGenerator::create(int blockSize, float sampleRate, float& state, float dutyCycle, float frequency, int totalSamples) {
+    auto instance = std::make_unique<dibiff::generator::VariableGenerator>(blockSize, sampleRate, state, dutyCycle, frequency, totalSamples);
     instance->initialize();
-    return instance;
+    return std::move(instance);
 }

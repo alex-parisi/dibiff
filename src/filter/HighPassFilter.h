@@ -58,7 +58,7 @@ class dibiff::filter::HighPassFilter : public dibiff::filter::DigitalBiquadFilte
          * @param sampleRate The sample rate of the input signal
          * @param qFactor The quality factor of the filter
          */
-        static std::shared_ptr<HighPassFilter> create(float& cutoff, float& sampleRate, float& qFactor);
+        static std::unique_ptr<HighPassFilter> create(float& cutoff, float& sampleRate, float& qFactor);
     private:
         float& _cutoff;
         float& _sampleRate;
